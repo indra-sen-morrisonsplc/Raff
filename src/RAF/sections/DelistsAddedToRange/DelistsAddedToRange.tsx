@@ -3391,14 +3391,22 @@ function DelistsAddedToRange(props: any) {
   const applyClearDepot = () => {
     if (clearDepotSelected && clearDepotSelected != '') {
       selectedProductListItems.map((rowData: any) => {
-        setImportedData((prevState: any) => {
-          return onChangeProductTableFields(
-            prevState,
-            'clearDepotBy',
-            rowData,
-            clearDepotSelected
-          )
-        })
+        if (
+          rowData.actionType === delistProductMin ||
+          rowData.actionType === productDistributionDecreaseMin ||
+          rowData.actionType === productShelfSpaceDecrease ||
+          rowData.actionType === delistIngredientMin ||
+          rowData.actionType === supplyChange
+        ) {
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'clearDepotBy',
+              rowData,
+              clearDepotSelected
+            )
+          })
+        }
       })
       handleClearDepotBulkActionDialogClose()
     }
@@ -3495,14 +3503,22 @@ function DelistsAddedToRange(props: any) {
   const applyFinalStopOrder = () => {
     if (finalStopOrderSelected && finalStopOrderSelected != '') {
       selectedProductListItems.map((rowData: any) => {
-        setImportedData((prevState: any) => {
-          return onChangeProductTableFields(
-            prevState,
-            'finalStopOrderDate',
-            rowData,
-            finalStopOrderSelected
-          )
-        })
+        if (
+          rowData.actionType === delistProductMin ||
+          rowData.actionType === productDistributionDecreaseMin ||
+          rowData.actionType === productShelfSpaceDecrease ||
+          rowData.actionType === delistIngredientMin ||
+          rowData.actionType === supplyChange
+        ) {
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'finalStopOrderDate',
+              rowData,
+              finalStopOrderSelected
+            )
+          })
+        }
       })
       handleFinalStopOrderBulkActionDialogClose()
     }
@@ -3580,10 +3596,14 @@ function DelistsAddedToRange(props: any) {
   )
 
   const handleBulkActionDelete = () => {
-    let draftData = selectedProductListItems.filter(
-      (data: any) => data.lineStatus === bulkActionTypes.draftAction
+    // let draftData = selectedProductListItems.filter(
+    //   (data: any) => data.lineStatus === bulkActionTypes.draftAction
+    // )
+    let _tasks = importedData.filter(
+      (value: any) =>
+        value.lineStatus === bulkActionTypes.draftAction &&
+        !selectedProductListItems.includes(value)
     )
-    let _tasks = importedData.filter((value: any) => !draftData.includes(value))
     console.log(_tasks)
     setImportedData(_tasks)
     setSelectedProductListItems([])
@@ -3676,27 +3696,43 @@ function DelistsAddedToRange(props: any) {
         bulkActions.value === bulkActionTypes.excludeFromMarkdownAction
       ) {
         selectedProductListItems.map((rowData: any) => {
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'includeInClearancePricing',
-              rowData,
-              'N'
-            )
-          })
+          if (
+            rowData.actionType === delistProductMin ||
+            rowData.actionType === productDistributionDecreaseMin ||
+            rowData.actionType === productShelfSpaceDecrease ||
+            rowData.actionType === delistIngredientMin ||
+            rowData.actionType === supplyChange
+          ) {
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'includeInClearancePricing',
+                rowData,
+                'N'
+              )
+            })
+          }
         })
       } else if (
         bulkActions.value === bulkActionTypes.includeInMarkdownAction
       ) {
         selectedProductListItems.map((rowData: any) => {
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'includeInClearancePricing',
-              rowData,
-              'Y'
-            )
-          })
+          if (
+            rowData.actionType === delistProductMin ||
+            rowData.actionType === productDistributionDecreaseMin ||
+            rowData.actionType === productShelfSpaceDecrease ||
+            rowData.actionType === delistIngredientMin ||
+            rowData.actionType === supplyChange
+          ) {
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'includeInClearancePricing',
+                rowData,
+                'Y'
+              )
+            })
+          }
         })
       } else if (bulkActions.value === bulkActionTypes.downloadAction) {
         setIsProgressLoader(true)
