@@ -1052,7 +1052,13 @@ function DelistsAddedToRange(props: any) {
   }
 
   const localTemplate = (rowData: any) => {
-    if (rowData && rowData.actionType === placeholderMin) {
+    if (
+      rowData &&
+      (rowData.actionType === placeholderMin ||
+        rowData.actionType === delistOutercaseCode ||
+        rowData.actionType === newOutercaseCode ||
+        rowData.actionType === supplyChange)
+    ) {
       return <>NA</>
     } else {
       if (rowData && rowData.local !== '') {
@@ -1998,8 +2004,17 @@ function DelistsAddedToRange(props: any) {
     }
   }
   const totalstockTemplate = (rowData: any) => {
-    if (rowData && rowData.actionType === placeholderMin) {
+    if (
+      rowData &&
+      (rowData.actionType === placeholderMin ||
+        rowData.actionType === supplyChange)
+    ) {
       return <>NA</>
+    } else if (
+      rowData.actionType === newOutercaseCode ||
+      rowData.actionType === newIngredientMin
+    ) {
+      return <></>
     } else {
       return <>{rowData.storeStockUnit}</>
     }
@@ -2010,6 +2025,50 @@ function DelistsAddedToRange(props: any) {
       return <>NA</>
     } else {
       return <>{rowData.ownBrand}</>
+    }
+  }
+
+  const forcastedWeeksCovertoResetDateTemplate = (rowData: any) => {
+    if (
+      rowData &&
+      (rowData.actionType === placeholderMin ||
+        rowData.actionType === delistOutercaseCode ||
+        rowData.actionType === newOutercaseCode ||
+        rowData.actionType === supplyChange)
+    ) {
+      return <>NA</>
+    } else {
+      return <>{rowData.forcastedWeeksCovertoResetDate}</>
+    }
+  }
+
+  const safewaybrandedequivalentTemplate = (rowData: any) => {
+    if (
+      rowData &&
+      (rowData.actionType === delistOutercaseCode ||
+        rowData.actionType === newOutercaseCode ||
+        rowData.actionType === supplyChange)
+    ) {
+      return <>NA</>
+    } else if (rowData.actionType === placeholderMin) {
+      return <></>
+    } else {
+      return <>{rowData.safewaybrandedequivalent}</>
+    }
+  }
+
+  const shelfLifeatManufactureTemplate = (rowData: any) => {
+    if (rowData && rowData.actionType === supplyChange) {
+      return <>NA</>
+    } else if (
+      rowData.actionType === placeholderMin ||
+      rowData.actionType === newIngredientMin ||
+      rowData.actionType === newProductMin ||
+      rowData.actionType === newOutercaseCode
+    ) {
+      return <></>
+    } else {
+      return <>{rowData.safewaybrandedequivalent}</>
     }
   }
 
@@ -7830,7 +7889,8 @@ function DelistsAddedToRange(props: any) {
               // rows={10}
               // alwaysShowPaginator={false}
               // editMode="cell"
-              selectionMode="checkbox"
+              selectionMode="multiple"
+              metaKeySelection={false}
               selection={selectedProductListItems}
               onSelectionChange={(e: any) => {
                 // setSelectedProductListItems(e.value)
@@ -7840,7 +7900,7 @@ function DelistsAddedToRange(props: any) {
               }}
               showGridlines
               scrollable
-              //rowHover
+              rowHover
             >
               <Column
                 selectionMode="multiple"
@@ -7956,7 +8016,13 @@ function DelistsAddedToRange(props: any) {
                       (col.field === 'storeStockUnit' &&
                         storeStockUnitTemplate) ||
                       (col.field === 'totalstock' && totalstockTemplate) ||
-                      (col.field === 'ownBrand' && ownBrandTemplate)
+                      (col.field === 'ownBrand' && ownBrandTemplate) ||
+                      (col.field === 'forcastedWeeksCovertoResetDate' &&
+                        forcastedWeeksCovertoResetDateTemplate) ||
+                      (col.field === 'safewaybrandedequivalent' &&
+                        safewaybrandedequivalentTemplate) ||
+                      (col.field === 'shelfLifeatManufacture' &&
+                        shelfLifeatManufactureTemplate)
                     }
                     // style={{
                     //   width: col.width,
