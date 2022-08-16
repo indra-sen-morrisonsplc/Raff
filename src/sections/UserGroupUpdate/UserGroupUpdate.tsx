@@ -27,7 +27,7 @@ import {
 } from '../UserGroupCreate/DataConstants'
 import config from '../../config/Config'
 import {
-  getProductHierarchyAPI,
+  // getProductHierarchyAPI,
   putUserGroupAPI,
   getAllUsersWithGroupAPI,
   getProductHierarchyListAPI,

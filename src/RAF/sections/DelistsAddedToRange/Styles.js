@@ -137,6 +137,13 @@ export const useStyles = makeStyles((theme) => {
       cursor: 'pointer',
       // fontSize: '18px',
     },
+    tableLinksTwo: {
+      border: 0,
+      color: 'blue',
+      backgroundColor: 'inherit',
+      // cursor: 'pointer',
+      // fontSize: '18px',
+    },
     placeholderDialog: {
       [theme.breakpoints.up('xs')]: {
         'max-width': '45%',

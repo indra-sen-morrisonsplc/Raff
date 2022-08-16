@@ -664,24 +664,48 @@ export const massActions = [
     label: 'Cancel',
   },
   {
-    value: 'Clear Depot By',
-    label: 'Clear Depot By',
+    value: 'Clear Depot By: Week-1',
+    label: 'Clear Depot By: Week-1',
   },
   {
-    value: 'Final Stop Order Date',
-    label: 'Final Stop Order Date',
+    value: 'Clear Depot By: Week-2',
+    label: 'Clear Depot By: Week-2',
   },
   {
-    value: 'Exclude From Markdown Pricing',
-    label: 'Exclude From Markdown Pricing',
+    value: 'Clear Depot By: Week-3',
+    label: 'Clear Depot By: Week-3',
   },
   {
-    value: 'Include In Markdown Pricing',
-    label: 'Include In Markdown Pricing',
+    value: 'Clear Depot By: Week-4',
+    label: 'Clear Depot By: Week-4',
   },
   {
-    value: 'Download',
-    label: 'Download',
+    value: 'Clear Depot By: Week-5',
+    label: 'Clear Depot By: Week-5',
+  },
+  {
+    value: 'Clear Depot By: Week-6',
+    label: 'Clear Depot By: Week-6',
+  },
+  {
+    value: 'Clear Depot By: Week-7',
+    label: 'Clear Depot By: Week-7',
+  },
+  {
+    value: 'Clear Depot By: Week-8',
+    label: 'Clear Depot By: Week-8',
+  },
+  {
+    value: 'EXCLUDE FROM',
+    label: 'EXCLUDE FROM',
+  },
+  {
+    value: 'MARKDOWN PRICING',
+    label: 'MARKDOWN PRICING',
+  },
+  {
+    value: 'INCLUDE IN',
+    label: 'INCLUDE IN',
   },
 ]
 
@@ -693,12 +717,12 @@ export const placeholderCols = [
   },
   {
     field: 'description',
-    header: 'Description',
+    header: 'Description *',
     width: '200px',
   },
   {
     field: 'ownBrand',
-    header: 'Own Brand',
+    header: 'Own Brand *',
     width: '100px',
   },
   {
@@ -806,6 +830,20 @@ export const lineStatusOptions = [
     label: 'Cancelled',
   },
 ]
+
+export const bulkActionTypes = {
+  confirmedAction: 'Confirmed',
+  deleteAction: 'Delete',
+  clearDepotAction: 'Clear Depot By',
+  finalStopOrderAction: 'Final Stop Order Date',
+  deleteAction: 'Delete',
+  draftAction: 'Draft',
+  stockCountRequestAction: 'Stock Count Requested',
+  cancelAction: 'Cancel',
+  excludeFromMarkdownAction: 'Exclude from Mark Down Pricing',
+  includeInMarkdownAction: 'Include in Mark Down Pricing',
+  downloadAction: 'Download',
+}
 
 export const supplierCode_Supplier = {
   StatusCode: '200',
@@ -2006,6 +2044,40 @@ export const ct36TableCols = [
   },
 ]
 
+export const clearDepotByOptions = [
+  {
+    value: 'Week-1',
+    label: 'Week - 1',
+  },
+  {
+    value: 'Week-2',
+    label: 'Week - 2',
+  },
+  {
+    value: 'Week-3',
+    label: 'Week - 3',
+  },
+  {
+    value: 'Week-4',
+    label: 'Week - 4',
+  },
+  {
+    value: 'Week-5',
+    label: 'Week - 5',
+  },
+  {
+    value: 'Week-6',
+    label: 'Week - 6',
+  },
+  {
+    value: 'Week-7',
+    label: 'Week - 7',
+  },
+  {
+    value: 'Week-8',
+    label: 'Week - 8',
+  },
+]
 // const delistProductMin = "Delist Product (MIN)";
 // const productDistributionIncreaseMin =
 //   "Product Distribution Increase (MIN)";
@@ -2094,52 +2166,3 @@ export const actionTypeListHovers = {
 //delistIngredientMin add-done upload-done
 //supplyChange add-no upload-done
 //placeholderMin add-done upload-done
-
-export const bulkActionTypes = {
-  confirmedAction: 'Confirmed',
-  deleteAction: 'Delete',
-  clearDepotAction: 'Clear Depot By',
-  finalStopOrderAction: 'Final Stop Order Date',
-  deleteAction: 'Delete',
-  draftAction: 'Draft',
-  stockCountRequestAction: 'Stock Count Requested',
-  cancelAction: 'Cancel',
-  excludeFromMarkdownAction: 'Exclude from Mark Down Pricing',
-  includeInMarkdownAction: 'Include in Mark Down Pricing',
-  downloadAction: 'Download',
-}
-
-export const clearDepotByOptions = [
-  {
-    value: 'Week-1',
-    label: 'Week - 1',
-  },
-  {
-    value: 'Week-2',
-    label: 'Week - 2',
-  },
-  {
-    value: 'Week-3',
-    label: 'Week - 3',
-  },
-  {
-    value: 'Week-4',
-    label: 'Week - 4',
-  },
-  {
-    value: 'Week-5',
-    label: 'Week - 5',
-  },
-  {
-    value: 'Week-6',
-    label: 'Week - 6',
-  },
-  {
-    value: 'Week-7',
-    label: 'Week - 7',
-  },
-  {
-    value: 'Week-8',
-    label: 'Week - 8',
-  },
-]

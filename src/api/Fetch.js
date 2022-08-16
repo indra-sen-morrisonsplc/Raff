@@ -1,12 +1,7 @@
 import axios from 'axios'
 import config from '../config/Config'
 //import depotTable from "../serviceJson/depoTable.json";
-import {
-  serviceRequest,
-  serviceRequestBasic,
-  serviceRequestForProduct,
-  serviceRequestForFileUpload,
-} from './ServiceRequest'
+import { serviceRequest, serviceRequestForFileUpload } from './ServiceRequest'
 const {
   BASE_URL,
   BASE_URL_SIT,
@@ -329,6 +324,7 @@ export const getUserGroupAPI = () => {
   const url = `${BASE_URL}${GET_USER_GROUPS_ALL}`
   const params = 'limit=1000'
   return serviceRequest(url, 'GET', undefined, params)
+  // return serviceRequest(url, 'GET', undefined)
 }
 
 export const getUserGroupActiveAPI = () => {
@@ -371,10 +367,6 @@ export const putRejectTaskAPI = (req, businessKey) => {
   url = url.replace('{businessKey}', businessKey)
   let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'PUT', reqBody)
-}
-
-export const getProductHierarchyAPI = (url) => {
-  return serviceRequestForProduct(url, 'GET', undefined)
 }
 
 export const getProductHierarchyListAPI = (nodetype) => {
@@ -420,10 +412,9 @@ export const getAllUsersWithGroupAPI = (groupId) => {
 }
 
 export const getColleagueAPI = (id) => {
-  let url = `${BASE_URL_SIT}${GET_USER_INFO_OTHER}`
+  let url = `${BASE_URL}${GET_USER_INFO_OTHER}`
   url = url.replace('{userId}', id)
-  return serviceRequestBasic(url, 'GET', undefined)
-  // return serviceRequest(url, 'GET', undefined)
+  return serviceRequest(url, 'GET', undefined)
 }
 
 export const getTasklistsAllAPI = (userId) => {

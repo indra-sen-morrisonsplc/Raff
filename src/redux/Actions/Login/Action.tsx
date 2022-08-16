@@ -233,6 +233,7 @@ export const getAppsArray = (userdetails: Array<any>) => (dispatch: any) => {
       } else {
         dispatch(
           getAppsError(`appsGetAllServiceUnavailable: ${error.response.status}`)
+          // getAppsError(`appsGetAllServiceUnavailable: 500 error`)
         )
       }
     })

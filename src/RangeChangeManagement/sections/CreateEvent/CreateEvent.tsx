@@ -808,8 +808,10 @@ function CreateEvent(props: any) {
         setRafDueDateError1(value.appDueDateError)
         if (value.hasOwnProperty('appDueDate')) {
           if (value.appDueDate) {
-            const date = new Date(value.appDueDate)
-            setRafDueDate(date.toISOString().split('T')[0])
+            // const date = new Date(value.appDueDate)
+            // setRafDueDate(date.toISOString().split('T')[0])
+            const date = value.appDueDate.split(' ')[0]
+            setRafDueDate(date)
           }
         } else {
           setRafDueDate(null)
@@ -817,8 +819,10 @@ function CreateEvent(props: any) {
       } else {
         console.log(value.appDueDate)
         if (value.appDueDate) {
-          const date = new Date(value.appDueDate)
-          setRafDueDate(date.toISOString().split('T')[0])
+          // const date = new Date(value.appDueDate)
+          // setRafDueDate(date.toISOString().split('T')[0])
+          const date = value.appDueDate.split(' ')[0]
+          setRafDueDate(date)
         }
       }
 
@@ -902,8 +906,10 @@ function CreateEvent(props: any) {
         setLaunchError1(value.targetDateError)
         if (value.hasOwnProperty('targetDate')) {
           if (value.targetDate) {
-            const date = new Date(value.targetDate)
-            setLaunchDate(date.toISOString().split('T')[0])
+            // const date = new Date(value.targetDate)
+            // setLaunchDate(date.toISOString().split('T')[0])
+            const date = value.targetDate.split(' ')[0]
+            setLaunchDate(date)
           }
         } else {
           setLaunchDate(null)
@@ -911,8 +917,10 @@ function CreateEvent(props: any) {
       } else {
         console.log(value.targetDate)
         if (value.targetDate) {
-          const date = new Date(value.targetDate)
-          setLaunchDate(date.toISOString().split('T')[0])
+          // const date = new Date(value.targetDate)
+          // setLaunchDate(date.toISOString().split('T')[0])
+          const date = value.targetDate.split(' ')[0]
+          setLaunchDate(date)
         }
       }
 
