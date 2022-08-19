@@ -55,6 +55,7 @@ const {
   GET_LOCATIONS,
   PATCH_RANGERESET_ITEMS,
   GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
+  DELETE_RAF_ITEMS,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -547,6 +548,8 @@ export const getRangeByRangeResetId = (rangeResetId) => {
   return serviceRequest(url, 'GET', undefined)
 }
 export const getProductServiceByItemnumber = (itemNumber) => {
+  // let base = 'https://sit-api.morrisons.com/'
+  // let url = `${base}${GET_PRODUCT_SERVICE}`
   let url = `${BASE_URL}${GET_PRODUCT_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   // let reqBody = `${JSON.stringify(req)}`
@@ -614,6 +617,13 @@ export const getRangeResetEventsStoreDepot = (
   url = url.replace('{MIN}', minNumber)
   const params = `view=${storeOrDepot}`
   return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const deleteRafItems = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${DELETE_RAF_ITEMS}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{MIN}', minNumber)
+  return serviceRequest(url, 'DELETE', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

@@ -101,6 +101,7 @@ import {
   getRangeResetEventsStoreDepot,
   patchRangeResetItems,
   postFileAttachmentRangeResetAPI,
+  deleteRafItems,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -550,6 +551,11 @@ function DelistsAddedToRange(props: any) {
                 ? item.shelfFillCurrent
                 : null,
               newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
+              newShelfFillMultiplied:
+                item.shelfFillNew && item.rangedStoresCurrent
+                  ? parseInt(item.rangedStoresCurrent) *
+                    parseInt(item.shelfFillNew)
+                  : null,
               currentshelffill_vs_newfill_percant: item.shelfFillPercent
                 ? item.shelfFillPercent
                 : null,
@@ -677,8 +683,8 @@ function DelistsAddedToRange(props: any) {
               // rangedStoresCurrent: item.rangedStoresCurrent,
               groupCategoryDepartment: `${
                 eventDetails && eventDetails[0].tradeGroup
-              }, ${eventDetails && eventDetails[0].category}, ${
-                eventDetails && eventDetails[0].department
+              }, ${eventDetails ? eventDetails[0].category : ''}, ${
+                eventDetails ? eventDetails[0].department : ''
               }`,
             }
           })
@@ -702,9 +708,7 @@ function DelistsAddedToRange(props: any) {
       if (
         rafpendingActionDetailsCT06 &&
         eventDetails &&
-        eventDetails[0].tradeGroup &&
-        eventDetails[0].category &&
-        eventDetails[0].department
+        eventDetails[0].tradeGroup
       ) {
         getRangeResetEventsStoreDepot(
           rafpendingActionDetailsCT06.eventId,
@@ -806,6 +810,11 @@ function DelistsAddedToRange(props: any) {
                     ? item.shelfFillCurrent
                     : null,
                   newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
+                  newShelfFillMultiplied:
+                    item.shelfFillNew && item.rangedStoresCurrent
+                      ? parseInt(item.rangedStoresCurrent) *
+                        parseInt(item.shelfFillNew)
+                      : null,
                   currentshelffill_vs_newfill_percant: item.shelfFillPercent
                     ? item.shelfFillPercent
                     : null,
@@ -933,8 +942,8 @@ function DelistsAddedToRange(props: any) {
                   // rangedStoresCurrent: item.rangedStoresCurrent,
                   groupCategoryDepartment: `${
                     eventDetails && eventDetails[0].tradeGroup
-                  }, ${eventDetails && eventDetails[0].category}, ${
-                    eventDetails && eventDetails[0].department
+                  }, ${eventDetails ? eventDetails[0].category : ''}, ${
+                    eventDetails ? eventDetails[0].department : ''
                   }`,
                 }
               })
@@ -3775,7 +3784,13 @@ function DelistsAddedToRange(props: any) {
     let draftData = selectedProductListItems.filter(
       (data: any) => data.lineStatus === bulkActionTypes.draftAction
     )
+    let rangeResetId = eventDetails && eventDetails[0].id
     console.log('selected imported', selectedProductListItems)
+    draftData.map((item: any) => {
+      deleteRafItems(rangeResetId, item.min).then((res: any) => {
+        console.log(res.data)
+      })
+    })
     let _tasks = importedData.filter(
       (value: any) =>
         // value.lineStatus === bulkActionTypes.draftAction &&
@@ -8327,8 +8342,8 @@ function DelistsAddedToRange(props: any) {
                         (col.field === 'lastPoDate' && lastPoDateTemplate) ||
                         (col.field === 'numberOfRangeStores' &&
                           newNoOfRangeStoresTemplate) ||
-                        (col.field === 'newShelfFill' &&
-                          newShelfFillImportedTemplate) ||
+                        // (col.field === 'newShelfFill' &&
+                        //   newShelfFillImportedTemplate) ||
                         (col.field === 'depotStockUnit' &&
                           depotStockTemplate) ||
                         (col.field === 'depotClearbyReservedQtyRetail' &&
@@ -8458,7 +8473,7 @@ function DelistsAddedToRange(props: any) {
           storeCode: '',
           ownBrand: 'Y',
           // barcode: i === 0 ? '5010228012933' : '501022801293' + i,
-          barcode: '',
+          barcode: null,
           packquantity: '',
           local: 'Y',
           onlineCFC: 'Y',
@@ -8769,11 +8784,9 @@ function DelistsAddedToRange(props: any) {
     //
 
     let requests = placeholderProducts.map((row: any) => {
-      // if (row.barcode !== '') {
       return getProductServiceByItemnumber(row.barcode).then((res: any) => {
         return res
       })
-      // }
     })
     Promise.allSettled(requests).then((responses: any) => {
       // responses.forEach((response: any) => {
@@ -8788,9 +8801,7 @@ function DelistsAddedToRange(props: any) {
       setIsProgressLoader(false)
       if (fullFilled.length > 0) {
         setPlaceholderErrorDisplay(fullFilled)
-      }
-
-      if (fullFilled.length === 0) {
+      } else if (fullFilled.length === 0) {
         handlePlaceholderDialogClose()
         setPlaceholderErrorDisplay([])
         setPlaceholderCount('')
@@ -8863,6 +8874,8 @@ function DelistsAddedToRange(props: any) {
           const data1 = xlsx.utils.sheet_to_json(ws, { header: 1 })
           const cols: any = data1[0]
 
+          console.log('placeholder cols', data, cols)
+
           const json = JSON.parse(
             JSON.stringify(data).replace(/"\s+|\s+"/g, '"')
           )
@@ -8888,10 +8901,15 @@ function DelistsAddedToRange(props: any) {
           //   }
           // })
 
+          console.log('cols2,', result)
+
           const validate = result.filter((val: any) => {
             return (
-              val.hasOwnProperty('Description') &&
-              val.hasOwnProperty('OwnBrand')
+              val.hasOwnProperty('MINPINDescription') &&
+              val.hasOwnProperty('OWNBrand')
+              // &&
+              // val.hasOwnProperty('ActionType') &&
+              // val.ActionType === placeholderMin
             )
           })
 
@@ -8902,9 +8920,9 @@ function DelistsAddedToRange(props: any) {
             return {
               _idCheck: rand,
               actionType: placeholderMin,
-              description: d.Description ? d.Description : '',
-              ownBrand: d.OwnBrand ? d.OwnBrand : '',
-              barcode: d.BarCode ? d.BarCode : '',
+              description: d.MINPINDescription ? d.MINPINDescription : '',
+              ownBrand: d.OWNBrand ? d.OWNBrand : '',
+              barcode: d.BarCode ? d.BarCode : null,
               existingSupplier: d.SupplierCode ? d.SupplierCode : '', // supplier site field
               existingSupplierSite: d.SupplierSiteCode
                 ? d.SupplierSiteCode
@@ -9273,14 +9291,25 @@ function DelistsAddedToRange(props: any) {
         value={rowData && rowData.barcode}
         onChange={(e) => {
           if (e.target.value !== null) {
-            setPlaceholderProducts((prevState: any) => {
-              return onChangeProductTableFields(
-                prevState,
-                'barcode',
-                rowData,
-                e.target.value
-              )
-            })
+            if (e.target.value === '') {
+              setPlaceholderProducts((prevState: any) => {
+                return onChangeProductTableFields(
+                  prevState,
+                  'barcode',
+                  rowData,
+                  null
+                )
+              })
+            } else {
+              setPlaceholderProducts((prevState: any) => {
+                return onChangeProductTableFields(
+                  prevState,
+                  'barcode',
+                  rowData,
+                  e.target.value
+                )
+              })
+            }
           }
           // barcodetemplateCheck(rowData, e.target.value)
         }}
@@ -11641,7 +11670,11 @@ function DelistsAddedToRange(props: any) {
                     rafpendingActionDetailsCT06.taskName.toLowerCase() !==
                       'ct36'
                       ? () => setCompleteConfirm(true)
-                      : handleCompleteTaskDialogOpen
+                      : // :
+                        // rafpendingActionDetailsCT06.taskName.toLowerCase() !==
+                        // 'ct36'
+                        // ? handleCT19ConfirmOpen
+                        handleCompleteTaskDialogOpen
                   }
                   // disabled={
                   //   rafpendingActionDetailsCT06 &&

@@ -437,7 +437,8 @@ export const productListCols = [
     width: '200px',
   },
   {
-    field: 'newShelfFill',
+    // field: 'newShelfFill',
+    field: 'newShelfFillMultiplied',
     header: 'New Shelf Fill (Units)',
     width: '200px',
   },
