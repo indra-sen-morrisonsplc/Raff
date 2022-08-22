@@ -474,6 +474,19 @@ function DelistsAddedToRange(props: any) {
             var minVal = 1000000000000
             var max = 9999999999999
             var rand = Math.floor(minVal + Math.random() * (max - minVal))
+            var shelfFillVal =
+              item.shelfFillNew && item.rangedStoresCurrent
+                ? parseInt(item.rangedStoresCurrent) *
+                  parseInt(item.shelfFillNew)
+                : null
+            var currentVsNewShelf =
+              item.shelfFillCurrent && shelfFillVal
+                ? Math.abs(item.shelfFillCurrent - shelfFillVal)
+                : null
+            var currentVsNewShelfPercent =
+              item.shelfFillCurrent && currentVsNewShelf
+                ? (currentVsNewShelf / item.shelfFillCurrent) * 100
+                : null
             return {
               _idCheck: rand,
               actionType: item.type,
@@ -552,15 +565,13 @@ function DelistsAddedToRange(props: any) {
                 ? item.shelfFillCurrent
                 : null,
               newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
-              newShelfFillMultiplied:
-                item.shelfFillNew && item.rangedStoresCurrent
-                  ? parseInt(item.rangedStoresCurrent) *
-                    parseInt(item.shelfFillNew)
-                  : null,
+              newShelfFillMultiplied: shelfFillVal,
               currentshelffill_vs_newfill_percant: item.shelfFillPercent
                 ? item.shelfFillPercent
                 : null,
+              currentVsNewShelfFillPercent: currentVsNewShelfPercent,
               currentshelffill_vs_newfill: item.currentVsNewShelfFill,
+              currentVsNewShelfFill: currentVsNewShelf,
               ownBrand: item.ownBrand ? item.ownBrand : null,
               includeInClearancePricing: item.clearancePricing
                 ? item.clearancePricing
@@ -732,6 +743,19 @@ function DelistsAddedToRange(props: any) {
                 var minVal = 1000000000000
                 var max = 9999999999999
                 var rand = Math.floor(minVal + Math.random() * (max - minVal))
+                var shelfFillVal =
+                  item.shelfFillNew && item.rangedStoresCurrent
+                    ? parseInt(item.rangedStoresCurrent) *
+                      parseInt(item.shelfFillNew)
+                    : null
+                var currentVsNewShelf =
+                  item.shelfFillCurrent && shelfFillVal
+                    ? Math.abs(item.shelfFillCurrent - shelfFillVal)
+                    : null
+                var currentVsNewShelfPercent =
+                  item.shelfFillCurrent && currentVsNewShelf
+                    ? (currentVsNewShelf / item.shelfFillCurrent) * 100
+                    : null
                 return {
                   _idCheck: rand,
                   actionType: item.type,
@@ -818,15 +842,13 @@ function DelistsAddedToRange(props: any) {
                     ? item.shelfFillCurrent
                     : null,
                   newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
-                  newShelfFillMultiplied:
-                    item.shelfFillNew && item.rangedStoresCurrent
-                      ? parseInt(item.rangedStoresCurrent) *
-                        parseInt(item.shelfFillNew)
-                      : null,
+                  newShelfFillMultiplied: shelfFillVal,
                   currentshelffill_vs_newfill_percant: item.shelfFillPercent
                     ? item.shelfFillPercent
                     : null,
+                  currentVsNewShelfFillPercent: currentVsNewShelfPercent,
                   currentshelffill_vs_newfill: item.currentVsNewShelfFill,
+                  currentVsNewShelfFill: currentVsNewShelf,
                   ownBrand: item.ownBrand ? item.ownBrand : null,
                   includeInClearancePricing: item.clearancePricing
                     ? item.clearancePricing

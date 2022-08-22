@@ -438,17 +438,19 @@ export const productListCols = [
   },
   {
     // field: 'newShelfFill',
-    field:'newShelfFillMultiplied',
+    field: 'newShelfFillMultiplied',
     header: 'New Shelf Fill (Units)',
     width: '200px',
   },
   {
-    field: 'currentshelffill_vs_newfill',
+    // field: 'currentshelffill_vs_newfill',
+    field: 'currentVsNewShelfFill',
     header: 'Current Shelf Fill Vs New Fill',
     width: '200px',
   },
   {
-    field: 'currentshelffill_vs_newfill_percant',
+    // field: 'currentshelffill_vs_newfill_percant',
+    field: 'currentVsNewShelfFillPercent',
     header: 'Current Shelf Fill Vs New Fill %',
     width: '200px',
   },
