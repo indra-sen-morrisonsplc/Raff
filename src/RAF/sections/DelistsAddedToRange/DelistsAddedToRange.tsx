@@ -101,7 +101,6 @@ import {
   getRangeResetEventsStoreDepot,
   patchRangeResetItems,
   postFileAttachmentRangeResetAPI,
-  deleteRafItems,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -293,6 +292,7 @@ function DelistsAddedToRange(props: any) {
     useState<any>(null)
   const [deleteBulkActionOpen, setDeleteBulkActionOpen] = useState<any>(false)
   const [cancelBulkActionOpen, setCancelBulkActionOpen] = useState<any>(false)
+  const [viewTemplateName, setViewTemplateName] = useState<any>('')
 
   let taskName = 'CT36'
 
@@ -597,8 +597,8 @@ function DelistsAddedToRange(props: any) {
                   ? item.totalDepotStock + item.totalStoreStock
                   : item.totalDepotStock
                   ? item.totalDepotStock
-                  : item.totalDepotStock
-                  ? item.totalDepotStock
+                  : item.totalStoreStock
+                  ? item.totalStoreStock
                   : '', //nokey
               storeStockUnit: item.totalStoreStock
                 ? item.totalStoreStock
@@ -683,8 +683,14 @@ function DelistsAddedToRange(props: any) {
               // rangedStoresCurrent: item.rangedStoresCurrent,
               groupCategoryDepartment: `${
                 eventDetails && eventDetails[0].tradeGroup
-              }, ${eventDetails ? eventDetails[0].category : ''}, ${
-                eventDetails ? eventDetails[0].department : ''
+              }, ${
+                eventDetails && eventDetails[0].category
+                  ? eventDetails[0].category
+                  : ''
+              }, ${
+                eventDetails && eventDetails[0].department
+                  ? eventDetails[0].department
+                  : ''
               }`,
             }
           })
@@ -697,6 +703,7 @@ function DelistsAddedToRange(props: any) {
       })
       .catch((err: any) => {
         console.log(err)
+        setImportedData(null)
       })
   }
 
@@ -858,8 +865,8 @@ function DelistsAddedToRange(props: any) {
                       ? item.totalDepotStock + item.totalStoreStock
                       : item.totalDepotStock
                       ? item.totalDepotStock
-                      : item.totalDepotStock
-                      ? item.totalDepotStock
+                      : item.totalStoreStock
+                      ? item.totalStoreStock
                       : '',
                   storeStockUnit: item.totalStoreStock
                     ? item.totalStoreStock
@@ -940,10 +947,14 @@ function DelistsAddedToRange(props: any) {
                   // systemAdvisedStopOrderDate: 'NA',
                   // derangedLocations: item.derangedLocations,
                   // rangedStoresCurrent: item.rangedStoresCurrent,
-                  groupCategoryDepartment: `${
-                    eventDetails && eventDetails[0].tradeGroup
-                  }, ${eventDetails ? eventDetails[0].category : ''}, ${
-                    eventDetails ? eventDetails[0].department : ''
+                  groupCategoryDepartment: `${eventDetails[0].tradeGroup}, ${
+                    eventDetails && eventDetails[0].category
+                      ? eventDetails[0].category
+                      : ''
+                  }, ${
+                    eventDetails && eventDetails[0].department
+                      ? eventDetails[0].department
+                      : ''
                   }`,
                 }
               })
@@ -1440,7 +1451,9 @@ function DelistsAddedToRange(props: any) {
     // } else
     if (
       rowData.actionType === placeholderMin ||
-      rowData.actionType === supplyChange
+      rowData.actionType === supplyChange ||
+      rowData.actionType === newOutercaseCode ||
+      rowData.actionType === delistOutercaseCode
     ) {
       return <>NA</>
     } else {
@@ -1461,7 +1474,9 @@ function DelistsAddedToRange(props: any) {
     // }
     if (
       rowData.actionType === placeholderMin ||
-      rowData.actionType === supplyChange
+      rowData.actionType === supplyChange ||
+      rowData.actionType === newOutercaseCode ||
+      rowData.actionType === delistOutercaseCode
     ) {
       return <>NA</>
     } else {
@@ -1568,6 +1583,26 @@ function DelistsAddedToRange(props: any) {
     }
   }
 
+  const handleRangeStoresDialogOpen = (rowData: any, view: any) => {
+    setRangedStoresDialogOpen(true)
+    // setRangedStoresData(rowData)
+    // setRangedStoresData(rowData)
+    getStoreDepot(rowData, 'store')
+    setViewTemplateName(view)
+    //setRangedStoresData(storeViewDummyRes.storeView)
+    // getRangeByIdAndMinNumber("rangerestId", "Minnumber")
+    // .then((res:any) => {
+    //   console.log("success view")
+    //   if(res.hasOwnProperty("storeView")){
+    //     setStoreViewApi(res.storeView)
+    //   } else {
+    //     setStoreViewApi([])
+    //   }
+    // }).catch((err:any) => {
+    //   console.log("error store view")
+    // })
+  }
+
   const currentshelffill_vs_newfillTemplate = (rowData: any) => {
     if (
       rowData &&
@@ -1579,7 +1614,15 @@ function DelistsAddedToRange(props: any) {
       if (rowData.currentshelffill_vs_newfill) {
         return (
           <>
-            <div className={classes.tableLinksTwo}>
+            <div
+              className={classes.tableLinks}
+              onClick={() =>
+                handleRangeStoresDialogOpen(
+                  rowData,
+                  'Current Shelf Fill Vs New Fill'
+                )
+              }
+            >
               {rowData && rowData.currentshelffill_vs_newfill}
             </div>
           </>
@@ -1635,11 +1678,14 @@ function DelistsAddedToRange(props: any) {
     ) {
       if (rowData.currentShelfFill) {
         return (
-          <>
-            <div className={classes.tableLinksTwo}>
-              {rowData && rowData.currentShelfFill}
-            </div>
-          </>
+          <div
+            className={classes.tableLinks}
+            onClick={() =>
+              handleRangeStoresDialogOpen(rowData, 'Current Shelf Fill (Units)')
+            }
+          >
+            {rowData && rowData.currentShelfFill}
+          </div>
         )
       } else {
         return <></>
@@ -1824,12 +1870,31 @@ function DelistsAddedToRange(props: any) {
     }
   }
 
+  // useEffect(() => {
+  //   const systemDate = new Date().toISOString().split('T')[0]
+  //   const systemDate1 = new Date()
+  //   console.log(systemDate)
+  //   console.log(systemDate1)
+  //   console.log(systemDate1.getMonth() + 1)
+  //   const systemDate2 = `${systemDate1.getDate() + 1}-${
+  //     systemDate1.getMonth() + 1
+  //   }-${systemDate1.getFullYear()}`
+  //   console.log(systemDate2)
+  // })
+
   const effectiveDateFromProductTableTemplate = (rowData: any) => {
     // if (
     //   rowData &&
     //   rowData.hasOwnProperty('effectiveDateFrom') &&
     //   rowData.effectiveDateFrom !== ''
     // ) {
+    const systemDate = new Date()
+    console.log(systemDate.getMonth() + 1)
+    const systemDate1 = `${systemDate.getFullYear()}-${
+      systemDate.getMonth() + 1
+    }-${systemDate.getDate() + 1}`
+    console.log(systemDate1)
+
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
       return (
@@ -1859,6 +1924,12 @@ function DelistsAddedToRange(props: any) {
               // className={classes.dateFields}
             />
           )}
+          maxDate={
+            rafpendingActionDetailsCT06 &&
+            eventDetails &&
+            eventDetails[0].targetDate.split(' ')
+          }
+          minDate={systemDate1}
         />
       )
     } else {
@@ -1912,6 +1983,12 @@ function DelistsAddedToRange(props: any) {
               // className={classes.dateFields}
             />
           )}
+          disabled={rowData && rowData['effectiveDateFrom'] ? false : true}
+          minDate={
+            rowData &&
+            rowData['effectiveDateFrom'] &&
+            rowData['effectiveDateFrom'].split(' ')
+          }
         />
       )
     } else {
@@ -2118,13 +2195,19 @@ function DelistsAddedToRange(props: any) {
     if (rowData && rowData.actionType === placeholderMin) {
       return <>NA</>
     } else {
-      return <>{rowData.storeStockUnit}</>
+      return <>{rowData.totalstock}</>
     }
   }
 
   const ownBrandTemplate = (rowData: any) => {
     if (rowData && rowData.actionType === placeholderMin) {
       return <></>
+    } else if (
+      rowData &&
+      (rowData.actionType === newOutercaseCode ||
+        rowData.actionType === delistOutercaseCode)
+    ) {
+      return <>NA</>
     } else {
       return <>{rowData.ownBrand}</>
     }
@@ -2475,9 +2558,7 @@ function DelistsAddedToRange(props: any) {
               className={classes.tableLinks}
             >
               {rowData.pinArray && rowData.pinArray.length > 0
-                ? rowData.pinArray.map((ar: any) => {
-                    return <>{ar.packNumber}</>
-                  })
+                ? rowData.pinArray[0].packNumber
                 : ''}
             </div>
             // 'NA'
@@ -2520,7 +2601,7 @@ function DelistsAddedToRange(props: any) {
           p: 1,
         }}
       >
-        <DialogHeader title={`PIN View`} onClose={handlePinDialogClose} />
+        <DialogHeader title={` PIN View`} onClose={handlePinDialogClose} />
         <Box
           sx={{
             p: 3,
@@ -2629,24 +2710,6 @@ function DelistsAddedToRange(props: any) {
         })
     )
   }
-  const handleRangeStoresDialogOpen = (rowData: any) => {
-    setRangedStoresDialogOpen(true)
-    // setRangedStoresData(rowData)
-    // setRangedStoresData(rowData)
-    getStoreDepot(rowData, 'store')
-    //setRangedStoresData(storeViewDummyRes.storeView)
-    // getRangeByIdAndMinNumber("rangerestId", "Minnumber")
-    // .then((res:any) => {
-    //   console.log("success view")
-    //   if(res.hasOwnProperty("storeView")){
-    //     setStoreViewApi(res.storeView)
-    //   } else {
-    //     setStoreViewApi([])
-    //   }
-    // }).catch((err:any) => {
-    //   console.log("error store view")
-    // })
-  }
 
   useEffect(() => {
     if (selectedProductListItems.length > 0) {
@@ -2675,6 +2738,7 @@ function DelistsAddedToRange(props: any) {
     setRangedStoresData([])
     setStoreViewApi([])
     setStorePopupHeader('')
+    setViewTemplateName('')
   }
 
   const rangeStoresDialog = (
@@ -2702,7 +2766,8 @@ function DelistsAddedToRange(props: any) {
         }}
       >
         <DialogHeader
-          title={`Current No. of Ranged Stores`}
+          // title={`Current No. of Ranged Stores`}
+          title={viewTemplateName && viewTemplateName}
           onClose={handleRangeStoresDialogClose}
         />
         <Box
@@ -2803,7 +2868,12 @@ function DelistsAddedToRange(props: any) {
           //  <Typography color="primary">
           <div
             className={classes.tableLinks}
-            onClick={() => handleRangeStoresDialogOpen(rowData)}
+            onClick={() =>
+              handleRangeStoresDialogOpen(
+                rowData,
+                'Current No. of Ranged Stores'
+              )
+            }
           >
             {rowData.currentnoofrangedstores}
           </div>
@@ -2830,7 +2900,16 @@ function DelistsAddedToRange(props: any) {
         />
       )
     } else {
-      return <>{rowData.numberOfRangeStores}</>
+      return (
+        <div
+          className={classes.tableLinks}
+          onClick={() =>
+            handleRangeStoresDialogOpen(rowData, 'New Number of Ranged Stores')
+          }
+        >
+          {rowData.numberOfRangeStores}
+        </div>
+      )
     }
   }
 
@@ -2870,11 +2949,22 @@ function DelistsAddedToRange(props: any) {
           rowData={rowData}
           setImportedData={setImportedData}
           onChangeProductTableFields={onChangeProductTableFields}
-          field={'newShelfFill'}
+          // field={'newShelfFill'}
+          field={'newShelfFillMultiplied'}
         />
       )
     } else {
-      return <>{rowData.newShelfFill}</>
+      return (
+        <div
+          className={classes.tableLinks}
+          onClick={() =>
+            handleRangeStoresDialogOpen(rowData, 'New Shelf Fill (Units)')
+          }
+        >
+          {/* {rowData.newShelfFill} */}
+          {rowData.newShelfFillMultiplied}
+        </div>
+      )
     }
   }
   const depotClearReservedQtyRetailImportedTemplate = (rowData: any) => {
@@ -2892,6 +2982,10 @@ function DelistsAddedToRange(props: any) {
       return <>{rowData.depotClearbyReservedQtyRetail}</>
     }
   }
+
+  useEffect(() => {
+    console.log(viewTemplateName)
+  }, [viewTemplateName])
   const depotClearReservedQtyWholesaleImportedTemplate = (rowData: any) => {
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -3349,26 +3443,40 @@ function DelistsAddedToRange(props: any) {
             p: 3,
           }}
         ></Box>
-        <Grid container>
-          <Grid item xs={6}>
+        <Grid container style={{ alignItems: 'start' }}>
+          <Grid item xs={4}>
             <div className="gridBorderGreen">
               <p className="headBgGreen">Ranged Stores</p>
               <ul className="childRange">
                 {depotRegLoc &&
-                  depotRegLoc.locations.map((val: any) => (
+                  depotRegLoc.rangeLocations &&
+                  depotRegLoc.rangeLocations.map((val: any) => (
                     <DepotviewButtons locations={val} />
                   ))}
               </ul>
             </div>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <div className="gridBorderGreen">
               <p className="headBgGreen">Stores selected for Derange</p>
               <ul className="childRange">
                 {depotRegLoc &&
-                  depotRegLoc.locations.map((val: any) => (
+                  depotRegLoc.derangeLocations &&
+                  depotRegLoc.derangeLocations.map((val: any) => (
                     <DepotviewButtons locations={val} />
                   ))}
+              </ul>
+            </div>
+          </Grid>
+          <Grid item xs={4}>
+            <div className="gridBorderGreen">
+              <p className="headBgGreen">New Ranged Stores</p>
+              <ul className="childRange">
+                {/* {depotRegLoc &&
+                  depotRegLoc.rangeLocations &&
+                  depotRegLoc.rangeLocations.map((val: any) => (
+                    <DepotviewButtons locations={val} />
+                  ))} */}
               </ul>
             </div>
           </Grid>
@@ -3784,13 +3892,7 @@ function DelistsAddedToRange(props: any) {
     let draftData = selectedProductListItems.filter(
       (data: any) => data.lineStatus === bulkActionTypes.draftAction
     )
-    let rangeResetId = eventDetails && eventDetails[0].id
     console.log('selected imported', selectedProductListItems)
-    draftData.map((item: any) => {
-      deleteRafItems(rangeResetId, item.min).then((res: any) => {
-        console.log(res.data)
-      })
-    })
     let _tasks = importedData.filter(
       (value: any) =>
         // value.lineStatus === bulkActionTypes.draftAction &&
@@ -4200,6 +4302,12 @@ function DelistsAddedToRange(props: any) {
           console.log('trimSpace', result)
 
           result.map((d: any, index: any) => {
+            let storeArray =
+              d.StoreCode && d.StoreCode != ''
+                ? d.StoreCode.split(',').map(function (item: any) {
+                    return item.trim()
+                  })
+                : ''
             if (
               d.ActionType &&
               d.ActionType === delistProductMin &&
@@ -4237,7 +4345,8 @@ function DelistsAddedToRange(props: any) {
                 index + 1,
                 d.Comments, //optional
                 d.NewNumberofRangeStores, //optional
-                d.StoreCode, //optional
+                // d.StoreCode, //optional
+                storeArray,
                 'NA',
                 'NA',
                 'NA',
@@ -4409,7 +4518,8 @@ function DelistsAddedToRange(props: any) {
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, // Mandatory
                 d.NewNumberofStoresRestrictions, // Mandatory // when deploy
-                d.StoreCode, //optional
+                // d.StoreCode, //optional
+                storeArray,
                 'NA',
                 'NA',
                 'NA',
@@ -4430,7 +4540,8 @@ function DelistsAddedToRange(props: any) {
                 index + 1,
                 d.Comments, //optional
                 d.NewNumberofRangeStores, //optional
-                d.StoreCode, //optional
+                // d.StoreCode, //optional
+                storeArray,
                 'NA',
                 'NA',
                 'NA',
@@ -5112,12 +5223,13 @@ function DelistsAddedToRange(props: any) {
       type === 'Product Distribution Increase (MIN)'
     ) {
       // formData.storeCode = storecodeNewMin ? storecodeNewMin.join(',') : ''
-      formData.storeCode =
-        typeof storecodeNewMin === 'string'
-          ? storecodeNewMin
-          : storecodeNewMin
-          ? storecodeNewMin.join(',')
-          : ''
+      // formData.storeCode =
+      //   typeof storecodeNewMin === 'string'
+      //     ? storecodeNewMin
+      //     : storecodeNewMin
+      //     ? storecodeNewMin.join(',')
+      //     : ''
+      formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
       formData.numberOfRangeStores = newnoofrangestoreNewMin
       formData.comments = comments === '' ? comment : comments
     }
@@ -5145,13 +5257,12 @@ function DelistsAddedToRange(props: any) {
         let newData = [...importedData]
         if (minCheck !== -1) {
           updateFlag = 1
-          newData[minCheck].storeCode =
-            storecodeNewMin !== 'NA' ? storecodeNewMin : ''
+          newData[minCheck].storeCode = storecodeNewMin ? storecodeNewMin : ''
           newData[minCheck].newShelfFill = shelfFillNew
           // newData[minCheck]['newAdded'] = true
           setUpdateImported(newData)
         } else {
-          formData.storeCode = storecodeNewMin
+          formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
           formData.actionType = newProductMin
           formData.newShelfFill = shelfFillNew
           // formData.lineStatus = 'Draft'
@@ -5335,6 +5446,7 @@ function DelistsAddedToRange(props: any) {
     ])
       .then((values: any) => {
         console.log('promise1, promise2', 'promise3', values)
+        console.log(eventDetails[0].tradeGroup)
         if (values[0].status === 'rejected') {
           console.log('getProductServiceByItemnumber', 'Item not found')
           setIsProgressLoader(false)
@@ -5347,6 +5459,96 @@ function DelistsAddedToRange(props: any) {
           })
           return
         }
+
+        if (
+          eventDetails &&
+          // eventDetails[0].category &&
+          eventDetails[0].tradeGroup !==
+            values[0].value.data.commercialHierarchy.groupName
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${minValue} Trading Group did'nt match.`,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].categoryId &&
+        //   eventDetails[0].categoryId !==
+        //     values[0].value.data.commercialHierarchy.category
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: `${minValue} Category did'nt match.`,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
+
+        if (
+          eventDetails &&
+          eventDetails[0].departmentId &&
+          eventDetails[0].departmentId !==
+            values[0].value.data.commercialHierarchy.department
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${minValue} Department did'nt match.`,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
+
+        if (
+          (actionType.value === delistProductMin ||
+            actionType.value === productDistributionIncreaseMin ||
+            actionType.value === productDistributionDecreaseMin ||
+            actionType.value === productShelfSpaceIncrease ||
+            actionType.value === productShelfSpaceDecrease ||
+            actionType.value === newProductMin ||
+            actionType.value === newIngredientMin ||
+            actionType.value === delistIngredientMin ||
+            actionType.value === supplyChange ||
+            actionType.value === placeholderMin) &&
+          values[0].value.data.productType !== 'ITEM'
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${minValue} is not a min.`,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
+        if (
+          (actionType.value === newOutercaseCode ||
+            actionType.value === delistOutercaseCode) &&
+          values[0].value.data.productType !== 'PACK'
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: `${minValue} is not a pin.`,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
+
         let values3Supplier = []
         if (values[2].status !== 'rejected') {
           values3Supplier = values[2].value.data.itemSuppliers.filter(
@@ -5446,6 +5648,7 @@ function DelistsAddedToRange(props: any) {
 
     // return
     if (actionType.value === delistProductMin) {
+      handleActionTypeDialogClose()
       if (min !== '') {
         console.log('hello')
         getAndCheckItemNumber([
@@ -5464,7 +5667,6 @@ function DelistsAddedToRange(props: any) {
           '',
         ])
       }
-      handleActionTypeDialogClose()
     } else if (actionType.value === newProductMin) {
       handleActionTypeDialogClose()
       if (min !== '') {
@@ -5616,7 +5818,7 @@ function DelistsAddedToRange(props: any) {
         '',
         comments,
         newStoreCount,
-        'NA',
+        selectedStore,
         '',
         '',
         '',
@@ -5654,7 +5856,7 @@ function DelistsAddedToRange(props: any) {
         '',
         comments,
         newStoreCount,
-        'NA',
+        selectedStore,
         '',
         '',
         '',
@@ -5740,6 +5942,7 @@ function DelistsAddedToRange(props: any) {
         '',
       ])
     } else if (actionType.value === 'Supplier Change') {
+      handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
         'Supplier Change',
@@ -5756,7 +5959,6 @@ function DelistsAddedToRange(props: any) {
         supplierNew,
         supplierSiteNew,
       ])
-      handleActionTypeDialogClose()
     }
     setMin('')
     setComments('')
@@ -5896,9 +6098,10 @@ function DelistsAddedToRange(props: any) {
             effectiveToDate: item.effectiveDateTo
               ? `${item.effectiveDateTo} ${'00:00:00.00'}`
               : '',
-            derangedLocations: item.storeNumbersForspecificStoreRange
-              ? item.storeNumbersForspecificStoreRange
-              : null,
+            // derangedLocations: item.storeNumbersForspecificStoreRange
+            //   ? item.storeNumbersForspecificStoreRange
+            //   : null,
+            derangedLocations: item.storeCode ? item.storeCode : null,
             perStorePerWeek: item.perStorepPerWeek ? item.perStorepPerWeek : '',
             retailDepotClear: item.depotClearbyReservedQtyRetail
               ? item.depotClearbyReservedQtyRetail
@@ -6020,6 +6223,12 @@ function DelistsAddedToRange(props: any) {
       // </Select>
     )
   }
+  useEffect(() => {
+    console.log(selectedStore)
+    if (selectedStore) {
+      console.log(selectedStore.join())
+    }
+  }, [selectedStore])
   const actionTypeSelectRender = () => {
     return (
       <FormControl className={classes.formControl}>
@@ -6073,6 +6282,12 @@ function DelistsAddedToRange(props: any) {
   }
 
   const delistPinEffectiveDateFrom = () => {
+    const systemDate = new Date()
+    console.log(systemDate.getMonth() + 1)
+    const systemDate1 = `${systemDate.getFullYear()}-${
+      systemDate.getMonth() + 1
+    }-${systemDate.getDate() + 1}`
+    console.log(systemDate1)
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6090,6 +6305,12 @@ function DelistsAddedToRange(props: any) {
             className={classes.inputFields}
           />
         )}
+        minDate={systemDate1}
+        maxDate={
+          rafpendingActionDetailsCT06 &&
+          eventDetails &&
+          eventDetails[0].targetDate.split(' ')
+        }
       />
     )
   }
@@ -6112,11 +6333,19 @@ function DelistsAddedToRange(props: any) {
             className={classes.inputFields}
           />
         )}
+        disabled={delistPinDateFrom ? false : true}
+        minDate={delistPinDateFrom}
       />
     )
   }
 
   const newPinEffectiveDateFrom = () => {
+    const systemDate = new Date()
+    console.log(systemDate.getMonth() + 1)
+    const systemDate1 = `${systemDate.getFullYear()}-${
+      systemDate.getMonth() + 1
+    }-${systemDate.getDate() + 1}`
+    console.log(systemDate1)
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6134,6 +6363,12 @@ function DelistsAddedToRange(props: any) {
             className={classes.inputFields}
           />
         )}
+        minDate={systemDate1}
+        maxDate={
+          rafpendingActionDetailsCT06 &&
+          eventDetails &&
+          eventDetails[0].targetDate.split(' ')
+        }
       />
     )
   }
@@ -6156,6 +6391,8 @@ function DelistsAddedToRange(props: any) {
             className={classes.inputFields}
           />
         )}
+        disabled={newPinDateFrom ? false : true}
+        minDate={newPinDateFrom}
       />
     )
   }
@@ -7111,6 +7348,26 @@ function DelistsAddedToRange(props: any) {
                   <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
+                        Store Code
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <select
+                      placeholder="--Select--"
+                      value={storeCode}
+                      onChange={(e: any) => setStoreCode(e.target.value)}
+                      style={{ width: '160px' }}
+                    >
+                      <option value="001">Store-001</option>
+                    </select> */}
+                        {storeCodePopup()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
                         Comments
                       </Typography>
                     </Box>
@@ -7202,6 +7459,26 @@ function DelistsAddedToRange(props: any) {
                           }}
                           className={classes.inputFields}
                         />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Store Code
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <select
+                      placeholder="--Select--"
+                      value={storeCode}
+                      onChange={(e: any) => setStoreCode(e.target.value)}
+                      style={{ width: '160px' }}
+                    >
+                      <option value="001">Store-001</option>
+                    </select> */}
+                        {storeCodePopup()}
                       </Typography>
                     </Box>
                   </Box>
@@ -7717,8 +7994,13 @@ function DelistsAddedToRange(props: any) {
               <Button
                 variant="contained"
                 color="primary"
-                // onClick={handleManualRAF} //De-list save
-                onClick={checkingToUpdate}
+                onClick={
+                  importedData && importedData.length > 0
+                    ? checkingToUpdate
+                    : handleManualRAF
+                } //De-list save
+                // onClick={checkingToUpdate}
+                // onClick={handleManualRAF}
               >
                 Save
               </Button>
@@ -8208,6 +8490,7 @@ function DelistsAddedToRange(props: any) {
                     col.field === 'includeInStoreWastage' &&
                     includeInStoreWastageTemplate
                   }
+                  sortable
                 />
               )
             })}
@@ -8233,9 +8516,8 @@ function DelistsAddedToRange(props: any) {
               }}
               showGridlines
               scrollable
-              scrollHeight="500px"
+              scrollHeight="300px"
               //rowHover
-              // frozenWidth="450px"
             >
               <Column
                 selectionMode="multiple"
@@ -8244,173 +8526,146 @@ function DelistsAddedToRange(props: any) {
                   color: 'white',
                   backgroundColor: teal[900],
                 }}
-                // frozen
               ></Column>
               {/* <Column rowEditor headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column> */}
               {productListCols.map((col: any, index: any) => {
-                if (
-                  col.field === 'actionType' ||
-                  col.field === 'min' ||
-                  col.field === 'description'
-                ) {
-                  return (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={
-                        (col.field === 'actionType' && actionTypeTemplate) ||
-                        (col.field === 'description' &&
-                          descriptionImportedTemplate)
-                      }
-                      bodyStyle={tableBodyStyle(col.width)}
-                      headerStyle={tableHeaderStyle(
-                        col.width,
-                        theme.palette.primary.main
-                      )}
-                      // frozen
-                    />
-                  )
-                } else {
-                  return (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={
-                        (col.field === 'actionType' && actionTypeTemplate) ||
-                        (col.field === 'lineStatus' && lineStatusTemplate) ||
-                        (col.field === 'pin' && pinProductListTemplate) ||
-                        (col.field === 'ingredientMin' &&
-                          ingredientMinTemplate) ||
-                        (col.field === 'legacyItemNumbers' &&
-                          legacyItemNumbersImportedTemplate) ||
-                        //edit fields
-                        (col.field === 'man' && manImportedTemplate) ||
-                        (col.field === 'description' &&
-                          descriptionImportedTemplate) ||
-                        (col.field === 'replaceMin' &&
-                          replaceMinImportedTemplate) ||
-                        (col.field === 'replaceMinDescription' &&
-                          replaceMinDescriptionImportedTemplate) ||
-                        (col.field === 'unitretailInc' &&
-                          unitretailIncImportedTemplate) ||
-                        (col.field === 'unitretailEx' &&
-                          unitretailExImportedTemplate) ||
-                        (col.field === 'unitcost' &&
-                          unitCostImportedTemplate) ||
-                        (col.field === 'casecost' &&
-                          caseCostImportedTemplate) ||
-                        (col.field === 'packquantity' &&
-                          packQuantityImportedTemplate) ||
-                        // (col.field === 'supplierId' &&
-                        //   supplierIdImportedTemplate) ||
-                        // (col.field === 'supplierSiteNameCode' &&
-                        //   supplierSiteNameCodeImportedTemplate) ||
-                        (col.field === 'local' && localTemplate) ||
-                        (col.field === 'perStorepPerWeek' &&
-                          perStorepPerWeekImportedTemplate) ||
-                        (col.field === 'onlineCFC' && onlineCFCTemplate) ||
-                        (col.field === 'wholesale' && wholesaleTemplate) ||
-                        (col.field === 'onlineStorePick' &&
-                          onlineStorePickTemplate) ||
-                        (col.field === 'currentnoofrangedstores' &&
-                          currentNoOfRangeStoresTemplate) ||
-                        (col.field === 'includeInClearancePricing' &&
-                          includeInClearancePricingTemplate) ||
-                        (col.field === 'includeInStoreWastage' &&
-                          includeInStoreWastageTemplate) ||
-                        (col.field === 'clearDepotBy' &&
-                          clearDepotByTemplate) ||
-                        (col.field === 'supplierCommitment' &&
-                          supplierCommitmentTemplate) ||
-                        //edit fields
+                return (
+                  <Column
+                    key={index}
+                    field={col.field}
+                    header={col.header}
+                    body={
+                      (col.field === 'actionType' && actionTypeTemplate) ||
+                      (col.field === 'lineStatus' && lineStatusTemplate) ||
+                      (col.field === 'pin' && pinProductListTemplate) ||
+                      (col.field === 'ingredientMin' &&
+                        ingredientMinTemplate) ||
+                      (col.field === 'legacyItemNumbers' &&
+                        legacyItemNumbersImportedTemplate) ||
+                      //edit fields
+                      (col.field === 'man' && manImportedTemplate) ||
+                      (col.field === 'description' &&
+                        descriptionImportedTemplate) ||
+                      (col.field === 'replaceMin' &&
+                        replaceMinImportedTemplate) ||
+                      (col.field === 'replaceMinDescription' &&
+                        replaceMinDescriptionImportedTemplate) ||
+                      (col.field === 'unitretailInc' &&
+                        unitretailIncImportedTemplate) ||
+                      (col.field === 'unitretailEx' &&
+                        unitretailExImportedTemplate) ||
+                      (col.field === 'unitcost' && unitCostImportedTemplate) ||
+                      (col.field === 'casecost' && caseCostImportedTemplate) ||
+                      (col.field === 'packquantity' &&
+                        packQuantityImportedTemplate) ||
+                      // (col.field === 'supplierId' &&
+                      //   supplierIdImportedTemplate) ||
+                      // (col.field === 'supplierSiteNameCode' &&
+                      //   supplierSiteNameCodeImportedTemplate) ||
+                      (col.field === 'local' && localTemplate) ||
+                      (col.field === 'perStorepPerWeek' &&
+                        perStorepPerWeekImportedTemplate) ||
+                      (col.field === 'onlineCFC' && onlineCFCTemplate) ||
+                      (col.field === 'wholesale' && wholesaleTemplate) ||
+                      (col.field === 'onlineStorePick' &&
+                        onlineStorePickTemplate) ||
+                      (col.field === 'currentnoofrangedstores' &&
+                        currentNoOfRangeStoresTemplate) ||
+                      (col.field === 'includeInClearancePricing' &&
+                        includeInClearancePricingTemplate) ||
+                      (col.field === 'includeInStoreWastage' &&
+                        includeInStoreWastageTemplate) ||
+                      (col.field === 'clearDepotBy' && clearDepotByTemplate) ||
+                      (col.field === 'supplierCommitment' &&
+                        supplierCommitmentTemplate) ||
+                      //edit fields
 
-                        (col.field === 'noOfRecipeMin' && recipeMinTemplate) ||
-                        (col.field === 'existingSupplier' &&
-                          existingSupplierProductListTemplate) ||
-                        (col.field === 'existingSupplierSite' &&
-                          existingSupplierSiteProductListTemplate) ||
-                        (col.field === 'effectiveDateFrom' &&
-                          effectiveDateFromProductTableTemplate) ||
-                        (col.field === 'effectiveDateTo' &&
-                          effectiveDateToProductTableTemplate) ||
-                        (col.field === 'finalStopOrderDate' &&
-                          finalStopOrderDateTemplate) ||
-                        (col.field === 'systemSuggestedStopOrderDate' &&
-                          systemGeneratedStopOrderDateTemplate) ||
-                        (col.field === 'lastPoDate' && lastPoDateTemplate) ||
-                        (col.field === 'numberOfRangeStores' &&
-                          newNoOfRangeStoresTemplate) ||
-                        // (col.field === 'newShelfFill' &&
-                        //   newShelfFillImportedTemplate) ||
-                        (col.field === 'depotStockUnit' &&
-                          depotStockTemplate) ||
-                        (col.field === 'depotClearbyReservedQtyRetail' &&
-                          depotClearReservedQtyRetailImportedTemplate) ||
-                        (col.field === 'depotClearbyReservedQtyWholesale' &&
-                          depotClearReservedQtyWholesaleImportedTemplate) ||
-                        (col.field === 'depotClearbyReservedQtyOnline' &&
-                          depotClearReservedQtyOnlineImportedTemplate) ||
-                        (col.field === 'newSupplier' &&
-                          newSupplierImportedTemplate) ||
-                        (col.field === 'newSupplierSite' &&
-                          newSupplierSiteImportedTemplate) ||
-                        (col.field === 'comments' && commentsTemplate) ||
-                        (col.field === 'currentshelffill_vs_newfill' &&
-                          currentshelffill_vs_newfillTemplate) ||
-                        (col.field === 'currentshelffill_vs_newfill_percant' &&
-                          currentshelffill_vs_newfill_percantTemplate) ||
-                        (col.field === 'currentShelfFill' &&
-                          currentShelfFillTemplate) ||
-                        (col.field === 'depotShelfLifeMinimum' &&
-                          depotShelfLifeImportedTemplate) ||
-                        (col.field === 'productShelfLifeInstore' &&
-                          productShelfLifeImportedTemplate) ||
-                        (col.field === 'currentVersusNewStores' &&
-                          currentVsNewStoresImportedTemplate) ||
-                        (col.field === 'storesRangedCurrentVsProposed' &&
-                          storesRangedCurrentVsProposedTemplate) ||
-                        (col.field ===
-                          'weeksCoveronTotalStockonHandtoResetDate' &&
-                          weeksCoveronTotalStockTemplate) ||
-                        (col.field === 'excessstock' && excessStockTemplate) ||
-                        (col.field === 'averageWeeklyVolume' &&
-                          averageWeeklyVolumeTemplate) ||
-                        (col.field === 'forward_forecast_to_launch' &&
-                          forwardForecastToLaunchTemplate) ||
-                        (col.field === 'storeStockUnit' &&
-                          storeStockUnitTemplate) ||
-                        (col.field === 'totalstock' && totalstockTemplate) ||
-                        (col.field === 'ownBrand' && ownBrandTemplate) ||
-                        (col.field === 'openPos' && openPosTemplate) ||
-                        (col.field === 'shelfLifeatManufacture' &&
-                          shelfLifeatManufactureTemplate) ||
-                        (col.field === 'safewaybrandedequivalent' &&
-                          safewaybrandedequivalentTemplate) ||
-                        (col.field === 'forcastedWeeksCovertoResetDate' &&
-                          forcastedWeeksCovertoResetDateTemplate)
-                      }
-                      // style={{
-                      //   width: col.width,
-                      //   fontSize: '0.8rem',
-                      //   padding: '8px',
-                      // }}
-                      // headerStyle={{
-                      //   color: 'white',
-                      //   backgroundColor: teal[900],
-                      //   width: col.width,
-                      //   fontSize: '0.9rem',
-                      //   padding: '8px',
-                      // }}
-                      bodyStyle={tableBodyStyle(col.width)}
-                      headerStyle={tableHeaderStyle(
-                        col.width,
-                        theme.palette.primary.main
-                      )}
-                    />
-                  )
-                }
+                      (col.field === 'noOfRecipeMin' && recipeMinTemplate) ||
+                      (col.field === 'existingSupplier' &&
+                        existingSupplierProductListTemplate) ||
+                      (col.field === 'existingSupplierSite' &&
+                        existingSupplierSiteProductListTemplate) ||
+                      (col.field === 'effectiveDateFrom' &&
+                        effectiveDateFromProductTableTemplate) ||
+                      (col.field === 'effectiveDateTo' &&
+                        effectiveDateToProductTableTemplate) ||
+                      (col.field === 'finalStopOrderDate' &&
+                        finalStopOrderDateTemplate) ||
+                      (col.field === 'systemSuggestedStopOrderDate' &&
+                        systemGeneratedStopOrderDateTemplate) ||
+                      (col.field === 'lastPoDate' && lastPoDateTemplate) ||
+                      (col.field === 'numberOfRangeStores' &&
+                        newNoOfRangeStoresTemplate) ||
+                      // (col.field === 'newShelfFill' &&
+                      //   newShelfFillImportedTemplate) ||
+                      (col.field === 'newShelfFillMultiplied' &&
+                        newShelfFillImportedTemplate) ||
+                      (col.field === 'depotStockUnit' && depotStockTemplate) ||
+                      (col.field === 'depotClearbyReservedQtyRetail' &&
+                        depotClearReservedQtyRetailImportedTemplate) ||
+                      (col.field === 'depotClearbyReservedQtyWholesale' &&
+                        depotClearReservedQtyWholesaleImportedTemplate) ||
+                      (col.field === 'depotClearbyReservedQtyOnline' &&
+                        depotClearReservedQtyOnlineImportedTemplate) ||
+                      (col.field === 'newSupplier' &&
+                        newSupplierImportedTemplate) ||
+                      (col.field === 'newSupplierSite' &&
+                        newSupplierSiteImportedTemplate) ||
+                      (col.field === 'comments' && commentsTemplate) ||
+                      (col.field === 'currentshelffill_vs_newfill' &&
+                        currentshelffill_vs_newfillTemplate) ||
+                      (col.field === 'currentshelffill_vs_newfill_percant' &&
+                        currentshelffill_vs_newfill_percantTemplate) ||
+                      (col.field === 'currentShelfFill' &&
+                        currentShelfFillTemplate) ||
+                      (col.field === 'depotShelfLifeMinimum' &&
+                        depotShelfLifeImportedTemplate) ||
+                      (col.field === 'productShelfLifeInstore' &&
+                        productShelfLifeImportedTemplate) ||
+                      (col.field === 'currentVersusNewStores' &&
+                        currentVsNewStoresImportedTemplate) ||
+                      (col.field === 'storesRangedCurrentVsProposed' &&
+                        storesRangedCurrentVsProposedTemplate) ||
+                      (col.field ===
+                        'weeksCoveronTotalStockonHandtoResetDate' &&
+                        weeksCoveronTotalStockTemplate) ||
+                      (col.field === 'excessstock' && excessStockTemplate) ||
+                      (col.field === 'averageWeeklyVolume' &&
+                        averageWeeklyVolumeTemplate) ||
+                      (col.field === 'forward_forecast_to_launch' &&
+                        forwardForecastToLaunchTemplate) ||
+                      (col.field === 'storeStockUnit' &&
+                        storeStockUnitTemplate) ||
+                      (col.field === 'totalstock' && totalstockTemplate) ||
+                      (col.field === 'ownBrand' && ownBrandTemplate) ||
+                      (col.field === 'openPos' && openPosTemplate) ||
+                      (col.field === 'shelfLifeatManufacture' &&
+                        shelfLifeatManufactureTemplate) ||
+                      (col.field === 'safewaybrandedequivalent' &&
+                        safewaybrandedequivalentTemplate) ||
+                      (col.field === 'forcastedWeeksCovertoResetDate' &&
+                        forcastedWeeksCovertoResetDateTemplate)
+                    }
+                    // style={{
+                    //   width: col.width,
+                    //   fontSize: '0.8rem',
+                    //   padding: '8px',
+                    // }}
+                    // headerStyle={{
+                    //   color: 'white',
+                    //   backgroundColor: teal[900],
+                    //   width: col.width,
+                    //   fontSize: '0.9rem',
+                    //   padding: '8px',
+                    // }}
+                    bodyStyle={tableBodyStyle(col.width)}
+                    headerStyle={tableHeaderStyle(
+                      col.width,
+                      theme.palette.primary.main
+                    )}
+                    sortable
+                  />
+                )
               })}
             </DataTable>
           </MuiPickersUtilsProvider>
@@ -8874,8 +9129,6 @@ function DelistsAddedToRange(props: any) {
           const data1 = xlsx.utils.sheet_to_json(ws, { header: 1 })
           const cols: any = data1[0]
 
-          console.log('placeholder cols', data, cols)
-
           const json = JSON.parse(
             JSON.stringify(data).replace(/"\s+|\s+"/g, '"')
           )
@@ -8900,8 +9153,6 @@ function DelistsAddedToRange(props: any) {
           //     return val
           //   }
           // })
-
-          console.log('cols2,', result)
 
           const validate = result.filter((val: any) => {
             return (
@@ -9708,16 +9959,7 @@ function DelistsAddedToRange(props: any) {
                   : ''}
                 '{' '}
               </b>{' '}
-              is belongs to MIN{' '}
-              <b>
-                {' '}
-                '
-                {val &&
-                  val.value &&
-                  val.value.data &&
-                  val.value.data.itemNumber}
-                '{' '}
-              </b>
+              is belongs to MIN <b> '{val.value.data.itemNumber}' </b>
             </Alert>
           ))}
 
@@ -11260,7 +11502,9 @@ function DelistsAddedToRange(props: any) {
           label2="Are you sure you want to complete the task?"
         />
       )
-    ) : rafpendingActionDetailsCT06.taskName === 'CT19' ? (
+    ) : rafpendingActionDetailsCT06 &&
+      rafpendingActionDetailsCT06.taskName &&
+      rafpendingActionDetailsCT06.taskName === 'CT19' ? (
       checkComplete ? (
         <ConfirmBox
           cancelOpen={completeConfirm}
@@ -11670,11 +11914,7 @@ function DelistsAddedToRange(props: any) {
                     rafpendingActionDetailsCT06.taskName.toLowerCase() !==
                       'ct36'
                       ? () => setCompleteConfirm(true)
-                      : // :
-                        // rafpendingActionDetailsCT06.taskName.toLowerCase() !==
-                        // 'ct36'
-                        // ? handleCT19ConfirmOpen
-                        handleCompleteTaskDialogOpen
+                      : handleCompleteTaskDialogOpen
                   }
                   // disabled={
                   //   rafpendingActionDetailsCT06 &&

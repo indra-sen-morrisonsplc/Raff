@@ -55,7 +55,6 @@ const {
   GET_LOCATIONS,
   PATCH_RANGERESET_ITEMS,
   GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
-  DELETE_RAF_ITEMS,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -378,7 +377,7 @@ export const getProductHierarchyListAPI = (nodetype) => {
 
 export const getAllUsersAPI = () => {
   const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
-  const params = 'limit=1000'
+  const params = 'limit=1000&statusIn=A,I,D'
   return serviceRequest(url, 'GET', undefined, params)
 }
 
@@ -548,15 +547,17 @@ export const getRangeByRangeResetId = (rangeResetId) => {
   return serviceRequest(url, 'GET', undefined)
 }
 export const getProductServiceByItemnumber = (itemNumber) => {
+  let url = `${BASE_URL}${GET_PRODUCT_SERVICE}`
   // let base = 'https://sit-api.morrisons.com/'
   // let url = `${base}${GET_PRODUCT_SERVICE}`
-  let url = `${BASE_URL}${GET_PRODUCT_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   // let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'GET', undefined)
 }
 export const getProductSupplierServiceByItemnumber = (itemNumber) => {
-  let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
+  // let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
+  let base = 'https://sit-api.morrisons.com/'
+  let url = `${base}${GET_PRODUCT_SUPPLIER_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   // let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'GET', undefined)
@@ -564,6 +565,8 @@ export const getProductSupplierServiceByItemnumber = (itemNumber) => {
 }
 export const getSupplierServiceBySupplierId = (supplierId) => {
   let url = `${BASE_URL}${GET_SUPPLIER_SERVICE}`
+  // let base = 'https://sit-api.morrisons.com/'
+  // let url = `${base}${GET_SUPPLIER_SERVICE}`
   url = url.replace('{supplierId}', supplierId)
   // let reqBody = `${JSON.stringify(req)}`
   // return serviceRequest(url, "GET", undefined);
@@ -596,8 +599,8 @@ export const getSupplierSearchByIdNameSupplierAndSite = (
 }
 export const getLocationsStoreCodeAPI = () => {
   const url = `${BASE_URL}${GET_LOCATIONS}`
-  // const params = "limit=1000";
-  return serviceRequest(url, 'GET', undefined)
+  const params = 'limit=2000'
+  return serviceRequest(url, 'GET', undefined, params)
 }
 
 export const patchRangeResetItems = (rangeResetId, req) => {
@@ -617,13 +620,6 @@ export const getRangeResetEventsStoreDepot = (
   url = url.replace('{MIN}', minNumber)
   const params = `view=${storeOrDepot}`
   return serviceRequest(url, 'GET', undefined, params)
-}
-
-export const deleteRafItems = (rangeResetId, minNumber) => {
-  let url = `${BASE_URL}${DELETE_RAF_ITEMS}`
-  url = url.replace('{rangeResetId}', rangeResetId)
-  url = url.replace('{MIN}', minNumber)
-  return serviceRequest(url, 'DELETE', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

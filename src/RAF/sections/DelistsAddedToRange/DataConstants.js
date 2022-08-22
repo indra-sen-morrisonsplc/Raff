@@ -438,7 +438,7 @@ export const productListCols = [
   },
   {
     // field: 'newShelfFill',
-    field: 'newShelfFillMultiplied',
+    field:'newShelfFillMultiplied',
     header: 'New Shelf Fill (Units)',
     width: '200px',
   },
@@ -1202,6 +1202,21 @@ export const rangedStoresTableCols = [
   {
     field: 'currentShelfFill',
     header: 'Current Shelf Fill',
+    width: '80px',
+  },
+  {
+    field: 'newShelfFill',
+    header: 'New Shelf Fill (Units)',
+    width: '80px',
+  },
+  {
+    field: 'currentVsNewShelfFill',
+    header: 'Current Shelf Fill Vs New Fill',
+    width: '80px',
+  },
+  {
+    field: 'currentVsNewShelfFillPercent',
+    header: 'Current Shelf Fill Vs New Shelf Fill %',
     width: '80px',
   },
   {

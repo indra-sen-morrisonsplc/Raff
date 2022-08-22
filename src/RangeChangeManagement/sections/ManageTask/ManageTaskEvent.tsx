@@ -1316,12 +1316,12 @@ function ManageTaskEvent(props: any) {
     ) {
       let sysDate1 = new Date().toISOString().split('T')[0]
       let sysDate = new Date(sysDate1)
-      console.log(sysDate)
+      // console.log(sysDate)
       let launchDate = new Date(rowData.targetDate.split(' ')[0])
-      console.log(launchDate)
+      // console.log(launchDate)
       const diffDate =
         (launchDate.getTime() - sysDate.getTime()) / (1000 * 60 * 60 * 24)
-      console.error(diffDate)
+      // console.error(diffDate)
       if (rowData.resetType === 'Planned Range Change') {
         if (diffDate < 245) {
           return (
@@ -2387,15 +2387,16 @@ function ManageTaskEvent(props: any) {
             globalFilter={globalFilter}
             emptyMessage="No Events found."
             className="p-datatable-sm"
-            rows={10}
-            paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-            currentPageReportTemplate="{first} - {last} of {totalRecords}"
-            alwaysShowPaginator={false}
-            stateStorage="session"
-            stateKey="dt-state-demo-session-eventmanage"
+            // rows={10}
+            // paginator
+            // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            // currentPageReportTemplate="{first} - {last} of {totalRecords}"
+            // alwaysShowPaginator={false}
+            // stateStorage="session"
+            // stateKey="dt-state-demo-session-eventmanage"
             showGridlines
             scrollable
+            scrollHeight="300px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2459,15 +2460,16 @@ function ManageTaskEvent(props: any) {
             globalFilter={globalFilter}
             emptyMessage="No Events found."
             className="p-datatable-sm"
-            rows={10}
-            paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-            currentPageReportTemplate="{first} - {last} of {totalRecords}"
-            stateStorage="session"
-            stateKey="dt-state-demo-session-eventmanage"
-            alwaysShowPaginator={false}
+            // rows={10}
+            // paginator
+            // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            // currentPageReportTemplate="{first} - {last} of {totalRecords}"
+            // stateStorage="session"
+            // stateKey="dt-state-demo-session-eventmanage"
+            // alwaysShowPaginator={false}
             showGridlines
             scrollable
+            scrollHeight="300px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2524,12 +2526,12 @@ function ManageTaskEvent(props: any) {
         <DataTable
           value={importedData}
           rows={10}
-          paginator
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-          currentPageReportTemplate="{first} - {last} of {totalRecords}"
-          stateStorage="session"
-          stateKey="dt-state-demo-session-eventmanage"
-          alwaysShowPaginator={false}
+          // paginator
+          // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+          // currentPageReportTemplate="{first} - {last} of {totalRecords}"
+          // stateStorage="session"
+          // stateKey="dt-state-demo-session-eventmanage"
+          // alwaysShowPaginator={false}
           selectionMode="multiple"
           selection={selectedImportedData}
           onSelectionChange={(e) => setSelectedImportedData(e.value)}
@@ -2538,6 +2540,7 @@ function ManageTaskEvent(props: any) {
           className="p-datatable-sm"
           showGridlines
           scrollable
+          scrollHeight="300px"
           // scrollHeight="flex"
           // scrollHeight={above670px ? '300px' : '250px'}
           // frozenWidth="300px"
@@ -3904,194 +3907,26 @@ function ManageTaskEvent(props: any) {
         //   history.push('/')
         // }}
       />
-      <div className="manageUser">
-        <div className={classes.value}>
-          <Grid container spacing={2} className={classes.mainContainer}>
-            <LoadingComponent showLoader={isProgressLoader} />
-            {!confirmTable ? (
-              above670px ? (
-                <>
-                  <Grid item sm={4} xs={12} md={5} lg={7} xl={7}>
-                    <Typography variant="h5" color="primary">
-                      Manage Events
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    sm={3}
-                    xs={6}
-                    md={2}
-                    lg={2}
-                    xl={2}
-                    style={{ textAlign: 'right' }}
-                  >
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={handleUploadDialogOpen}
-                      >
-                        Upload Bulk Event
-                      </button>
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    sm={3}
-                    xs={6}
-                    md={2}
-                    lg={2}
-                    xl={2}
-                    style={{ textAlign: 'right' }}
-                  >
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={handleCreateEvent}
-                      >
-                        Create Event
-                      </button>
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    sm={2}
-                    xs={12}
-                    md={2}
-                    lg={1}
-                    xl={1}
-                    style={{ textAlign: 'right' }}
-                  >
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={goBack}
-                      >
-                        <svg
-                          className="MuiSvgIcon-root"
-                          focusable="false"
-                          viewBox="0 0 34 34"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
-                        </svg>
-                        Back
-                      </button>
-                    </Typography>
-                  </Grid>
-                </>
-              ) : (
-                <>
-                  <Grid item xs={8}>
-                    <Typography variant="h6" color="primary">
-                      Manage Events
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4} style={{ textAlign: 'right' }}>
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={goBack}
-                      >
-                        <svg
-                          className="MuiSvgIcon-root"
-                          focusable="false"
-                          viewBox="0 0 34 34"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
-                        </svg>
-                        Back
-                      </button>
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    sm={6}
-                    xs={7}
-                    md={2}
-                    lg={2}
-                    xl={2}
-                    style={{ padding: '0px' }}
-                  >
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={handleUploadDialogOpen}
-                      >
-                        Upload Bulk Event
-                      </button>
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    sm={6}
-                    xs={5}
-                    md={2}
-                    lg={2}
-                    xl={2}
-                    style={{ textAlign: 'right', padding: '0px' }}
-                  >
-                    <Typography variant="subtitle1" color="primary">
-                      <button
-                        // style={{ cursor: 'pointer', color: 'blue' }}
-                        // className={classes.greenButtons}
-                        className="backButton"
-                        onClick={handleCreateEvent}
-                      >
-                        Create Event
-                      </button>
-                    </Typography>
-                  </Grid>
-                </>
-              )
-            ) : (
+      {/* <div className="manageUser"> */}
+      <div className={classes.value}>
+        <Grid container spacing={2} className={classes.mainContainer}>
+          <LoadingComponent showLoader={isProgressLoader} />
+          {!confirmTable ? (
+            above670px ? (
               <>
-                <Grid item sm={6} xs={12} md={2} lg={2} xl={2}>
-                  <Typography variant="h6" color="primary">
+                <Grid item sm={4} xs={12} md={5} lg={7} xl={7}>
+                  <Typography variant="h5" color="primary">
                     Manage Events
-                  </Typography>
-                </Grid>
-                <Grid item sm={6} xs={12} md={2} lg={2} xl={2}>
-                  {/* <Typography variant="h5"> */}
-                  <input
-                    type="text"
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    placeholder={' Search Event details '}
-                    className={classes.globalSearch}
-                  />
-                  {/* </Typography> */}
-                </Grid>
-                <Grid item sm={6} xs={6} md={2} lg={3} xl={3}>
-                  <Typography variant="subtitle1" color="primary">
-                    <button
-                      // style={{ cursor: 'pointer', color: 'blue' }}
-                      // className={classes.greenButtons}
-                      className="backButton"
-                      onClick={handleSearchDialogOpen}
-                    >
-                      Advanced Search
-                    </button>
                   </Typography>
                 </Grid>
                 <Grid
                   item
-                  sm={6}
+                  sm={3}
                   xs={6}
                   md={2}
                   lg={2}
                   xl={2}
-                  style={{ padding: 0 }}
+                  style={{ textAlign: 'right' }}
                 >
                   <Typography variant="subtitle1" color="primary">
                     <button
@@ -4104,7 +3939,15 @@ function ManageTaskEvent(props: any) {
                     </button>
                   </Typography>
                 </Grid>
-                <Grid item sm={6} xs={6} md={2} lg={2} xl={2}>
+                <Grid
+                  item
+                  sm={3}
+                  xs={6}
+                  md={2}
+                  lg={2}
+                  xl={2}
+                  style={{ textAlign: 'right' }}
+                >
                   <Typography variant="subtitle1" color="primary">
                     <button
                       // style={{ cursor: 'pointer', color: 'blue' }}
@@ -4116,7 +3959,15 @@ function ManageTaskEvent(props: any) {
                     </button>
                   </Typography>
                 </Grid>
-                <Grid item sm={6} xs={6} md={2} lg={1} xl={1}>
+                <Grid
+                  item
+                  sm={2}
+                  xs={12}
+                  md={2}
+                  lg={1}
+                  xl={1}
+                  style={{ textAlign: 'right' }}
+                >
                   <Typography variant="subtitle1" color="primary">
                     <button
                       // style={{ cursor: 'pointer', color: 'blue' }}
@@ -4137,93 +3988,245 @@ function ManageTaskEvent(props: any) {
                   </Typography>
                 </Grid>
               </>
-            )}
-          </Grid>
-          <Box
-            sx={{
-              height: aboveMd ? '500px' : betweenSmAndMd ? '600px' : '400px',
-              marginLeft: '10px',
-              marginRight: '10px',
-              display: 'flex',
-              alignItems: importedData ? 'end' : 'center',
-              justifyContent: !importedData && 'center',
-              paddingTop: '20px',
-              flexDirection: 'column',
-            }}
-            style={
-              confirmTable
-                ? {
-                    border: 'none',
-                  }
-                : {
-                    border: '3px dashed gray',
-                    justifyContent: 'center',
-                  }
-            }
-          >
-            <Box sx={{ width: '100%', textAlign: 'center' }}>
-              {!confirmTable ? (
-                <Typography
-                  variant="h4"
-                  style={{ opacity: '0.5' }}
-                  color="primary"
+            ) : (
+              <>
+                <Grid item xs={8}>
+                  <Typography variant="h6" color="primary">
+                    Manage Events
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} style={{ textAlign: 'right' }}>
+                  <Typography variant="subtitle1" color="primary">
+                    <button
+                      // style={{ cursor: 'pointer', color: 'blue' }}
+                      // className={classes.greenButtons}
+                      className="backButton"
+                      onClick={goBack}
+                    >
+                      <svg
+                        className="MuiSvgIcon-root"
+                        focusable="false"
+                        viewBox="0 0 34 34"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+                      </svg>
+                      Back
+                    </button>
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  sm={6}
+                  xs={7}
+                  md={2}
+                  lg={2}
+                  xl={2}
+                  style={{ padding: '0px' }}
                 >
-                  No "Event" to display
+                  <Typography variant="subtitle1" color="primary">
+                    <button
+                      // style={{ cursor: 'pointer', color: 'blue' }}
+                      // className={classes.greenButtons}
+                      className="backButton"
+                      onClick={handleUploadDialogOpen}
+                    >
+                      Upload Bulk Event
+                    </button>
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  sm={6}
+                  xs={5}
+                  md={2}
+                  lg={2}
+                  xl={2}
+                  style={{ textAlign: 'right', padding: '0px' }}
+                >
+                  <Typography variant="subtitle1" color="primary">
+                    <button
+                      // style={{ cursor: 'pointer', color: 'blue' }}
+                      // className={classes.greenButtons}
+                      className="backButton"
+                      onClick={handleCreateEvent}
+                    >
+                      Create Event
+                    </button>
+                  </Typography>
+                </Grid>
+              </>
+            )
+          ) : (
+            <>
+              <Grid item sm={6} xs={12} md={2} lg={2} xl={2}>
+                <Typography variant="h6" color="primary">
+                  Manage Events
                 </Typography>
-              ) : (
-                <Box
-                  sx={{
-                    paddingBottom: '20px',
-                  }}
-                >
-                  {uploadedTable()}
-                </Box>
-              )}
-            </Box>
-            {confirmTable && (
-              <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                <Box sx={{ padding: '10px' }}>
-                  <Button
-                    onClick={removeEvents}
-                    // className={classes.whiteButton}
-                    variant="outlined"
-                    color="primary"
-                    // disabled={
-                    //   selectedEvents
-                    //     ? selectedEvents.length === 0
-                    //       ? true
-                    //       : false
-                    //     : true
-                    // }
-                    disabled={disableDelete}
+              </Grid>
+              <Grid item sm={6} xs={12} md={2} lg={2} xl={2}>
+                {/* <Typography variant="h5"> */}
+                <input
+                  type="text"
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  placeholder={' Search Event details '}
+                  className={classes.globalSearch}
+                />
+                {/* </Typography> */}
+              </Grid>
+              <Grid item sm={6} xs={6} md={2} lg={3} xl={3}>
+                <Typography variant="subtitle1" color="primary">
+                  <button
+                    // style={{ cursor: 'pointer', color: 'blue' }}
+                    // className={classes.greenButtons}
+                    className="backButton"
+                    onClick={handleSearchDialogOpen}
                   >
-                    Delete Event
-                  </Button>
-                </Box>
-                <Box sx={{ padding: '10px' }}>
-                  <Button
-                    // className={classes.submitButtons}
-                    variant="contained"
-                    onClick={handlePublish}
-                    disabled={disablePublish}
-                    color="primary"
+                    Advanced Search
+                  </button>
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                sm={6}
+                xs={6}
+                md={2}
+                lg={2}
+                xl={2}
+                style={{ padding: 0 }}
+              >
+                <Typography variant="subtitle1" color="primary">
+                  <button
+                    // style={{ cursor: 'pointer', color: 'blue' }}
+                    // className={classes.greenButtons}
+                    className="backButton"
+                    onClick={handleUploadDialogOpen}
                   >
-                    Publish
-                  </Button>
-                </Box>
+                    Upload Bulk Event
+                  </button>
+                </Typography>
+              </Grid>
+              <Grid item sm={6} xs={6} md={2} lg={2} xl={2}>
+                <Typography variant="subtitle1" color="primary">
+                  <button
+                    // style={{ cursor: 'pointer', color: 'blue' }}
+                    // className={classes.greenButtons}
+                    className="backButton"
+                    onClick={handleCreateEvent}
+                  >
+                    Create Event
+                  </button>
+                </Typography>
+              </Grid>
+              <Grid item sm={6} xs={6} md={2} lg={1} xl={1}>
+                <Typography variant="subtitle1" color="primary">
+                  <button
+                    // style={{ cursor: 'pointer', color: 'blue' }}
+                    // className={classes.greenButtons}
+                    className="backButton"
+                    onClick={goBack}
+                  >
+                    <svg
+                      className="MuiSvgIcon-root"
+                      focusable="false"
+                      viewBox="0 0 34 34"
+                      aria-hidden="true"
+                    >
+                      <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+                    </svg>
+                    Back
+                  </button>
+                </Typography>
+              </Grid>
+            </>
+          )}
+        </Grid>
+        <Box
+          sx={{
+            height: aboveMd ? '500px' : betweenSmAndMd ? '600px' : '400px',
+            marginLeft: '10px',
+            marginRight: '10px',
+            display: 'flex',
+            alignItems: importedData ? 'end' : 'center',
+            justifyContent: !importedData && 'center',
+            paddingTop: '20px',
+            flexDirection: 'column',
+          }}
+          style={
+            confirmTable
+              ? {
+                  border: 'none',
+                }
+              : {
+                  border: '3px dashed gray',
+                  justifyContent: 'center',
+                }
+          }
+        >
+          <Box sx={{ width: '100%', textAlign: 'center' }}>
+            {!confirmTable ? (
+              <Typography
+                variant="h4"
+                style={{ opacity: '0.5' }}
+                color="primary"
+              >
+                No "Event" to display
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  paddingBottom: '20px',
+                }}
+              >
+                {uploadedTable()}
               </Box>
             )}
           </Box>
-          {uploadDialog}
-          {importedData && importedCols && previewDialog}
-          {/* {sampleExcel} */}
-          {advancedSearch}
-          {viewConfirmDelete}
-          {viewConfirmCross}
-          {invalidFileDialog}
-          {invalidFormatDialog}
-        </div>
+          {confirmTable && (
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Box sx={{ padding: '10px' }}>
+                <Button
+                  onClick={removeEvents}
+                  // className={classes.whiteButton}
+                  variant="outlined"
+                  color="primary"
+                  // disabled={
+                  //   selectedEvents
+                  //     ? selectedEvents.length === 0
+                  //       ? true
+                  //       : false
+                  //     : true
+                  // }
+                  disabled={disableDelete}
+                >
+                  Delete Event
+                </Button>
+              </Box>
+              <Box sx={{ padding: '10px' }}>
+                <Button
+                  // className={classes.submitButtons}
+                  variant="contained"
+                  onClick={handlePublish}
+                  disabled={disablePublish}
+                  color="primary"
+                >
+                  Publish
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </Box>
+        {uploadDialog}
+        {importedData && importedCols && previewDialog}
+        {/* {sampleExcel} */}
+        {advancedSearch}
+        {viewConfirmDelete}
+        {viewConfirmCross}
+        {invalidFileDialog}
+        {invalidFormatDialog}
       </div>
+      {/* </div> */}
     </>
   )
 }

@@ -565,12 +565,12 @@ function RcmGroupPendingActionsWeek5(props: any) {
                     <DataTable
                       value={myPendingActions}
                       rowHover
-                      paginator
-                      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                      currentPageReportTemplate="{first} - {last} of {totalRecords}"
-                      stateStorage="session"
-                      stateKey="dt-state-demo-session-unassignworkflow"
-                      rows={10}
+                      // paginator
+                      // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                      // currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                      // stateStorage="session"
+                      // stateKey="dt-state-demo-session-unassignworkflow"
+                      // rows={10}
                       style={{
                         width: '100%',
                       }}
@@ -580,10 +580,11 @@ function RcmGroupPendingActionsWeek5(props: any) {
                         setUnassignUser(e.value)
                       }}
                       scrollable
-                      scrollHeight="flex"
+                      // scrollHeight="flex"
                       globalFilter={globalFilter}
                       emptyMessage="No users found."
                       showGridlines
+                      scrollHeight="350px"
                       //loading={manageUserLoading}
                     >
                       {/* <Column

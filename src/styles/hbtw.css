@@ -315,6 +315,10 @@
 .manageUser .p-datatable-scrollable-body {
   overflow-y: hidden !important;
 }
+.verticalScroll .p-datatable-scrollable-body {
+  overflow-y: scroll !important;
+  height: 100vh;
+}
 .manageUser .colorSecondary {
   padding: 16px 16px 0px 16px;
 }
