@@ -1276,6 +1276,11 @@ export const depotStockUnitTableCols = [
     width: '80px',
   },
   {
+    field: 'depotName',
+    header: 'Depot Name',
+    width: '80px',
+  },
+  {
     field: 'aggDptQty',
     header: 'Aggregated Store Stock Unit',
     width: '80px',

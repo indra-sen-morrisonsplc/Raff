@@ -1906,17 +1906,9 @@ function DelistsAddedToRange(props: any) {
   // })
 
   const effectiveDateFromProductTableTemplate = (rowData: any) => {
-    // if (
-    //   rowData &&
-    //   rowData.hasOwnProperty('effectiveDateFrom') &&
-    //   rowData.effectiveDateFrom !== ''
-    // ) {
     const systemDate = new Date()
-    console.log(systemDate.getMonth() + 1)
-    const systemDate1 = `${systemDate.getFullYear()}-${
-      systemDate.getMonth() + 1
-    }-${systemDate.getDate() + 1}`
-    console.log(systemDate1)
+
+    const systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
 
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -1935,6 +1927,14 @@ function DelistsAddedToRange(props: any) {
                 'effectiveDateFrom',
                 rowData,
                 newDate
+              )
+            })
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'effectiveDateTo',
+                rowData,
+                null
               )
             })
           }}
@@ -1972,11 +1972,11 @@ function DelistsAddedToRange(props: any) {
     // }
   }
   const effectiveDateToProductTableTemplate = (rowData: any) => {
-    // if (
-    //   rowData &&
-    //   rowData.hasOwnProperty('effectiveDateTo') &&
-    //   rowData.effectiveDateTo !== ''
-    // ) {
+    let systemDate1 = null
+    if (rowData && rowData['effectiveDateFrom']) {
+      const systemDate = new Date(rowData['effectiveDateFrom'].split(' '))
+      systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
+    }
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
       return (
@@ -2008,9 +2008,10 @@ function DelistsAddedToRange(props: any) {
           )}
           disabled={rowData && rowData['effectiveDateFrom'] ? false : true}
           minDate={
-            rowData &&
-            rowData['effectiveDateFrom'] &&
-            rowData['effectiveDateFrom'].split(' ')
+            // rowData &&
+            // rowData['effectiveDateFrom'] &&
+            systemDate1 && systemDate1
+            // rowData['effectiveDateFrom'].split(' ')
           }
         />
       )
@@ -2023,10 +2024,6 @@ function DelistsAddedToRange(props: any) {
         </>
       )
     }
-
-    // } else {
-    //   return <>NA</>
-    // }
   }
   const finalStopOrderDateTemplate = (rowData: any) => {
     // if (
@@ -6365,11 +6362,12 @@ function DelistsAddedToRange(props: any) {
 
   const delistPinEffectiveDateFrom = () => {
     const systemDate = new Date()
-    console.log(systemDate.getMonth() + 1)
-    const systemDate1 = `${systemDate.getFullYear()}-${
-      systemDate.getMonth() + 1
-    }-${systemDate.getDate() + 1}`
-    console.log(systemDate1)
+    // console.log(systemDate.getMonth() + 1)
+    // const systemDate1 = `${systemDate.getFullYear()}-${
+    //   systemDate.getMonth() + 1
+    // }-${systemDate.getDate() + 1}`
+    // console.log(systemDate1)
+    const systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6377,6 +6375,7 @@ function DelistsAddedToRange(props: any) {
         onChange={(date: any) => {
           let newDate = date.toISOString().split('T')[0]
           setDelistPinDateFrom(newDate)
+          setDelistPinDateTo('')
         }}
         TextFieldComponent={(props: any) => (
           <OutlinedInput
@@ -6398,6 +6397,12 @@ function DelistsAddedToRange(props: any) {
   }
 
   const delistPinEffectiveDateTo = () => {
+    let systemDate1 = null
+    if (delistPinDateFrom) {
+      const systemDate = new Date(delistPinDateFrom)
+      console.log(systemDate)
+      systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
+    }
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6416,18 +6421,19 @@ function DelistsAddedToRange(props: any) {
           />
         )}
         disabled={delistPinDateFrom ? false : true}
-        minDate={delistPinDateFrom}
+        minDate={systemDate1 && systemDate1}
       />
     )
   }
 
   const newPinEffectiveDateFrom = () => {
     const systemDate = new Date()
-    console.log(systemDate.getMonth() + 1)
-    const systemDate1 = `${systemDate.getFullYear()}-${
-      systemDate.getMonth() + 1
-    }-${systemDate.getDate() + 1}`
-    console.log(systemDate1)
+    // console.log(systemDate.getMonth() + 1)
+    // const systemDate1 = `${systemDate.getFullYear()}-${
+    //   systemDate.getMonth() + 1
+    // }-${systemDate.getDate() + 1}`
+    // console.log(systemDate1)
+    const systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6435,6 +6441,7 @@ function DelistsAddedToRange(props: any) {
         onChange={(date: any) => {
           let newDate = date.toISOString().split('T')[0]
           setNewPinDateFrom(newDate)
+          setNewPinDateTo('')
         }}
         TextFieldComponent={(props: any) => (
           <OutlinedInput
@@ -6456,6 +6463,16 @@ function DelistsAddedToRange(props: any) {
   }
 
   const newPinEffectiveDateTo = () => {
+    let systemDate1 = null
+    if (newPinDateFrom) {
+      const systemDate = new Date(newPinDateFrom)
+      console.log(systemDate)
+      // systemDate1 = `${systemDate.getFullYear()}-${systemDate.getMonth() + 1}-${
+      //   systemDate.getDate() + 1
+      // }`
+      // console.log(systemDate1)
+      systemDate1 = systemDate.setDate(systemDate.getDate() + 1)
+    }
     return (
       <DatePicker
         format="dd/MM/yy"
@@ -6474,10 +6491,11 @@ function DelistsAddedToRange(props: any) {
           />
         )}
         disabled={newPinDateFrom ? false : true}
-        minDate={newPinDateFrom}
+        minDate={systemDate1 && systemDate1}
       />
     )
   }
+
   const handleGetStoreDetails = () => {
     setIsProgressLoader(true)
     getRangeResetEventsStoreDepot(
