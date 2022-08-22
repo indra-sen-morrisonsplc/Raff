@@ -101,6 +101,7 @@ import {
   getRangeResetEventsStoreDepot,
   patchRangeResetItems,
   postFileAttachmentRangeResetAPI,
+  deleteRafItem,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -2935,7 +2936,7 @@ function DelistsAddedToRange(props: any) {
       rowData.actionType === productShelfSpaceDecrease ||
       rowData.actionType === productShelfSpaceIncrease
     ) {
-      return <>{rowData.storesRangedCurrentVsProposed}</>
+      return <>{rowData.currentVersusNewStores}</>
     } else {
       return <></>
     }
@@ -3892,14 +3893,73 @@ function DelistsAddedToRange(props: any) {
     let draftData = selectedProductListItems.filter(
       (data: any) => data.lineStatus === bulkActionTypes.draftAction
     )
-    console.log('selected imported', selectedProductListItems)
-    let _tasks = importedData.filter(
-      (value: any) =>
-        // value.lineStatus === bulkActionTypes.draftAction &&
-        !draftData.includes(value)
-    )
-    console.log(_tasks)
-    setImportedData(_tasks)
+    console.log('selected delete', draftData)
+    let deleteSuccess: any = []
+    let deleteError = 0
+    let _tasks: any = []
+
+    let requests = draftData.map((item: any) => {
+      return deleteRafItem(eventDetails && eventDetails[0].id, item.min).then(
+        (res: any) => {
+          return [res, item.min]
+        }
+      )
+    })
+    Promise.allSettled(requests).then((responses: any) => {
+      console.log('delete 1', responses)
+      responses.map((item: any) => {
+        if (item.status === 'fulfilled') {
+          deleteSuccess.push(item.value && item.value[1])
+        } else {
+          deleteError += 1
+        }
+      })
+      if (deleteSuccess.length === draftData.length) {
+        _tasks.push(
+          ...importedData.filter(
+            (value: any) =>
+              // value.lineStatus === bulkActionTypes.draftAction &&
+              !draftData.includes(value)
+          )
+        )
+        toast.current.show({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Selected Items Deleted`,
+          life: life,
+          className: 'login-toast',
+        })
+      } else {
+        _tasks.push(
+          ...importedData.filter(
+            (value: any) =>
+              // value.lineStatus === bulkActionTypes.draftAction &&
+              !deleteSuccess.includes(value.min)
+          )
+        )
+        // let successString = deleteSuccess.toString()
+        // let errorString = deleteError.toString()
+        // toast.current.show({
+        //   severity: 'success',
+        //   summary: 'Success',
+        //   detail: `${successString} Deleted`,
+        //   life: life,
+        //   className: 'login-toast',
+        // })
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: `${deleteError} item(s) not Deleted, ${
+            draftData.length - deleteError
+          } item(s) Deleted`,
+          life: life,
+          className: 'login-toast',
+        })
+      }
+      console.log('delete', _tasks)
+      setImportedData(_tasks)
+    })
+
     setSelectedProductListItems([])
   }
 

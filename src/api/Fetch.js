@@ -55,6 +55,7 @@ const {
   GET_LOCATIONS,
   PATCH_RANGERESET_ITEMS,
   GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
+  DELETE_RAF_ITEM,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -620,6 +621,15 @@ export const getRangeResetEventsStoreDepot = (
   url = url.replace('{MIN}', minNumber)
   const params = `view=${storeOrDepot}`
   return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const deleteRafItem = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${DELETE_RAF_ITEM}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{MIN}', minNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'DELETE', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (
