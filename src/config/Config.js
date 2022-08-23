@@ -77,6 +77,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -159,6 +163,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -241,6 +249,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -323,6 +335,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -405,6 +421,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -487,6 +507,10 @@ const envDetails = {
     GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     DELETE_RAF_ITEM: 'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}',
+    PATCH_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
+    GET_RANGE_PLANOGRAM_ERROR:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{itemNumber}/itemshelffill',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',

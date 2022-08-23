@@ -25,18 +25,27 @@ import {
   ListItemText,
   Checkbox,
   FormHelperText,
+  withStyles,
   MenuProps as MenuPropsType,
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import { teal } from '@material-ui/core/colors'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { SearchOutlined } from '@material-ui/icons'
+import ErrorOutlineTwoToneIcon from '@material-ui/icons/ErrorOutlineTwoTone'
+import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded'
+import ErrorOutlinedIcon from '@material-ui/icons/ErrorOutlined'
+import LightTooltip from '../../../RangeChangeManagement/components/LightToolTip/LightTooltip'
 
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 // import { RiFileExcel2Fill } from 'react-icons/ri'
 import { Column } from 'primereact/column'
 import { DataTable } from 'primereact/datatable'
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
+import ErrorTwoToneIcon from '@material-ui/icons/ErrorTwoTone'
+import ErrorSharpIcon from '@material-ui/icons/ErrorSharp'
+import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded'
+import ErrorIcon from '@material-ui/icons/Error'
 // import AdapterDateFns from '@mui/lab/AdapterDateFns';
 // import LocalizationProvider from '@mui/lab/LocalizationProvider';
 // import DatePicker from '@mui/lab/DatePicker';
@@ -49,6 +58,7 @@ import {
   delistExistingProductsCols,
   massActions,
   productListCols,
+  planogramViewCols,
   salesChannels,
   delistToRangeData,
   placeholderCols,
@@ -74,6 +84,7 @@ import {
   regionsButtonsDummy,
   actionTypeList,
   actionTypeListHovers,
+  actionTypeListErrorMessage,
   ct36TableCols,
   clearDepotByOptions,
   bulkActionTypes,
@@ -102,6 +113,8 @@ import {
   patchRangeResetItems,
   postFileAttachmentRangeResetAPI,
   deleteRafItem,
+  patchRangeResetPlanogramErrors,
+  getRangeResetPlanogramErrors,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -148,6 +161,23 @@ function DelistsAddedToRange(props: any) {
   const history = useHistory()
   const small = useMediaQuery(theme.breakpoints.up('md'))
   const radio = <Radio color="primary" />
+  const LightTooltip = withStyles((theme: any) => ({
+    tooltip: {
+      backgroundColor: theme.palette.common.white,
+      // color: 'rgba(0, 0, 0, 0.87)',
+      color: 'red',
+      boxShadow: theme.shadows[1],
+      fontSize: 11,
+      border: '1px solid red',
+    },
+    arrow: {
+      color: '#FFFFFF',
+      // border: '1px solid red',
+      '&::before': {
+        border: '1px solid red',
+      },
+    },
+  }))(Tooltip)
   const {
     delistProductMin,
     productDistributionIncreaseMin,
@@ -162,6 +192,13 @@ function DelistsAddedToRange(props: any) {
     supplyChange,
     placeholderMin,
   }: any = actionTypeList
+  const {
+    delistProductMinErrorMessage,
+    productDistributionIncreaseMinErrorMessage,
+    productDistributionDecreaseMinErrorMessage,
+    productShelfSpaceIncreaseErrorMessage,
+    productShelfSpaceDecreaseErrorMessage,
+  }: any = actionTypeListErrorMessage
   const {
     delistMinHover,
     productDistributionIncreaseMinHover,
@@ -294,6 +331,9 @@ function DelistsAddedToRange(props: any) {
   const [deleteBulkActionOpen, setDeleteBulkActionOpen] = useState<any>(false)
   const [cancelBulkActionOpen, setCancelBulkActionOpen] = useState<any>(false)
   const [viewTemplateName, setViewTemplateName] = useState<any>('')
+
+  const [completeTaskPlaceHolderError, setCompleteTaskPlaceholderError] =
+    useState<any>('')
 
   let taskName = 'CT36'
 
@@ -456,543 +496,550 @@ function DelistsAddedToRange(props: any) {
     DASHBOARD_RANGE_PENDINGACTION,
   ])
 
-  const refreshAction = () => {
-    // getRangeByIdAndMinNumber('3400', '@all')
-    // getRangeByIdAndMinNumber('1304', '@all')
-    // getRangeByIdAndMinNumber(rafpendingActionDetailsCT06.eventId, '@all')
-    getRangeResetEventsStoreDepot(
-      rafpendingActionDetailsCT06 && rafpendingActionDetailsCT06.eventId,
-      '@all',
-      'store'
-    )
-      .then((res: any) => {
-        console.log('1304', res.data)
-        console.log('1304', JSON.stringify(res.data))
-        const data = res.data
-        if (data.length > 0) {
-          const data = res.data.map((item: any) => {
-            var minVal = 1000000000000
-            var max = 9999999999999
-            var rand = Math.floor(minVal + Math.random() * (max - minVal))
-            var shelfFillVal =
-              item.shelfFillNew && item.rangedStoresCurrent
-                ? parseInt(item.rangedStoresCurrent) *
-                  parseInt(item.shelfFillNew)
-                : null
-            var currentVsNewShelf =
-              item.shelfFillCurrent && shelfFillVal
-                ? Math.abs(item.shelfFillCurrent - shelfFillVal)
-                : null
-            var currentVsNewShelfPercent =
-              item.shelfFillCurrent && currentVsNewShelf
-                ? (currentVsNewShelf / item.shelfFillCurrent) * 100
-                : null
-            return {
-              _idCheck: rand,
-              actionType: item.type,
-              lineStatus: item.eventLineStatus,
-              // itemNumber: item.itemNumber, //userinput
-              min: item.itemNumber, //userinput
-              pin: item.pin ? item.pin : null,
-              pinArray: [],
-              ingredientMin: item.ingredientMin ? item.ingredientMin : null,
-              // legacyItemNumbers: item.hasOwnProperty('legacyItemNumbers')
-              //   ? item.legacyItemNumbers
-              //   : null,
-              legacyItemNumbers: item.legacyCode ? item.legacyCode : '',
-              man: item.man ? item.man : null,
-              description: item.description ? item.description : null,
-              replaceMin: item.replaceMin ? item.replaceMin : null,
-              replaceMinDescription: item.replaceMinDescription
-                ? item.replaceMinDescription
-                : null,
-              unitretailInc: 'NA', //drop2
-              unitcost: item.unitCost, //drop2
-              unitretailEx: 'NA', //drop2
-              casecost: item.caseCost ? item.caseCost : null, //drop2
-              packquantity: item.caseSize ? item.caseSize : null, //drop2
-              newSupplier: item.newSupplier ? item.newSupplier : null,
-              newSupplierSite: item.newSupplierSite
-                ? item.newSupplierSite
-                : null,
-              local: item.local ? item.local : null,
-              perStorepPerWeek: item.hasOwnProperty('perStorePerWeek')
-                ? item.perStorePerWeek
-                : null,
-              onlineCFC: item.rangestatus
-                ? item.rangestatus.online
-                  ? item.rangestatus.online[1]
-                    ? item.rangestatus.online[1] === 'OnlineCFC'
-                      ? 'Y'
+  // const refreshAction = () => {
+  // getRangeByIdAndMinNumber('3400', '@all')
+  // getRangeByIdAndMinNumber('1304', '@all')
+  // getRangeByIdAndMinNumber(rafpendingActionDetailsCT06.eventId, '@all')
+  const initialSummaryCall = () => {
+    setDisplayManualErrors(false)
+    setFinalRangeState(false)
+    setIsProgressLoader(true)
+    rafpendingActionDetailsCT06 &&
+      getRangeResetEventsStoreDepot(
+        rafpendingActionDetailsCT06 && rafpendingActionDetailsCT06.eventId,
+        '@all',
+        'store'
+      )
+        .then((res: any) => {
+          console.log('1304', res.data)
+          console.log('1304', JSON.stringify(res.data))
+          const data = res.data
+          if (data.length > 0) {
+            const data = res.data.map((item: any) => {
+              var minVal = 1000000000000
+              var max = 9999999999999
+              var rand = Math.floor(minVal + Math.random() * (max - minVal))
+              var shelfFillVal =
+                item.shelfFillNew && item.rangedStoresCurrent
+                  ? parseInt(item.rangedStoresCurrent) *
+                    parseInt(item.shelfFillNew)
+                  : null
+              var currentVsNewShelf =
+                item.shelfFillCurrent && shelfFillVal
+                  ? Math.abs(item.shelfFillCurrent - shelfFillVal)
+                  : null
+              var currentVsNewShelfPercent =
+                item.shelfFillCurrent && currentVsNewShelf
+                  ? (currentVsNewShelf / item.shelfFillCurrent) * 100
+                  : null
+              return {
+                _idCheck: rand,
+                actionType: item.type,
+                lineStatus: item.eventLineStatus,
+                // itemNumber: item.itemNumber, //userinput
+                min: item.itemNumber, //userinput
+                pin: item.pin ? item.pin : null,
+                pinArray: [],
+                ingredientMin: item.ingredientMin ? item.ingredientMin : null,
+                // legacyItemNumbers: item.hasOwnProperty('legacyItemNumbers')
+                //   ? item.legacyItemNumbers
+                //   : null,
+                legacyItemNumbers: item.legacyCode ? item.legacyCode : '',
+                man: item.man ? item.man : null,
+                description: item.description ? item.description : null,
+                replaceMin: item.replaceMin ? item.replaceMin : null,
+                replaceMinDescription: item.replaceMinDescription
+                  ? item.replaceMinDescription
+                  : null,
+                unitretailInc: 'NA', //drop2
+                unitcost: item.unitCost, //drop2
+                unitretailEx: 'NA', //drop2
+                casecost: item.caseCost ? item.caseCost : null, //drop2
+                packquantity: item.caseSize ? item.caseSize : null, //drop2
+                newSupplier: item.newSupplier ? item.newSupplier : null,
+                newSupplierSite: item.newSupplierSite
+                  ? item.newSupplierSite
+                  : null,
+                local: item.local ? item.local : null,
+                perStorepPerWeek: item.hasOwnProperty('perStorePerWeek')
+                  ? item.perStorePerWeek
+                  : null,
+                onlineCFC: item.rangestatus
+                  ? item.rangestatus.online
+                    ? item.rangestatus.online[1]
+                      ? item.rangestatus.online[1] === 'OnlineCFC'
+                        ? 'Y'
+                        : 'N'
                       : 'N'
                     : 'N'
-                  : 'N'
-                : 'N',
-              onlineStorePick:
-                // item.rangestatus
-                //   ? item.rangestatus.retail
-                //     ? item.rangestatus.retail.join(',')
-                //     : null
-                //   : null,
-                item.rangestatus
-                  ? item.rangestatus.online
-                    ? item.rangestatus.online[0].toLowerCase() === 'online'
+                  : 'N',
+                onlineStorePick:
+                  // item.rangestatus
+                  //   ? item.rangestatus.retail
+                  //     ? item.rangestatus.retail.join(',')
+                  //     : null
+                  //   : null,
+                  item.rangestatus
+                    ? item.rangestatus.online
+                      ? item.rangestatus.online[0].toLowerCase() === 'online'
+                        ? 'Y'
+                        : 'N'
+                      : 'N'
+                    : 'N',
+                wholesale: item.rangestatus
+                  ? item.rangestatus.wholesale
+                    ? item.rangestatus.wholesale.length > 0
                       ? 'Y'
                       : 'N'
                     : 'N'
                   : 'N',
-              wholesale: item.rangestatus
-                ? item.rangestatus.wholesale
-                  ? item.rangestatus.wholesale.length > 0
-                    ? 'Y'
-                    : 'N'
-                  : 'N'
-                : 'N',
-              currentnoofrangedstores: item.rangedStoresCurrent
-                ? item.rangedStoresCurrent
-                : null,
-              // currentnoofrangedstores: 100,
-              numberOfRangeStores: item.rangedStoresNew
-                ? item.rangedStoresNew
-                : null,
-              currentVersusNewStores: item.currentVsNewStores
-                ? item.currentVsNewStores
-                : null,
-              storesRangedCurrentVsProposed: item.rangedStoresPercent
-                ? item.rangedStoresPercent
-                : null,
-              currentShelfFill: item.shelfFillCurrent
-                ? item.shelfFillCurrent
-                : null,
-              newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
-              newShelfFillMultiplied: shelfFillVal,
-              currentshelffill_vs_newfill_percant: item.shelfFillPercent
-                ? item.shelfFillPercent
-                : null,
-              currentVsNewShelfFillPercent: currentVsNewShelfPercent,
-              currentshelffill_vs_newfill: item.currentVsNewShelfFill,
-              currentVsNewShelfFill: currentVsNewShelf,
-              ownBrand: item.ownBrand ? item.ownBrand : null,
-              includeInClearancePricing: item.clearancePricing
-                ? item.clearancePricing
-                : null,
-              includeInStoreWastage: item.wastage ? item.wastage : null,
-              clearDepotBy: item.depotClearWeek ? item.depotClearWeek : null,
-              supplierCommitment: item.supplierCommitment
-                ? item.supplierCommitment.quantity
-                  ? item.supplierCommitment.quantity
-                  : null
-                : null,
-              finalStopOrderDate: item.gscopdate.date
-                ? item.gscopdate.date.split(' ')[0]
-                : null,
-              systemSuggestedStopOrderDate: item.stopPODate
-                ? item.stopPODate.split(' ')[0]
-                : null,
-              lastPoDate: item.lastPODate
-                ? item.lastPODate.split(' ')[0]
-                : null,
-              depotShelfLifeMinimum: item.depotShelfLife
-                ? item.depotShelfLife
-                : null,
-              productShelfLifeInstore: item.productShelfLife
-                ? item.productShelfLife
-                : null,
-              shelfLifeatManufacture: item.mfgShelfLife
-                ? item.mfgShelfLife
-                : null,
-              // numberOfRangeStores: item.rangedStoresNew
-              //   ? item.rangedStoresNew
-              //   : null,
-              totalstock:
-                item.totalDepotStock && item.totalStoreStock
-                  ? item.totalDepotStock + item.totalStoreStock
-                  : item.totalDepotStock
-                  ? item.totalDepotStock
-                  : item.totalStoreStock
-                  ? item.totalStoreStock
-                  : '', //nokey
-              storeStockUnit: item.totalStoreStock
-                ? item.totalStoreStock
-                : null,
-              depotStockUnit: item.totalDepotStock
-                ? item.totalDepotStock
-                : null,
-              // depotStockUnit: 100,
-              openPos: item.totalOpenPurchaseOrders
-                ? item.totalOpenPurchaseOrders
-                : null,
-              storeNumbersForspecificStoreRange:
-                item.storeNumbersForspecificStoreRange
-                  ? item.storeNumbersForspecificStoreRange
+                currentnoofrangedstores: item.rangedStoresCurrent
+                  ? item.rangedStoresCurrent
                   : null,
-              forward_forecast_to_launch:
-                // item.frwdForecastToLaunch
-                //   ? item.frwdForecastToLaunch
+                // currentnoofrangedstores: 100,
+                numberOfRangeStores: item.rangedStoresNew
+                  ? item.rangedStoresNew
+                  : null,
+                currentVersusNewStores: item.currentVsNewStores
+                  ? item.currentVsNewStores
+                  : null,
+                storesRangedCurrentVsProposed: item.rangedStoresPercent
+                  ? item.rangedStoresPercent
+                  : null,
+                currentShelfFill: item.shelfFillCurrent
+                  ? item.shelfFillCurrent
+                  : null,
+                newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
+                newShelfFillMultiplied: shelfFillVal,
+                currentshelffill_vs_newfill_percant: item.shelfFillPercent
+                  ? item.shelfFillPercent
+                  : null,
+                currentVsNewShelfFillPercent: currentVsNewShelfPercent,
+                currentshelffill_vs_newfill: item.currentVsNewShelfFill,
+                currentVsNewShelfFill: currentVsNewShelf,
+                ownBrand: item.ownBrand ? item.ownBrand : null,
+                includeInClearancePricing: item.clearancePricing
+                  ? item.clearancePricing
+                  : null,
+                includeInStoreWastage: item.wastage ? item.wastage : null,
+                clearDepotBy: item.depotClearWeek ? item.depotClearWeek : null,
+                supplierCommitment: item.supplierCommitment
+                  ? item.supplierCommitment.quantity
+                    ? item.supplierCommitment.quantity
+                    : null
+                  : null,
+                finalStopOrderDate: item.gscopdate.date
+                  ? item.gscopdate.date.split(' ')[0]
+                  : null,
+                systemSuggestedStopOrderDate: item.stopPODate
+                  ? item.stopPODate.split(' ')[0]
+                  : null,
+                lastPoDate: item.lastPODate
+                  ? item.lastPODate.split(' ')[0]
+                  : null,
+                depotShelfLifeMinimum: item.depotShelfLife
+                  ? item.depotShelfLife
+                  : null,
+                productShelfLifeInstore: item.productShelfLife
+                  ? item.productShelfLife
+                  : null,
+                shelfLifeatManufacture: item.mfgShelfLife
+                  ? item.mfgShelfLife
+                  : null,
+                // numberOfRangeStores: item.rangedStoresNew
+                //   ? item.rangedStoresNew
                 //   : null,
-                item.totalSalesForecast ? item.totalSalesForecast : null,
-              averageWeeklyVolume: item.total3MonthsPOHistory
-                ? item.total3MonthsPOHistory
-                : null,
-              weeksCoveronTotalStockonHandtoResetDate: item.weeksCover
-                ? item.weeksCover
-                : null,
-              forcastedWeeksCovertoResetDate: item.forecastWeekCover
-                ? item.forecastWeekCover
-                : null,
-              // excessstock: item.excessStock ? item.excessStock : null,
-              excessstock: item.totalExcessStocks
-                ? item.totalExcessStocks
-                : null,
+                totalstock:
+                  item.totalDepotStock && item.totalStoreStock
+                    ? item.totalDepotStock + item.totalStoreStock
+                    : item.totalDepotStock
+                    ? item.totalDepotStock
+                    : item.totalStoreStock
+                    ? item.totalStoreStock
+                    : '', //nokey
+                storeStockUnit: item.totalStoreStock
+                  ? item.totalStoreStock
+                  : null,
+                depotStockUnit: item.totalDepotStock
+                  ? item.totalDepotStock
+                  : null,
+                // depotStockUnit: 100,
+                openPos: item.totalOpenPurchaseOrders
+                  ? item.totalOpenPurchaseOrders
+                  : null,
+                storeNumbersForspecificStoreRange:
+                  item.storeNumbersForspecificStoreRange
+                    ? item.storeNumbersForspecificStoreRange
+                    : null,
+                forward_forecast_to_launch:
+                  // item.frwdForecastToLaunch
+                  //   ? item.frwdForecastToLaunch
+                  //   : null,
+                  item.totalSalesForecast ? item.totalSalesForecast : null,
+                averageWeeklyVolume: item.total3MonthsPOHistory
+                  ? item.total3MonthsPOHistory
+                  : null,
+                weeksCoveronTotalStockonHandtoResetDate: item.weeksCover
+                  ? item.weeksCover
+                  : null,
+                forcastedWeeksCovertoResetDate: item.forecastWeekCover
+                  ? item.forecastWeekCover
+                  : null,
+                // excessstock: item.excessStock ? item.excessStock : null,
+                excessstock: item.totalExcessStocks
+                  ? item.totalExcessStocks
+                  : null,
 
-              safewaybrandedequivalent: item.safewayBrandedEq
-                ? item.safewayBrandedEq
-                : null,
-              effectiveDateFrom: item.effectiveFromDate
-                ? item.effectiveFromDate.split(' ')[0]
-                : null,
-              effectiveDateTo: item.effectiveToDate
-                ? item.effectiveToDate.split(' ')[0]
-                : null,
-              existingSupplier: item.existingSupplier
-                ? item.existingSupplier
-                : null,
-              existingSupplierSite: item.existingSupplierSite
-                ? item.existingSupplierSite
-                : null,
-              noOfRecipeMin: item.recipeMin ? item.recipeMin : '',
-              // noOfRecipeMin: 100,
-              //drop2
-              // depotClearbyReservedQtyRetail: item.retailDepotClear
-              //   ? item.retailDepotClear
-              //   : null,
-              // depotClearbyReservedQtyWholesale: item.wholesaleDepotClear
-              //   ? item.wholesaleDepotClear
-              //   : null,
-              // depotClearbyReservedQtyOnline: item.onlineDepotClear
-              //   ? item.onlineDepotClear
-              //   : null,
-              // depotClearbyReservedQtyTotal: item.totalDepotClear
-              //   ? item.totalDepotClear
-              //   : null,
-              //drop 2 upper block should be work
-              depotClearbyReservedQtyRetail: null,
-              depotClearbyReservedQtyWholesale: null,
-              depotClearbyReservedQtyOnline: null,
-              depotClearbyReservedQtyTotal: null,
+                safewaybrandedequivalent: item.safewayBrandedEq
+                  ? item.safewayBrandedEq
+                  : null,
+                effectiveDateFrom: item.effectiveFromDate
+                  ? item.effectiveFromDate.split(' ')[0]
+                  : null,
+                effectiveDateTo: item.effectiveToDate
+                  ? item.effectiveToDate.split(' ')[0]
+                  : null,
+                existingSupplier: item.existingSupplier
+                  ? item.existingSupplier
+                  : null,
+                existingSupplierSite: item.existingSupplierSite
+                  ? item.existingSupplierSite
+                  : null,
+                noOfRecipeMin: item.recipeMin ? item.recipeMin : '',
+                // noOfRecipeMin: 100,
+                //drop2
+                // depotClearbyReservedQtyRetail: item.retailDepotClear
+                //   ? item.retailDepotClear
+                //   : null,
+                // depotClearbyReservedQtyWholesale: item.wholesaleDepotClear
+                //   ? item.wholesaleDepotClear
+                //   : null,
+                // depotClearbyReservedQtyOnline: item.onlineDepotClear
+                //   ? item.onlineDepotClear
+                //   : null,
+                // depotClearbyReservedQtyTotal: item.totalDepotClear
+                //   ? item.totalDepotClear
+                //   : null,
+                //drop 2 upper block should be work
+                depotClearbyReservedQtyRetail: null,
+                depotClearbyReservedQtyWholesale: null,
+                depotClearbyReservedQtyOnline: null,
+                depotClearbyReservedQtyTotal: null,
 
-              comments: item.comments ? item.comments : null, //uncomment when deploying
-              // min: '500000033',
+                comments: item.comments ? item.comments : null, //uncomment when deploying
+                // min: '500000033',
 
-              //Depot stock Unit View Model data
-              // aggregatedStoreStockUnit: item.aggregatedstorestock ? item.aggregatedstorestock : null,
-              // totalPurchaseOrdersForecast: item.totalPurchaseOrdersForecast ?item.totalPurchaseOrdersForecast:null,
-              // total3MonthsPOHistory: item.total3MonthsPOHistory ? item.total3MonthsPOHistory :null,
-              // depotClearDate: item.depotClearDate ?  item.depotClearDate :null,
-              // salesForcastToTargetDate: 'NA',
-              // systemAdvisedStopOrderDate: 'NA',
-              // derangedLocations: item.derangedLocations,
-              // rangedStoresCurrent: item.rangedStoresCurrent,
-              groupCategoryDepartment: `${
-                eventDetails && eventDetails[0].tradeGroup
-              }, ${
-                eventDetails && eventDetails[0].category
-                  ? eventDetails[0].category
-                  : ''
-              }, ${
-                eventDetails && eventDetails[0].department
-                  ? eventDetails[0].department
-                  : ''
-              }`,
-            }
-          })
+                //Depot stock Unit View Model data
+                // aggregatedStoreStockUnit: item.aggregatedstorestock ? item.aggregatedstorestock : null,
+                // totalPurchaseOrdersForecast: item.totalPurchaseOrdersForecast ?item.totalPurchaseOrdersForecast:null,
+                // total3MonthsPOHistory: item.total3MonthsPOHistory ? item.total3MonthsPOHistory :null,
+                // depotClearDate: item.depotClearDate ?  item.depotClearDate :null,
+                // salesForcastToTargetDate: 'NA',
+                // systemAdvisedStopOrderDate: 'NA',
+                // derangedLocations: item.derangedLocations,
+                // rangedStoresCurrent: item.rangedStoresCurrent,
+                groupCategoryDepartment: `${
+                  eventDetails && eventDetails[0].tradeGroup
+                }, ${
+                  eventDetails && eventDetails[0].category
+                    ? eventDetails[0].category
+                    : ''
+                }, ${
+                  eventDetails && eventDetails[0].department
+                    ? eventDetails[0].department
+                    : ''
+                }`,
+              }
+            })
 
-          setImportedData(data)
-          console.log('setImportedData1304@all', data)
-          console.log('ImportedData1304@all', data)
-          setCheckComplete(false)
-        }
-      })
-      .catch((err: any) => {
-        console.log(err)
-        setImportedData(null)
-      })
+            setImportedData(data)
+            console.log('setImportedData1304@all', data)
+            console.log('ImportedData1304@all', data)
+          }
+          setIsProgressLoader(false)
+        })
+        .catch((err: any) => {
+          console.log(err)
+          setImportedData(null)
+          setIsProgressLoader(false)
+        })
   }
 
   useEffect(() => {
     // getRangeByIdAndMinNumber('3400', '@all')
     // getRangeByIdAndMinNumber('1304', '@all')
     // getRangeByIdAndMinNumber(rafpendingActionDetailsCT06.eventId, '@all')
-    if (rafpendingActionDetailsCT06) {
-      if (
-        rafpendingActionDetailsCT06 &&
-        eventDetails &&
-        eventDetails[0].tradeGroup
-      ) {
-        getRangeResetEventsStoreDepot(
-          rafpendingActionDetailsCT06.eventId,
-          '@all',
-          'store'
-        )
-          .then((res: any) => {
-            console.log('1304', res.data)
-            console.log('1304', JSON.stringify(res.data))
-            const data = res.data
-            if (data.length > 0) {
-              const data = res.data.map((item: any) => {
-                var minVal = 1000000000000
-                var max = 9999999999999
-                var rand = Math.floor(minVal + Math.random() * (max - minVal))
-                var shelfFillVal =
-                  item.shelfFillNew && item.rangedStoresCurrent
-                    ? parseInt(item.rangedStoresCurrent) *
-                      parseInt(item.shelfFillNew)
-                    : null
-                var currentVsNewShelf =
-                  item.shelfFillCurrent && shelfFillVal
-                    ? Math.abs(item.shelfFillCurrent - shelfFillVal)
-                    : null
-                var currentVsNewShelfPercent =
-                  item.shelfFillCurrent && currentVsNewShelf
-                    ? (currentVsNewShelf / item.shelfFillCurrent) * 100
-                    : null
-                return {
-                  _idCheck: rand,
-                  actionType: item.type,
-                  lineStatus: item.eventLineStatus,
-                  // itemNumber: item.itemNumber, //userinput
-                  min: item.itemNumber, //userinput
-                  pin: item.pin ? item.pin : null,
-                  pinArray: null,
-                  ingredientMin: item.ingredientMin ? item.ingredientMin : null,
-                  // legacyItemNumbers: item.hasOwnProperty('legacyItemNumbers')
-                  //   ? item.legacyItemNumbers
-                  //   : null,
-                  legacyItemNumbers: item.legacyCode ? item.legacyCode : '',
-                  man: item.man ? item.man : null,
-                  description: item.description ? item.description : null,
-                  replaceMin: item.replaceMin ? item.replaceMin : null,
-                  replaceMinDescription: item.replaceMinDescription
-                    ? item.replaceMinDescription
-                    : null,
-                  unitretailInc: 'NA', //drop2
-                  unitcost: item.unitCost, //drop2
-                  unitretailEx: 'NA', //drop2
-                  casecost: item.caseCost ? item.caseCost : null, //drop2
-                  packquantity: item.caseSize ? item.caseSize : null, //drop2
-                  newSupplier: item.newSupplier ? item.newSupplier : null,
-                  newSupplierSite: item.newSupplierSite
-                    ? item.newSupplierSite
-                    : null,
-                  local: item.local ? item.local : null,
-                  perStorepPerWeek: item.hasOwnProperty('perStorePerWeek')
-                    ? item.perStorePerWeek
-                    : null,
-                  onlineCFC:
-                    // item.rangestatus
-                    //   ? item.rangestatus.online
-                    //     ? item.rangestatus.online[0].toLowerCase() === 'Online'
-                    //       ? 'Y'
-                    //       : 'N'
-                    //     : null
-                    //   : null,
-                    item.rangestatus
-                      ? item.rangestatus.online
-                        ? item.rangestatus.online[1]
-                          ? item.rangestatus.online[1] === 'OnlineCFC'
-                            ? 'Y'
-                            : 'N'
-                          : 'N'
-                        : 'N'
-                      : 'N',
-                  onlineStorePick:
-                    // item.rangestatus
-                    //   ? item.rangestatus.retail
-                    //     ? item.rangestatus.retail.join(',')
-                    //     : null
-                    //   : null,
-                    item.rangestatus
-                      ? item.rangestatus.online
-                        ? item.rangestatus.online[0].toLowerCase() === 'online'
-                          ? 'Y'
-                          : 'N'
-                        : 'N'
-                      : 'N',
-                  wholesale: item.rangestatus
-                    ? item.rangestatus.wholesale
-                      ? item.rangestatus.wholesale.length > 0
-                        ? 'Y'
-                        : 'N'
-                      : 'N'
-                    : 'N',
-                  currentnoofrangedstores: item.rangedStoresCurrent
-                    ? item.rangedStoresCurrent
-                    : null,
-                  // currentnoofrangedstores: 100,
-                  numberOfRangeStores: item.rangedStoresNew
-                    ? item.rangedStoresNew
-                    : null,
-                  currentVersusNewStores: item.currentVsNewStores
-                    ? item.currentVsNewStores
-                    : null,
-                  storesRangedCurrentVsProposed: item.rangedStoresPercent
-                    ? item.rangedStoresPercent
-                    : null,
-                  currentShelfFill: item.shelfFillCurrent
-                    ? item.shelfFillCurrent
-                    : null,
-                  newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
-                  newShelfFillMultiplied: shelfFillVal,
-                  currentshelffill_vs_newfill_percant: item.shelfFillPercent
-                    ? item.shelfFillPercent
-                    : null,
-                  currentVsNewShelfFillPercent: currentVsNewShelfPercent,
-                  currentshelffill_vs_newfill: item.currentVsNewShelfFill,
-                  currentVsNewShelfFill: currentVsNewShelf,
-                  ownBrand: item.ownBrand ? item.ownBrand : null,
-                  includeInClearancePricing: item.clearancePricing
-                    ? item.clearancePricing
-                    : null,
-                  includeInStoreWastage: item.wastage ? item.wastage : null,
-                  clearDepotBy: item.depotClearWeek
-                    ? item.depotClearWeek
-                    : null,
-                  supplierCommitment: item.supplierCommitment
-                    ? item.supplierCommitment.quantity
-                      ? item.supplierCommitment.quantity
-                      : null
-                    : null,
-                  finalStopOrderDate: item.gscopdate.date
-                    ? item.gscopdate.date.split(' ')[0]
-                    : null,
-                  systemSuggestedStopOrderDate: item.stopPODate
-                    ? item.stopPODate.split(' ')[0]
-                    : null,
-                  lastPoDate: item.lastPODate
-                    ? item.lastPODate.split(' ')[0]
-                    : null,
-                  depotShelfLifeMinimum: item.depotShelfLife
-                    ? item.depotShelfLife
-                    : null,
-                  productShelfLifeInstore: item.productShelfLife
-                    ? item.productShelfLife
-                    : null,
-                  shelfLifeatManufacture: item.mfgShelfLife
-                    ? item.mfgShelfLife
-                    : null,
-                  // numberOfRangeStores: item.rangedStoresNew
-                  //   ? item.rangedStoresNew
-                  //   : null,
-                  totalstock:
-                    item.totalDepotStock && item.totalStoreStock
-                      ? item.totalDepotStock + item.totalStoreStock
-                      : item.totalDepotStock
-                      ? item.totalDepotStock
-                      : item.totalStoreStock
-                      ? item.totalStoreStock
-                      : '',
-                  storeStockUnit: item.totalStoreStock
-                    ? item.totalStoreStock
-                    : null,
-                  depotStockUnit: item.totalDepotStock
-                    ? item.totalDepotStock
-                    : null,
-                  // depotStockUnit: 100,
-                  openPos: item.totalOpenPurchaseOrders
-                    ? item.totalOpenPurchaseOrders
-                    : null,
-                  storeNumbersForspecificStoreRange:
-                    item.storeNumbersForspecificStoreRange
-                      ? item.storeNumbersForspecificStoreRange
-                      : null,
-                  forward_forecast_to_launch:
-                    // item.frwdForecastToLaunch
-                    //   ? item.frwdForecastToLaunch
-                    //   : null,
-                    item.totalSalesForecast ? item.totalSalesForecast : null,
-                  averageWeeklyVolume: item.total3MonthsPOHistory
-                    ? item.total3MonthsPOHistory
-                    : null,
-                  weeksCoveronTotalStockonHandtoResetDate: item.weeksCover
-                    ? item.weeksCover
-                    : null,
-                  forcastedWeeksCovertoResetDate: item.forecastWeekCover
-                    ? item.forecastWeekCover
-                    : null,
-                  // excessstock: item.excessStock ? item.excessStock : null,
-                  excessstock: item.totalExcessStocks
-                    ? item.totalExcessStocks
-                    : null,
-                  safewaybrandedequivalent: item.safewayBrandedEq
-                    ? item.safewayBrandedEq
-                    : null,
-                  effectiveDateFrom: item.effectiveFromDate
-                    ? item.effectiveFromDate.split(' ')[0]
-                    : null,
-                  effectiveDateTo: item.effectiveToDate
-                    ? item.effectiveToDate.split(' ')[0]
-                    : null,
-                  existingSupplier: item.existingSupplier
-                    ? item.existingSupplier
-                    : null,
-                  existingSupplierSite: item.existingSupplierSite
-                    ? item.existingSupplierSite
-                    : null,
-                  noOfRecipeMin: item.recipeMin ? item.recipeMin : '',
-                  // noOfRecipeMin: 100,
-                  //drop2
-                  // depotClearbyReservedQtyRetail: item.retailDepotClear
-                  //   ? item.retailDepotClear
-                  //   : null,
-                  // depotClearbyReservedQtyWholesale: item.wholesaleDepotClear
-                  //   ? item.wholesaleDepotClear
-                  //   : null,
-                  // depotClearbyReservedQtyOnline: item.onlineDepotClear
-                  //   ? item.onlineDepotClear
-                  //   : null,
-                  // depotClearbyReservedQtyTotal: item.totalDepotClear
-                  //   ? item.totalDepotClear
-                  //   : null,
-                  // drop 2 upper block
-                  depotClearbyReservedQtyRetail: null,
-                  depotClearbyReservedQtyWholesale: null,
-                  depotClearbyReservedQtyOnline: null,
-                  depotClearbyReservedQtyTotal: null,
-                  comments: item.comments ? item.comments : null, //uncomment when deploying
-                  // min: '500000033',
+    // if (rafpendingActionDetailsCT06) {
+    //   if (
+    //     rafpendingActionDetailsCT06 &&
+    //     eventDetails &&
+    //     eventDetails[0].tradeGroup
+    //   ) {
+    //     getRangeResetEventsStoreDepot(
+    //       rafpendingActionDetailsCT06.eventId,
+    //       '@all',
+    //       'store'
+    //     )
+    //       .then((res: any) => {
+    //         console.log('1304', res.data)
+    //         console.log('1304', JSON.stringify(res.data))
+    //         const data = res.data
+    //         if (data.length > 0) {
+    //           const data = res.data.map((item: any) => {
+    //             var minVal = 1000000000000
+    //             var max = 9999999999999
+    //             var rand = Math.floor(minVal + Math.random() * (max - minVal))
+    //             var shelfFillVal =
+    //               item.shelfFillNew && item.rangedStoresCurrent
+    //                 ? parseInt(item.rangedStoresCurrent) *
+    //                   parseInt(item.shelfFillNew)
+    //                 : null
+    //             var currentVsNewShelf =
+    //               item.shelfFillCurrent && shelfFillVal
+    //                 ? Math.abs(item.shelfFillCurrent - shelfFillVal)
+    //                 : null
+    //             var currentVsNewShelfPercent =
+    //               item.shelfFillCurrent && currentVsNewShelf
+    //                 ? (currentVsNewShelf / item.shelfFillCurrent) * 100
+    //                 : null
+    //             return {
+    //               _idCheck: rand,
+    //               actionType: item.type,
+    //               lineStatus: item.eventLineStatus,
+    //               // itemNumber: item.itemNumber, //userinput
+    //               min: item.itemNumber, //userinput
+    //               pin: item.pin ? item.pin : null,
+    //               pinArray: null,
+    //               ingredientMin: item.ingredientMin ? item.ingredientMin : null,
+    //               // legacyItemNumbers: item.hasOwnProperty('legacyItemNumbers')
+    //               //   ? item.legacyItemNumbers
+    //               //   : null,
+    //               legacyItemNumbers: item.legacyCode ? item.legacyCode : '',
+    //               man: item.man ? item.man : null,
+    //               description: item.description ? item.description : null,
+    //               replaceMin: item.replaceMin ? item.replaceMin : null,
+    //               replaceMinDescription: item.replaceMinDescription
+    //                 ? item.replaceMinDescription
+    //                 : null,
+    //               unitretailInc: 'NA', //drop2
+    //               unitcost: item.unitCost, //drop2
+    //               unitretailEx: 'NA', //drop2
+    //               casecost: item.caseCost ? item.caseCost : null, //drop2
+    //               packquantity: item.caseSize ? item.caseSize : null, //drop2
+    //               newSupplier: item.newSupplier ? item.newSupplier : null,
+    //               newSupplierSite: item.newSupplierSite
+    //                 ? item.newSupplierSite
+    //                 : null,
+    //               local: item.local ? item.local : null,
+    //               perStorepPerWeek: item.hasOwnProperty('perStorePerWeek')
+    //                 ? item.perStorePerWeek
+    //                 : null,
+    //               onlineCFC:
+    //                 // item.rangestatus
+    //                 //   ? item.rangestatus.online
+    //                 //     ? item.rangestatus.online[0].toLowerCase() === 'Online'
+    //                 //       ? 'Y'
+    //                 //       : 'N'
+    //                 //     : null
+    //                 //   : null,
+    //                 item.rangestatus
+    //                   ? item.rangestatus.online
+    //                     ? item.rangestatus.online[1]
+    //                       ? item.rangestatus.online[1] === 'OnlineCFC'
+    //                         ? 'Y'
+    //                         : 'N'
+    //                       : 'N'
+    //                     : 'N'
+    //                   : 'N',
+    //               onlineStorePick:
+    //                 // item.rangestatus
+    //                 //   ? item.rangestatus.retail
+    //                 //     ? item.rangestatus.retail.join(',')
+    //                 //     : null
+    //                 //   : null,
+    //                 item.rangestatus
+    //                   ? item.rangestatus.online
+    //                     ? item.rangestatus.online[0].toLowerCase() === 'online'
+    //                       ? 'Y'
+    //                       : 'N'
+    //                     : 'N'
+    //                   : 'N',
+    //               wholesale: item.rangestatus
+    //                 ? item.rangestatus.wholesale
+    //                   ? item.rangestatus.wholesale.length > 0
+    //                     ? 'Y'
+    //                     : 'N'
+    //                   : 'N'
+    //                 : 'N',
+    //               currentnoofrangedstores: item.rangedStoresCurrent
+    //                 ? item.rangedStoresCurrent
+    //                 : null,
+    //               // currentnoofrangedstores: 100,
+    //               numberOfRangeStores: item.rangedStoresNew
+    //                 ? item.rangedStoresNew
+    //                 : null,
+    //               currentVersusNewStores: item.currentVsNewStores
+    //                 ? item.currentVsNewStores
+    //                 : null,
+    //               storesRangedCurrentVsProposed: item.rangedStoresPercent
+    //                 ? item.rangedStoresPercent
+    //                 : null,
+    //               currentShelfFill: item.shelfFillCurrent
+    //                 ? item.shelfFillCurrent
+    //                 : null,
+    //               newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
+    //               newShelfFillMultiplied: shelfFillVal,
+    //               currentshelffill_vs_newfill_percant: item.shelfFillPercent
+    //                 ? item.shelfFillPercent
+    //                 : null,
+    //               currentVsNewShelfFillPercent: currentVsNewShelfPercent,
+    //               currentshelffill_vs_newfill: item.currentVsNewShelfFill,
+    //               currentVsNewShelfFill: currentVsNewShelf,
+    //               ownBrand: item.ownBrand ? item.ownBrand : null,
+    //               includeInClearancePricing: item.clearancePricing
+    //                 ? item.clearancePricing
+    //                 : null,
+    //               includeInStoreWastage: item.wastage ? item.wastage : null,
+    //               clearDepotBy: item.depotClearWeek
+    //                 ? item.depotClearWeek
+    //                 : null,
+    //               supplierCommitment: item.supplierCommitment
+    //                 ? item.supplierCommitment.quantity
+    //                   ? item.supplierCommitment.quantity
+    //                   : null
+    //                 : null,
+    //               finalStopOrderDate: item.gscopdate.date
+    //                 ? item.gscopdate.date.split(' ')[0]
+    //                 : null,
+    //               systemSuggestedStopOrderDate: item.stopPODate
+    //                 ? item.stopPODate.split(' ')[0]
+    //                 : null,
+    //               lastPoDate: item.lastPODate
+    //                 ? item.lastPODate.split(' ')[0]
+    //                 : null,
+    //               depotShelfLifeMinimum: item.depotShelfLife
+    //                 ? item.depotShelfLife
+    //                 : null,
+    //               productShelfLifeInstore: item.productShelfLife
+    //                 ? item.productShelfLife
+    //                 : null,
+    //               shelfLifeatManufacture: item.mfgShelfLife
+    //                 ? item.mfgShelfLife
+    //                 : null,
+    //               // numberOfRangeStores: item.rangedStoresNew
+    //               //   ? item.rangedStoresNew
+    //               //   : null,
+    //               totalstock:
+    //                 item.totalDepotStock && item.totalStoreStock
+    //                   ? item.totalDepotStock + item.totalStoreStock
+    //                   : item.totalDepotStock
+    //                   ? item.totalDepotStock
+    //                   : item.totalStoreStock
+    //                   ? item.totalStoreStock
+    //                   : '',
+    //               storeStockUnit: item.totalStoreStock
+    //                 ? item.totalStoreStock
+    //                 : null,
+    //               depotStockUnit: item.totalDepotStock
+    //                 ? item.totalDepotStock
+    //                 : null,
+    //               // depotStockUnit: 100,
+    //               openPos: item.totalOpenPurchaseOrders
+    //                 ? item.totalOpenPurchaseOrders
+    //                 : null,
+    //               storeNumbersForspecificStoreRange:
+    //                 item.storeNumbersForspecificStoreRange
+    //                   ? item.storeNumbersForspecificStoreRange
+    //                   : null,
+    //               forward_forecast_to_launch:
+    //                 // item.frwdForecastToLaunch
+    //                 //   ? item.frwdForecastToLaunch
+    //                 //   : null,
+    //                 item.totalSalesForecast ? item.totalSalesForecast : null,
+    //               averageWeeklyVolume: item.total3MonthsPOHistory
+    //                 ? item.total3MonthsPOHistory
+    //                 : null,
+    //               weeksCoveronTotalStockonHandtoResetDate: item.weeksCover
+    //                 ? item.weeksCover
+    //                 : null,
+    //               forcastedWeeksCovertoResetDate: item.forecastWeekCover
+    //                 ? item.forecastWeekCover
+    //                 : null,
+    //               // excessstock: item.excessStock ? item.excessStock : null,
+    //               excessstock: item.totalExcessStocks
+    //                 ? item.totalExcessStocks
+    //                 : null,
+    //               safewaybrandedequivalent: item.safewayBrandedEq
+    //                 ? item.safewayBrandedEq
+    //                 : null,
+    //               effectiveDateFrom: item.effectiveFromDate
+    //                 ? item.effectiveFromDate.split(' ')[0]
+    //                 : null,
+    //               effectiveDateTo: item.effectiveToDate
+    //                 ? item.effectiveToDate.split(' ')[0]
+    //                 : null,
+    //               existingSupplier: item.existingSupplier
+    //                 ? item.existingSupplier
+    //                 : null,
+    //               existingSupplierSite: item.existingSupplierSite
+    //                 ? item.existingSupplierSite
+    //                 : null,
+    //               noOfRecipeMin: item.recipeMin ? item.recipeMin : '',
+    //               // noOfRecipeMin: 100,
+    //               //drop2
+    //               // depotClearbyReservedQtyRetail: item.retailDepotClear
+    //               //   ? item.retailDepotClear
+    //               //   : null,
+    //               // depotClearbyReservedQtyWholesale: item.wholesaleDepotClear
+    //               //   ? item.wholesaleDepotClear
+    //               //   : null,
+    //               // depotClearbyReservedQtyOnline: item.onlineDepotClear
+    //               //   ? item.onlineDepotClear
+    //               //   : null,
+    //               // depotClearbyReservedQtyTotal: item.totalDepotClear
+    //               //   ? item.totalDepotClear
+    //               //   : null,
+    //               // drop 2 upper block
+    //               depotClearbyReservedQtyRetail: null,
+    //               depotClearbyReservedQtyWholesale: null,
+    //               depotClearbyReservedQtyOnline: null,
+    //               depotClearbyReservedQtyTotal: null,
+    //               comments: item.comments ? item.comments : null, //uncomment when deploying
+    //               // min: '500000033',
 
-                  //Depot stock Unit View Model data
-                  // aggregatedStoreStockUnit: item.aggregatedstorestock ? item.aggregatedstorestock : null,
-                  // totalPurchaseOrdersForecast: item.totalPurchaseOrdersForecast ?item.totalPurchaseOrdersForecast:null,
-                  // total3MonthsPOHistory: item.total3MonthsPOHistory ? item.total3MonthsPOHistory :null,
-                  // depotClearDate: item.depotClearDate ?  item.depotClearDate :null,
-                  // salesForcastToTargetDate: 'NA',
-                  // systemAdvisedStopOrderDate: 'NA',
-                  // derangedLocations: item.derangedLocations,
-                  // rangedStoresCurrent: item.rangedStoresCurrent,
-                  groupCategoryDepartment: `${eventDetails[0].tradeGroup}, ${
-                    eventDetails && eventDetails[0].category
-                      ? eventDetails[0].category
-                      : ''
-                  }, ${
-                    eventDetails && eventDetails[0].department
-                      ? eventDetails[0].department
-                      : ''
-                  }`,
-                }
-              })
+    //               //Depot stock Unit View Model data
+    //               // aggregatedStoreStockUnit: item.aggregatedstorestock ? item.aggregatedstorestock : null,
+    //               // totalPurchaseOrdersForecast: item.totalPurchaseOrdersForecast ?item.totalPurchaseOrdersForecast:null,
+    //               // total3MonthsPOHistory: item.total3MonthsPOHistory ? item.total3MonthsPOHistory :null,
+    //               // depotClearDate: item.depotClearDate ?  item.depotClearDate :null,
+    //               // salesForcastToTargetDate: 'NA',
+    //               // systemAdvisedStopOrderDate: 'NA',
+    //               // derangedLocations: item.derangedLocations,
+    //               // rangedStoresCurrent: item.rangedStoresCurrent,
+    //               groupCategoryDepartment: `${eventDetails[0].tradeGroup}, ${
+    //                 eventDetails && eventDetails[0].category
+    //                   ? eventDetails[0].category
+    //                   : ''
+    //               }, ${
+    //                 eventDetails && eventDetails[0].department
+    //                   ? eventDetails[0].department
+    //                   : ''
+    //               }`,
+    //             }
+    //           })
 
-              setImportedData(data)
-              console.log('setImportedData1304@all', data)
-              console.log('ImportedData1304@all', data)
-              setCheckComplete(false)
-            }
-          })
-          .catch((err: any) => {
-            console.log(err)
-          })
-      }
-    }
+    //           setImportedData(data)
+    //           console.log('setImportedData1304@all', data)
+    //           console.log('ImportedData1304@all', data)
+    //           setCheckComplete(false)
+    //         }
+    //       })
+    //       .catch((err: any) => {
+    //         console.log(err)
+    //       })
+    //   }
+    // }
+    initialSummaryCall()
   }, [eventDetails])
 
   useEffect(() => {
@@ -1344,6 +1391,165 @@ function DelistsAddedToRange(props: any) {
   //     return <TextFieldWithSearch value={buyingMinIngredients} onChangeFn={setBuyingMinIngredients} onSearch={console.log} />
   // }
 
+  const [xlslPlanogramimportedData, setXlslPlanogramimportedData] =
+    useState<any>([])
+
+  const onChangeProductTableFieldsPlano = (
+    prevState: any,
+    field: any,
+    rowDataSelected: any,
+    eventValue: any,
+    fieldError: any
+  ) => {
+    let newArr = [...xlslPlanogramimportedData]
+    let index = newArr.findIndex(
+      (data: any) => data.min === rowDataSelected.min
+    )
+    if (index !== -1) {
+      if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === delistProductMin &&
+        rowDataSelected.newnoofrangestoresPlanogram > 0
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productDistributionIncreaseMin &&
+        rowDataSelected.newnoofrangestoresPlanogram <
+          newArr[index].currentnoofrangedstores
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productDistributionDecreaseMin &&
+        rowDataSelected.newnoofrangestoresPlanogram >
+          newArr[index].currentnoofrangedstores
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productShelfSpaceIncrease &&
+        rowDataSelected.newShelfFillPlanogram < newArr[index].currentShelfFill
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productShelfSpaceDecrease &&
+        rowDataSelected.newShelfFillPlanogram > newArr[index].currentShelfFill
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = true
+      } else {
+        newArr[index].actionType = eventValue
+        newArr[index].showError = false
+      }
+    }
+    setXlslPlanogramimportedData(newArr)
+    console.log('planoData onChangeProductTableFieldsPlano', newArr)
+  }
+
+  const actionTypePlanogramTemplate = (rowData: any) => {
+    const check = selectedPlanogramItems.filter(
+      (val: any) => rowData.min === val.min
+    )
+
+    if (editPlanoClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <Select
+          value={rowData && rowData.actionType}
+          onChange={(e: any) => {
+            setXlslPlanogramimportedData((prevState: any) => {
+              return onChangeProductTableFieldsPlano(
+                prevState,
+                'actionType',
+                rowData,
+                e.target.value,
+                'showError'
+              )
+            })
+          }}
+          input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
+        >
+          {actionTypeOptions.map((type: any) => {
+            if (
+              type.value !== 'Multiple Selection' &&
+              type.value !== supplyChange &&
+              type.value !== newOutercaseCode &&
+              type.value !== delistOutercaseCode &&
+              type.value !== newIngredientMin &&
+              type.value !== delistIngredientMin &&
+              type.value !== placeholderMin
+            ) {
+              return (
+                <MenuItem
+                  value={type.value}
+                  key={type.label}
+                  className={classes.muiSelect}
+                >
+                  {type.value}
+                  {/* { } */}
+                  {/* <span></span> */}
+                </MenuItem>
+              )
+            }
+          })}
+        </Select>
+      )
+    } else {
+      return (
+        <span>
+          {rowData.actionType}{' '}
+          {rowData.showError && (
+            <>
+              {finalRangeState &&
+                (rowData.actionType === delistProductMin ||
+                  rowData.actionType === productDistributionIncreaseMin ||
+                  rowData.actionType === productDistributionDecreaseMin ||
+                  rowData.actionType === productShelfSpaceIncrease ||
+                  rowData.actionType === productShelfSpaceDecrease) && (
+                  <LightTooltip
+                    arrow
+                    placement="right-start"
+                    // className={classes.tooltipError}
+                    style={{ color: 'white' }}
+                    title={
+                      <Typography variant="caption">
+                        {rowData.actionType === delistProductMin &&
+                          delistProductMinErrorMessage}
+                        {rowData.actionType ===
+                          productDistributionIncreaseMin && //productDistributionIncreaseMin
+                          productDistributionIncreaseMinErrorMessage}
+                        {rowData.actionType ===
+                          productDistributionDecreaseMin &&
+                          productDistributionDecreaseMinErrorMessage}
+                        {rowData.actionType === productShelfSpaceIncrease &&
+                          productShelfSpaceIncreaseErrorMessage}
+                        {rowData.actionType === productShelfSpaceDecrease &&
+                          productShelfSpaceDecreaseErrorMessage}
+                      </Typography>
+                    }
+                  >
+                    {/* <span className={classes.excli_mark_error}>!</span>
+                     */}
+                    <span>
+                      <ErrorOutlinedIcon
+                        className={classes.errorOutlinedIconErrorTableGrid}
+                      />
+                      {/* className={classes.errorOutlinedIconError} */}
+                    </span>
+                  </LightTooltip>
+                )}
+            </>
+          )}
+        </span>
+      )
+    }
+  }
+
   const actionTypeTemplate = (rowData: any) => {
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -1378,7 +1584,24 @@ function DelistsAddedToRange(props: any) {
         </Select>
       )
     } else {
-      return <span>{rowData.actionType}</span>
+      return (
+        <span>
+          {rowData.actionType}{' '}
+          {rowData.newAdded && (
+            <>
+              {/* {finalRangeState && <span className={classes.excli_mark}>!</span>} */}
+              {newlyAddedTitle && (
+                // <ErrorRoundedIcon
+                //   className={classes.errorRoundedIconTableGrid}
+                // />
+                <ErrorTwoToneIcon
+                  className={classes.errorRoundedIconTableGrid}
+                />
+              )}
+            </>
+          )}
+        </span>
+      )
     }
   }
 
@@ -1634,7 +1857,7 @@ function DelistsAddedToRange(props: any) {
         rowData.actionType === productDistributionDecreaseMin ||
         rowData.actionType === productDistributionIncreaseMin)
     ) {
-      if (rowData.currentshelffill_vs_newfill) {
+      if (rowData.currentVsNewShelfFill) {
         return (
           <>
             <div
@@ -1646,7 +1869,7 @@ function DelistsAddedToRange(props: any) {
                 )
               }
             >
-              {rowData && rowData.currentshelffill_vs_newfill}
+              {rowData && rowData.currentVsNewShelfFill}
             </div>
           </>
         )
@@ -1680,8 +1903,8 @@ function DelistsAddedToRange(props: any) {
         rowData.actionType === productDistributionDecreaseMin ||
         rowData.actionType === productDistributionIncreaseMin)
     ) {
-      if (rowData.currentshelffill_vs_newfill_percant) {
-        return <>{rowData && rowData.currentshelffill_vs_newfill_percant}</>
+      if (rowData.currentVsNewShelfFillPercent) {
+        return <>{rowData && rowData.currentVsNewShelfFillPercent}</>
       } else {
         return <></>
       }
@@ -2142,11 +2365,16 @@ function DelistsAddedToRange(props: any) {
     if (
       rowData &&
       (rowData.actionType === placeholderMin ||
-        rowData.actionType === delistOutercaseCode ||
         rowData.actionType === newOutercaseCode ||
+        rowData.actionType === delistOutercaseCode ||
         rowData.actionType === supplyChange)
     ) {
       return <>NA</>
+    } else if (
+      rowData.actionType === newProductMin ||
+      rowData.actionType === newIngredientMin
+    ) {
+      return <></>
     } else {
       return <>{rowData.forcastedWeeksCovertoResetDate}</>
     }
@@ -2204,16 +2432,31 @@ function DelistsAddedToRange(props: any) {
       rowData &&
       (rowData.actionType === placeholderMin ||
         rowData.actionType === newOutercaseCode ||
-        rowData.actionType === delistOutercaseCode)
+        rowData.actionType === delistOutercaseCode ||
+        rowData.actionType === supplyChange)
     ) {
       return <>NA</>
+    } else if (
+      rowData.actionType === newProductMin ||
+      rowData.actionType === newIngredientMin
+    ) {
+      return <></>
     } else {
       return <>{rowData.storeStockUnit}</>
     }
   }
   const totalstockTemplate = (rowData: any) => {
-    if (rowData && rowData.actionType === placeholderMin) {
+    if (
+      (rowData && rowData.actionType === placeholderMin) ||
+      rowData.actionType === supplyChange
+    ) {
       return <>NA</>
+    } else if (
+      rowData.actionType === newOutercaseCode ||
+      rowData.actionType === newProductMin ||
+      rowData.actionType === newIngredientMin
+    ) {
+      return <></>
     } else {
       return <>{rowData.totalstock}</>
     }
@@ -2961,6 +3204,39 @@ function DelistsAddedToRange(props: any) {
     }
   }
 
+  const newNoOfRangeStoresPlanogramTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newnoofrangestoresPlanogram'}
+        />
+      )
+    } else {
+      return <>{rowData.newnoofrangestoresPlanogram}</>
+    }
+  }
+  const newShelfFillPlanogramTemplate = (rowData: any) => {
+    const check: any = supplierSelected.filter(
+      (val: any) => rowData.min === val.min
+    )
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newShelfFillPlanogram'}
+        />
+      )
+    } else {
+      return <>{rowData.newShelfFillPlanogram}</>
+    }
+  }
+
   const newShelfFillImportedTemplate = (rowData: any) => {
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -3698,6 +3974,7 @@ function DelistsAddedToRange(props: any) {
   const handleClearDepotBulkActionDialogClose = () => {
     setClearDepotBulkActionOpen(false)
     setClearDepotSelected('')
+    setBulkActions(null)
   }
   const applyClearDepot = () => {
     if (clearDepotSelected && clearDepotSelected != '') {
@@ -3720,6 +3997,7 @@ function DelistsAddedToRange(props: any) {
         }
       })
       handleClearDepotBulkActionDialogClose()
+      setBulkActions(null)
     }
   }
 
@@ -3809,6 +4087,7 @@ function DelistsAddedToRange(props: any) {
   const handleFinalStopOrderBulkActionDialogClose = () => {
     setFinalStopOrderBulkActionOpen(false)
     setFinalStopOrderSelected(null)
+    setBulkActions(null)
   }
 
   const applyFinalStopOrder = () => {
@@ -3832,6 +4111,7 @@ function DelistsAddedToRange(props: any) {
         }
       })
       handleFinalStopOrderBulkActionDialogClose()
+      setBulkActions(null)
     }
   }
 
@@ -3980,12 +4260,16 @@ function DelistsAddedToRange(props: any) {
     })
 
     setSelectedProductListItems([])
+    setBulkActions(null)
   }
 
   const confirmBulkActionDelete = (
     <ConfirmBox
       cancelOpen={deleteBulkActionOpen}
-      handleCancel={() => setDeleteBulkActionOpen(false)}
+      handleCancel={() => {
+        setDeleteBulkActionOpen(false)
+        setBulkActions(null)
+      }}
       handleProceed={handleBulkActionDelete}
       label1="Confirm 'Delete'"
       label2={
@@ -4016,12 +4300,16 @@ function DelistsAddedToRange(props: any) {
       })
       // }
     })
+    setBulkActions(null)
   }
 
   const confirmBulkActionCancel = (
     <ConfirmBox
       cancelOpen={cancelBulkActionOpen}
-      handleCancel={() => setCancelBulkActionOpen(false)}
+      handleCancel={() => {
+        setCancelBulkActionOpen(false)
+        setBulkActions(null)
+      }}
       handleProceed={handleBulkActionCancel}
       label1="Confirm 'Cancel'"
       label2={
@@ -4049,6 +4337,7 @@ function DelistsAddedToRange(props: any) {
             )
           })
         })
+        setBulkActions(null)
       } else if (bulkActions.value === bulkActionTypes.clearDepotAction) {
         handleClearDepotBulkActionDialogOpen()
       } else if (bulkActions.value === bulkActionTypes.finalStopOrderAction) {
@@ -4064,6 +4353,7 @@ function DelistsAddedToRange(props: any) {
             )
           })
         })
+        setBulkActions(null)
       } else if (
         bulkActions.value === bulkActionTypes.stockCountRequestAction
       ) {
@@ -4077,6 +4367,7 @@ function DelistsAddedToRange(props: any) {
             )
           })
         })
+        setBulkActions(null)
       } else if (bulkActions.value === 'Cancelled') {
         setCancelBulkActionOpen(true)
       } else if (bulkActions.value === bulkActionTypes.deleteAction) {
@@ -4103,6 +4394,7 @@ function DelistsAddedToRange(props: any) {
             })
           }
         })
+        setBulkActions(null)
       } else if (
         bulkActions.value === bulkActionTypes.includeInMarkdownAction
       ) {
@@ -4125,6 +4417,7 @@ function DelistsAddedToRange(props: any) {
             })
           }
         })
+        setBulkActions(null)
       } else if (bulkActions.value === bulkActionTypes.downloadAction) {
         setIsProgressLoader(true)
         let downloadData = selectedProductListItems.map((item: any) => {
@@ -4262,6 +4555,7 @@ function DelistsAddedToRange(props: any) {
         let fileName = `${eventDetails[0].name}_${newDate}`
         exportExcel(downloadData, productListCols, fileName)
         setIsProgressLoader(false)
+        setBulkActions(null)
       }
     }
   }, [bulkActions])
@@ -4321,22 +4615,369 @@ function DelistsAddedToRange(props: any) {
     }
   }
 
-  const handleUploadDialogOpen = () => {
+  const [xlslItemNotFoundPlanogram, setXlslItemNotFoundPlanogram] =
+    useState<any>([])
+  const handleUploadDialogOpen = (click: any) => {
+    // setDisplayManualErrors(false)
     setUpdateImported([])
     setNewImportedData([])
-    actionType && setOpenUploadDialog(true)
+    if (click === 'finalRangeUploadFile') {
+      setFinalRangeState(true)
+      setUploadFileClick(false)
+      // setUploadedFile({name:'Upload Final Range Distribution'})
+      // setActionType({value:'Upload Final Range Distribution'})
+      setActionType('Multiple Selection')
+      setOpenUploadDialog(true)
+      // setXlslPlanogramimportedData([]) // call get endpoint
+      setXlslItemNotFoundPlanogram([])
+    } else if (click === 'uploadFile') {
+      // setFinalRangeState(false)
+      setUploadFileClick(true)
+      actionType && setOpenUploadDialog(true)
+    }
     // setOpenUploadDialog(true)
   }
 
   const handleUploadDialogClose = () => {
     setOpenUploadDialog(false)
     setUploadedFile(null)
+    setActionType('')
+    // setFinalRangeState(false)
   }
 
   const handleFileUpload = (event: any) => {
     setUploadedFile(event.target.files[0])
   }
   const [exceelErrors, setExceelErrors] = useState<any>([])
+  const [displayManualErrors, setDisplayManualErrors] = useState<any>(false)
+  const [uploadFileClick, setUploadFileClick] = useState<any>(false)
+
+  useEffect(() => {
+    console.log('xlslPlanogramimportedData', xlslPlanogramimportedData)
+  }, [xlslPlanogramimportedData])
+  useEffect(() => {
+    console.log('xlslItemNotFoundPlanogram', xlslItemNotFoundPlanogram)
+  }, [xlslItemNotFoundPlanogram])
+
+  const uploadFinaleRangeDistribution = (xlData: any) => {
+    // setFinalRangeState(false)
+    // setFinalRangeState(true)
+    setIsProgressLoader(true)
+    console.log('xlData', xlData)
+    xlData.map((d: any, index: any) => {
+      const {
+        MIN,
+        NewShelfFillUnits: shelfFillNew,
+        StoreCode: storecodeNewMin,
+      } = d
+      const checkingImportedData: any = importedData.filter((val: any) => {
+        if (d.MIN) {
+          return val.min === d.MIN
+        } else {
+          return val.min === d.MINPIN
+        }
+      })
+      let updateFlad = 0
+      const checkIfExist = xlslPlanogramimportedData.some((item: any) => {
+        if (d.MIN) {
+          return item.min === d.MIN
+        } else {
+          return item.min === d.MINPIN
+        }
+      })
+      console.log('checkIfExist', checkIfExist)
+      console.log('checkingImportedData', checkingImportedData)
+      let onlyXl: any = [...xlslPlanogramimportedData]
+      if (checkingImportedData.length > 0) {
+        // setXlslPlanogramimportedData((prevState: any) => {
+        //   return [...prevState, ...checkingImportedData]
+        // })
+        // setXlslPlanogramimportedData((prevState: any) => {
+
+        let newData: any = [...importedData]
+        let index = newData.findIndex(
+          (data: any) => data.min === checkingImportedData[0].min
+        )
+        let indexXlPlano = xlslPlanogramimportedData.findIndex((data: any) => {
+          if (d.MIN) {
+            return data.min === d.MIN
+          } else {
+            return data.min === d.MINPIN
+          }
+        })
+        console.log('indexXlPlano', indexXlPlano)
+        if (index !== -1) {
+          updateFlad = 1
+          if (
+            newData[index].actionType === delistProductMin &&
+            newData[index].min === checkingImportedData[0].min &&
+            storecodeNewMin &&
+            // storecodeNewMin.split(',').length > 0
+            storecodeNewMin.split(',').length > 0
+          ) {
+            newData[index].showError = true
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.split(',').length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+              // setXlslPlanogramimportedData(onlyXl)
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+          } else if (
+            newData[index].actionType === productDistributionIncreaseMin &&
+            newData[index].min === checkingImportedData[0].min &&
+            storecodeNewMin &&
+            storecodeNewMin.split(',').length <
+              newData[index].currentnoofrangedstores
+          ) {
+            newData[index].showError = true
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin && storecodeNewMin.split(',').length
+
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            // onlyXl.push(newData[index])
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+          } else if (
+            newData[index].actionType === productDistributionDecreaseMin &&
+            newData[index].min === checkingImportedData[0].min &&
+            storecodeNewMin &&
+            storecodeNewMin.split(',').length >
+              newData[index].currentnoofrangedstores
+          ) {
+            newData[index].showError = true
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.split(',').length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            // onlyXl.push(newData[index])
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+          } else if (
+            newData[index].actionType === productShelfSpaceIncrease &&
+            newData[index].min === checkingImportedData[0].min &&
+            shelfFillNew &&
+            shelfFillNew < newData[index].currentShelfFill
+          ) {
+            newData[index].showError = true
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.split(',').length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            // onlyXl.push(newData[index])
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+          } else if (
+            newData[index].actionType === productShelfSpaceDecrease &&
+            newData[index].min === checkingImportedData[0].min &&
+            shelfFillNew &&
+            shelfFillNew > newData[index].currentShelfFill
+          ) {
+            newData[index].showError = true
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.split(',').length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // onlyXl.push(newData[index])
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+            // return newData
+          } else {
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.split(',').length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].showError = false
+            // return newData
+            // onlyXl.push(newData[index])
+            if (indexXlPlano !== -1) {
+              onlyXl[indexXlPlano] = newData[index]
+            } else {
+              // onlyXl.push(newData[index])
+              // newData[index]
+            }
+          }
+        }
+        setXlslPlanogramimportedData((prevState: any) => {
+          console.log('planoData onlyXl', [...prevState, ...onlyXl])
+          if (indexXlPlano !== -1) {
+            prevState[indexXlPlano] = newData[index]
+            return [...prevState]
+          } else {
+            return [...prevState, newData[index]]
+          }
+          // return [...prevState, ...onlyXl]
+        })
+      } else {
+        // if (updateFlad === 0) {
+        setXlslItemNotFoundPlanogram((prevState: any) => {
+          return [...prevState, d.MIN]
+        })
+      }
+
+      // setXlslPlanogramimportedData((prevState: any) => {
+      //   return [...prevState, ...onlyXl]
+      // })
+    })
+
+    console.log('setFinalRangeState', finalRangeState)
+    setDisplayManualErrors(true)
+    setPanogramErrorDialogShow(true)
+    setIsProgressLoader(false)
+    return console.log('Sridhar')
+  }
+  const [finalApiErrorOp, setFinalApiErrorOp] = useState<any>([])
+  useEffect(() => {}, [finalApiErrorOp])
+
+  const updatingErrorsWithValues = () => {
+    finalApiErrorOp.map((d: any, index: any) => {
+      const {
+        actionType,
+        itemNumber,
+        newShelfFill: shelfFillNew,
+        storeNumber: storecodeNewMin,
+        uploadStatus,
+      } = d
+      console.log('importedDatafinal', importedData)
+      const finalApi: any = importedData.filter((val: any) => {
+        return val.min == d.itemNumber
+      })
+      let onlyXlFinalApi: any = []
+      let checkExists = xlslPlanogramimportedData.some(
+        (m: any) => m.min == itemNumber
+      )
+      if (finalApi.length > 0 && checkExists === false) {
+        let newData: any = importedData
+        let index = newData.findIndex((data: any) => data.min == itemNumber)
+        if (index !== -1) {
+          if (
+            actionType === delistProductMin &&
+            newData[index].min == itemNumber &&
+            storecodeNewMin &&
+            // storecodeNewMin.split(',').length > 0
+            storecodeNewMin.length > 0
+          ) {
+            newData[index].actionType = actionType
+            newData[index].showError = uploadStatus === 'ERROR' ? true : false
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            onlyXlFinalApi.push(newData[index])
+          } else if (
+            actionType === productDistributionIncreaseMin &&
+            newData[index].min == itemNumber &&
+            storecodeNewMin &&
+            storecodeNewMin.length < newData[index].currentnoofrangedstores
+          ) {
+            newData[index].actionType = actionType
+            newData[index].showError = uploadStatus === 'ERROR' ? true : false
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin && storecodeNewMin.length
+
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            onlyXlFinalApi.push(newData[index])
+          } else if (
+            actionType === productDistributionDecreaseMin &&
+            newData[index].min == itemNumber &&
+            storecodeNewMin &&
+            storecodeNewMin.length > newData[index].currentnoofrangedstores
+          ) {
+            newData[index].actionType = actionType
+            newData[index].showError = uploadStatus === 'ERROR' ? true : false
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            onlyXlFinalApi.push(newData[index])
+          } else if (
+            actionType === productShelfSpaceIncrease &&
+            newData[index].min == itemNumber &&
+            shelfFillNew &&
+            shelfFillNew < newData[index].currentShelfFill
+          ) {
+            newData[index].actionType = actionType
+            newData[index].showError = uploadStatus === 'ERROR' ? true : false
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            // return newData
+            onlyXlFinalApi.push(newData[index])
+          } else if (
+            actionType === productShelfSpaceDecrease &&
+            newData[index].min == itemNumber &&
+            shelfFillNew &&
+            shelfFillNew > newData[index].currentShelfFill
+          ) {
+            newData[index].actionType = actionType
+            newData[index].showError = uploadStatus === 'ERROR' ? true : false
+            newData[index].newnoofrangestoresPlanogram =
+              storecodeNewMin !== 'NA'
+                ? storecodeNewMin && storecodeNewMin.length
+                : ''
+            newData[index].newShelfFillPlanogram = shelfFillNew
+            newData[index].storeCodeExpands = storecodeNewMin
+            onlyXlFinalApi.push(newData[index])
+            // return newData
+          }
+          // return newData
+        }
+        // return newData
+        // return newData
+        // })
+      }
+      setXlslPlanogramimportedData((prevState: any) => {
+        console.log('planoData onlyXl', [...prevState, ...onlyXlFinalApi])
+        return [...prevState, ...onlyXlFinalApi]
+      })
+    })
+  }
 
   const handleUpload = (e: any) => {
     // e.preventDefault();
@@ -4379,6 +5020,9 @@ function DelistsAddedToRange(props: any) {
             return convert(o)
           })
           console.log('trimSpace', result)
+          if (finalRangeState) {
+            return uploadFinaleRangeDistribution(result)
+          }
 
           result.map((d: any, index: any) => {
             let storeArray =
@@ -4829,7 +5473,11 @@ function DelistsAddedToRange(props: any) {
         }}
       >
         <DialogHeader
-          title={`Upload ${actionType && actionType.value}`}
+          title={
+            finalRangeState
+              ? 'Upload Final Range Distribution'
+              : `Upload ${actionType && actionType.value}`
+          }
           onClose={handleUploadDialogClose}
         />
 
@@ -4900,6 +5548,8 @@ function DelistsAddedToRange(props: any) {
       </Box>
     </Dialog>
   )
+
+  const [singleTypeError, setSingleTypeError] = useState<any>('')
 
   const handleActionTypeDialogOpen = () => {
     actionType && setOpenActionTypeDialog(true)
@@ -5330,24 +5980,24 @@ function DelistsAddedToRange(props: any) {
 
     if (importedData && importedData.length > 0) {
       if (finalRangeState) {
-        let minCheck = importedData.findIndex(
-          (data: any) => data.min === formData.min
-        )
-        let newData = [...importedData]
-        if (minCheck !== -1) {
-          updateFlag = 1
-          newData[minCheck].storeCode = storecodeNewMin ? storecodeNewMin : ''
-          newData[minCheck].newShelfFill = shelfFillNew
-          // newData[minCheck]['newAdded'] = true
-          setUpdateImported(newData)
-        } else {
-          formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
-          formData.actionType = newProductMin
-          formData.newShelfFill = shelfFillNew
-          // formData.lineStatus = 'Draft'
-          formData.newAdded = true
-          setNewImportedData([formData])
-        }
+        // let minCheck = importedData.findIndex(
+        //   (data: any) => data.min === formData.min
+        // )
+        // let newData = [...importedData]
+        // if (minCheck !== -1) {
+        //   updateFlag = 1
+        //   newData[minCheck].storeCode = storecodeNewMin ? storecodeNewMin : ''
+        //   newData[minCheck].newShelfFill = shelfFillNew
+        //   // newData[minCheck]['newAdded'] = true
+        //   setUpdateImported(newData)
+        // } else {
+        //   formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
+        //   formData.actionType = newProductMin
+        //   formData.newShelfFill = shelfFillNew
+        //   // formData.lineStatus = 'Draft'
+        //   formData.newAdded = true
+        //   setNewImportedData([formData])
+        // }
       } else {
         setImportedData((prevState: any) => {
           let newData: any = [...prevState]
@@ -5362,9 +6012,9 @@ function DelistsAddedToRange(props: any) {
             // newData.append([formData])
             return [...prevState, formData]
           }
-          // return newData
-          // return [...prevState, formData]
         })
+        // return newData
+        // return [...prevState, formData]
       }
     } else {
       setImportedData([formData])
@@ -5448,6 +6098,8 @@ function DelistsAddedToRange(props: any) {
     }
     setIsProgressLoader(false)
     setActionType('')
+    setUploadFileClick(false)
+    // setFinalRangeState(false)
   }
 
   useEffect(() => {
@@ -6151,11 +6803,11 @@ function DelistsAddedToRange(props: any) {
             wholesale: item.wholesale,
             ownBrand: item.ownBrand,
             clearancePricing:
-            item.includeInClearancePricing && item.includeInClearancePricing
-              ? item.includeInClearancePricing
-              : eventDetails[0].clearancePriceCheck
-              ? eventDetails[0].clearancePriceCheck
-              : '',
+              item.includeInClearancePricing && item.includeInClearancePricing
+                ? item.includeInClearancePricing
+                : eventDetails[0].clearancePriceCheck
+                ? eventDetails[0].clearancePriceCheck
+                : '',
             storeStockUnit: item.storeStockUnit,
             depotStockUnit: item.depotStockUnit,
             frwdForecastToLaunch: item.forward_forecast_to_launch,
@@ -8223,7 +8875,7 @@ function DelistsAddedToRange(props: any) {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleUploadDialogOpen}
+              onClick={() => handleUploadDialogOpen('')}
             >
               Upload File
             </Button>
@@ -8475,11 +9127,387 @@ function DelistsAddedToRange(props: any) {
     setReplacementAssociationProduct(replacementData)
     setSupplierSelected(selectedData)
   }
-  // const refreshPage = () => {
-  //   setIsProgressLoader(true)
-  //   setRefreshClick(!refreshClick)
-  //   setIsProgressLoader(false)
-  // }
+  const refreshPage = () => {
+    initialSummaryCall()
+    // setIsProgressLoader(true)
+    // setRefreshClick(!refreshClick)
+    // setIsProgressLoader(false)
+  }
+  useEffect(() => {
+    console.log('importedData', importedData)
+    // const errors =
+    //   importedData &&
+    //   importedData.filter((val: any, index: any) => {
+    //     return val.showError === true && importedData.splice(index, 1)
+    //   })
+    // setimportedDataPlanogram(errors)
+    // updatingErrorsWithValues()
+    if (importedData && importedData.length > 0) {
+      setImportedDataHaving(true)
+    }
+  }, [importedData])
+
+  const [importedDataPlanogram, setimportedDataPlanogram] = useState<any>([])
+  const [planogramErrorDialogShow, setPanogramErrorDialogShow] =
+    useState<any>(false)
+  const handlePanogramErrorDialogClose = () => {
+    setPanogramErrorDialogShow(false)
+    setFinalRangeState(false)
+  }
+
+  const patchApiErrors = () => {
+    let eventId = rafpendingActionDetailsCT06.eventId
+    let payload: any = {}
+    let itemArray: any = []
+    xlslPlanogramimportedData.map((val: any) => {
+      const {
+        min,
+        actionType,
+        showError,
+        newShelfFillPlanogram,
+        newnoofrangestoresPlanogram,
+        storeCodeExpands,
+      } = val
+
+      if (Array.isArray(storeCodeExpands)) {
+        storeCodeExpands &&
+          storeCodeExpands.map((currentStoreNum: any) => {
+            itemArray.push({
+              itemNumber: min,
+              actionType: actionType,
+              uploadStatus: showError ? 'ERROR' : 'SUCCESS',
+              storeNumber: currentStoreNum,
+              newShelfFill: newShelfFillPlanogram,
+            })
+          })
+      } else {
+        storeCodeExpands &&
+          storeCodeExpands.split(',').map((currentStoreNum: any) => {
+            itemArray.push({
+              itemNumber: min,
+              actionType: actionType,
+              uploadStatus: showError ? 'ERROR' : 'SUCCESS',
+              storeNumber: currentStoreNum,
+              newShelfFill: newShelfFillPlanogram,
+            })
+          })
+      }
+    })
+    payload = {
+      events: [
+        {
+          rangeResetId: eventId,
+          items: itemArray,
+        },
+      ],
+    }
+    console.log('patchApiErrors', payload)
+    // return
+
+    itemArray.length > 0 &&
+      patchRangeResetPlanogramErrors(eventId, '@all', payload)
+        .then((res: any) => {
+          console.log('SUCCESS', 'patchRangeResetPlanogramErrors', res)
+        })
+        .catch((err: any) => {
+          console.log('ERROR', 'patchRangeResetPlanogramErrors', err)
+        })
+  }
+  const [getErrorsFromApiPlano, setGetErrorsFromApiPlano] = useState<any>()
+
+  useEffect(() => {
+    rafpendingActionDetailsCT06 &&
+      getRangeResetPlanogramErrors(rafpendingActionDetailsCT06.eventId, '@all')
+        .then((res: any) => {
+          console.log('getRangeResetPlanogramErrors', res)
+          setGetErrorsFromApiPlano(res)
+        })
+        .catch((err: any) => console.log('getRangeResetPlanogramErrors', err))
+  }, [])
+  const handlePlanogramClick = () => {
+    setIsProgressLoader(true)
+    setPanogramErrorDialogShow(true)
+    setFinalRangeState(true)
+    setFinalApiErrorOp([])
+    getErrorsShow()
+    // updatingErrorsWithValues()
+    setIsProgressLoader(false)
+  }
+
+  const getErrorsShow = () => {
+    let data: any = []
+    if (getErrorsFromApiPlano) {
+      data = getErrorsFromApiPlano.data.events[0].items
+      console.log(
+        'getErrorsFromApiPlano',
+        getErrorsFromApiPlano.data.events[0].items
+      )
+      let output: any = []
+      data.forEach(function (item: any) {
+        let existing = output.filter(function (v: any, i: any) {
+          return v.itemNumber == item.itemNumber
+        })
+        if (existing.length) {
+          var existingIndex = output.indexOf(existing[0])
+          output[existingIndex].storeNumber = output[
+            existingIndex
+          ].storeNumber.concat(item.storeNumber)
+        } else {
+          if (typeof item.storeNumber == 'string')
+            item.storeNumber = [item.storeNumber]
+          output.push(item)
+        }
+      })
+      console.log('output', output)
+      setFinalApiErrorOp(output)
+    }
+  }
+  const [importedDataHaving, setImportedDataHaving] = useState<any>(false)
+
+  useEffect(() => {
+    updatingErrorsWithValues()
+  }, [importedDataHaving])
+  useEffect(() => {
+    getErrorsShow()
+    // updatingErrorsWithValues()
+  }, [getErrorsFromApiPlano])
+
+  const handlePlanogramSave = () => {
+    console.log('handlePlanogramSave', 'handlePlanogramSave')
+    let impData: any = [...importedData]
+    let planoData: any = [...xlslPlanogramimportedData]
+
+    const data = impData.map((main: any, indexImp: any) => {
+      let indexPlano = planoData.findIndex((data: any) => data.min === main.min)
+      if (indexPlano !== -1 && planoData[indexPlano].showError === false) {
+        impData[indexImp].newShelfFill =
+          planoData[indexPlano].newShelfFillPlanogram
+        impData[indexImp].numberOfRangeStores =
+          planoData[indexPlano].newnoofrangestoresPlanogram
+        impData[indexImp].newAdded = true
+        planoData.splice(indexPlano, 1)
+        // planoData = planoData.filter(
+        //   (item: any) => item.min !== impData[indexImp].min
+        // )
+        // return impData[indexImp]
+      } else {
+        // patchApiErrors(rafpendingActionDetailsCT06.eventId, newData[index])
+        // return impData[indexImp]
+        return
+      }
+    })
+    impData.reverse()
+    setImportedData(impData)
+    setXlslPlanogramimportedData(planoData)
+    console.log('planoData patchApiErrors', planoData)
+    setXlslItemNotFoundPlanogram([])
+    let checkError = xlslPlanogramimportedData.some(
+      (m: any) => m.showError === true
+    )
+    checkError
+      ? setPanogramErrorDialogShow(true)
+      : setPanogramErrorDialogShow(false)
+    patchApiErrors() // patch call
+    setNewlyAddedTitle(true)
+  }
+  const [selectedPlanogramItems, setSelectedPlanogramItems] = useState<any>([])
+  const handlePlanogramDelete = () => {
+    console.log('selectedPlanogramItems', selectedPlanogramItems)
+    let _tasks = xlslPlanogramimportedData.filter(
+      (value: any) => !selectedPlanogramItems.includes(value)
+    )
+    setXlslPlanogramimportedData(_tasks)
+    setSelectedPlanogramItems([])
+  }
+  const [editPlanoButton, setEditPlanoButton] = useState<any>(true)
+  const [editPlanoClick, setEditPlanoClick] = useState<any>(false)
+
+  useEffect(() => {
+    if (selectedPlanogramItems.length > 0) {
+      setEditPlanoButton(false)
+    } else {
+      setEditPlanoButton(true)
+      setEditPlanoClick(false)
+    }
+  }, [selectedPlanogramItems])
+
+  const handlePlanogramEdit = () => {
+    setEditPlanoClick(true)
+    console.log('handlePlanogramEdit', handlePlanogramEdit)
+  }
+
+  const planogramShowErrorsDialog = (
+    <Dialog
+      open={planogramErrorDialogShow}
+      onClose={handlePanogramErrorDialogClose}
+      fullWidth
+      classes={{
+        paperFullWidth: classes.placeholderDialogFull,
+        // depotStockTableData
+        //   ? classes.placeholderDialogFull
+        //   : classes.placeholderDialog,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          // width: small ? '400px' : '260px',
+          // height: "250px",
+          // border: '3px solid green',
+          borderRadius: 5,
+          p: 1,
+        }}
+      >
+        <DialogHeader
+          title={'View Planogram Comparison Detail'}
+          // title={`North East`}
+          onClose={handlePanogramErrorDialogClose}
+        />
+        <Box
+          sx={{
+            p: 3,
+          }}
+        >
+          <Grid item xl={12} lg={12} md={12} sm={12} xs={12}>
+            <Typography variant="subtitle1" color="primary">
+              View Planogram Comparison Detail
+            </Typography>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <DataTable
+                value={xlslPlanogramimportedData && xlslPlanogramimportedData}
+                className="p-datatable-sm"
+                selectionMode="checkbox"
+                selection={selectedPlanogramItems}
+                onSelectionChange={(e: any) => {
+                  setSelectedPlanogramItems(e.value)
+                }}
+                showGridlines
+                scrollable
+                rowHover
+              >
+                <Column
+                  selectionMode="multiple"
+                  headerStyle={{
+                    width: '50px',
+                    color: 'white',
+                    backgroundColor: teal[900],
+                  }}
+                ></Column>
+                {/* <Column rowEditor headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column> */}
+                {planogramViewCols.map((col: any, index: any) => {
+                  return (
+                    <Column
+                      key={index}
+                      field={col.field}
+                      header={col.header}
+                      body={
+                        (col.field === 'actionType' &&
+                          actionTypePlanogramTemplate) ||
+                        (col.field === 'description' &&
+                          descriptionImportedTemplate) ||
+                        (col.field === 'currentnoofrangedstores' &&
+                          currentNoOfRangeStoresTemplate) ||
+                        (col.field === 'numberOfRangeStores' &&
+                          newNoOfRangeStoresPlanogramTemplate) ||
+                        (col.field === 'newShelfFillPlanogram' &&
+                          newShelfFillPlanogramTemplate)
+                      }
+                      // style={{
+                      //   width: col.width,
+                      //   fontSize: '0.8rem',
+                      //   padding: '8px',
+                      // }}
+                      // headerStyle={{
+                      //   color: 'white',
+                      //   backgroundColor: teal[900],
+                      //   width: col.width,
+                      //   fontSize: '0.9rem',
+                      //   padding: '8px',
+                      // }}
+                      bodyStyle={tableBodyStyle(col.width)}
+                      headerStyle={tableHeaderStyle(
+                        col.width,
+                        theme.palette.primary.main
+                      )}
+                    />
+                  )
+                })}
+              </DataTable>
+            </MuiPickersUtilsProvider>
+            {/* {exceelErrors && showExceelErrors()} */}
+          </Grid>
+          <Grid item xl={12} lg={12} md={12} sm={12} xs={12}>
+            {/* {xlslItemNotFoundPlanogram && xlslItemNotFoundPlanogram.join(', ') + "There is no matching MIN available in RCM App detail"} */}
+            <div>
+              Total <strong> {xlslPlanogramimportedData.length} </strong>{' '}
+              records
+            </div>
+
+            {xlslItemNotFoundPlanogram.length > 0 && (
+              <span
+                style={{ color: 'red' }}
+              >{`There is no matching ${xlslItemNotFoundPlanogram.join(', ')} ${
+                xlslItemNotFoundPlanogram.length > 1 ? "MIN's" : 'MIN'
+              } available in RCM App detail.`}</span>
+            )}
+          </Grid>
+          <Grid item container xl={12} lg={12} md={12} sm={12} xs={12}>
+            <Grid item xl={8} lg={8} md={8} sm={12} xs={12}></Grid>
+            <Grid
+              item
+              container
+              xl={4}
+              lg={4}
+              md={4}
+              sm={12}
+              xs={12}
+              style={{ textAlign: 'center' }}
+              spacing={1}
+            >
+              <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handlePlanogramDelete}
+                >
+                  Delete
+                </Button>
+              </Grid>
+              <Grid item xl={2} lg={2} md={2} sm={6} xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handlePlanogramEdit}
+                  disabled={editPlanoButton}
+                >
+                  Edit
+                </Button>
+              </Grid>
+              <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handlePlanogramSave}
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            p: 3,
+            pb: 0,
+            justifyContent: 'right',
+          }}
+        ></Box>
+      </Box>
+    </Dialog>
+  )
+  const [newlyAddedTitle, setNewlyAddedTitle] = useState<any>(false)
   const productListTable = (
     <Grid
       item
@@ -8498,7 +9526,16 @@ function DelistsAddedToRange(props: any) {
         </Typography>
       </Grid>
       <Grid item container xl={5} lg={5} md={5} sm={5} xs={12} spacing={2}>
-        <Grid item xl={8} lg={8} md={8} sm={8} xs={7}>
+        <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
+          <Button color="primary" onClick={handlePlanogramClick}>
+            Planogram Errors{' '}
+            <span style={{ color: 'red' }}>
+              {' '}
+              ({xlslPlanogramimportedData.length})
+            </span>
+          </Button>
+        </Grid>
+        <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
           {/* <FormControl
             variant="outlined"
             style={{
@@ -8552,7 +9589,7 @@ function DelistsAddedToRange(props: any) {
           </Typography>
         </Grid>
         <Grid item xl={4} lg={4} md={4} sm={4} xs={5}>
-          <Button variant="contained" color="primary" onClick={refreshAction}>
+          <Button variant="contained" color="primary" onClick={refreshPage}>
             Refresh
           </Button>
         </Grid>
@@ -8715,9 +9752,9 @@ function DelistsAddedToRange(props: any) {
                       (col.field === 'newSupplierSite' &&
                         newSupplierSiteImportedTemplate) ||
                       (col.field === 'comments' && commentsTemplate) ||
-                      (col.field === 'currentshelffill_vs_newfill' &&
+                      (col.field === 'currentVsNewShelfFill' &&
                         currentshelffill_vs_newfillTemplate) ||
-                      (col.field === 'currentshelffill_vs_newfill_percant' &&
+                      (col.field === 'currentVsNewShelfFillPercent' &&
                         currentshelffill_vs_newfill_percantTemplate) ||
                       (col.field === 'currentShelfFill' &&
                         currentShelfFillTemplate) ||
@@ -8782,6 +9819,28 @@ function DelistsAddedToRange(props: any) {
           <Typography variant="subtitle1">View More Columns</Typography>
         </button>
       </Grid> */}
+      <Grid item xl={12} lg={12} md={12} sm={12} xs={12} spacing={2}>
+        <Typography variant="subtitle1">
+          {/* {finalRangeState && displayManualErrors && ( */}
+          {newlyAddedTitle && (
+            // {true && (
+            <>
+              <span className={classes.errorRoundedIcon}>
+                {' '}
+                <ErrorTwoToneIcon
+                  className={classes.errorRoundedIconTableGrid}
+                />
+                <>Newly added records</>
+              </span>
+            </>
+          )}
+        </Typography>
+        <Typography variant="subtitle1" color="error">
+          {completeTaskPlaceHolderError !== ''
+            ? completeTaskPlaceHolderError
+            : ''}
+        </Typography>
+      </Grid>
     </Grid>
   )
 
@@ -8825,8 +9884,8 @@ function DelistsAddedToRange(props: any) {
           description: '',
           replaceMin: '',
           replaceMinDescription: '',
-          existingSupplier: '',
-          existingSupplierSite: '',
+          newSupplier: '',
+          newSupplierSite: '',
           numberOfRangeStores: '',
           storeCode: '',
           ownBrand: 'Y',
@@ -9276,11 +10335,9 @@ function DelistsAddedToRange(props: any) {
               actionType: placeholderMin,
               description: d.MINPINDescription ? d.MINPINDescription : '',
               ownBrand: d.OWNBrand ? d.OWNBrand : '',
-              barcode: d.BarCode ? d.BarCode : null,
-              existingSupplier: d.SupplierCode ? d.SupplierCode : '', // supplier site field
-              existingSupplierSite: d.SupplierSiteCode
-                ? d.SupplierSiteCode
-                : '', // supplier site code
+              barcode: d.Barcode ? d.Barcode : null,
+              newSupplier: d.SupplierCode ? d.SupplierCode : '', // supplier site field
+              newSupplierSite: d.SupplierSiteCode ? d.SupplierSiteCode : '', // supplier site code
               packquantity: d.CasePack ? d.CasePack : '',
               numberOfRangeStores: d.NewNumberofRangeStores
                 ? d.NewNumberofRangeStores
@@ -9747,7 +10804,7 @@ function DelistsAddedToRange(props: any) {
     return (
       <div className="card primeCardPlacholder">
         <AutoCompletePrime
-          value={rowData.existingSupplier}
+          value={rowData.newSupplier}
           suggestions={supplierOption}
           className="p-inputtext-sm p-d-block p-mb-2 autoCompletePrimeInput"
           completeMethod={(e: any) => searchCountry(e, 'Supplier')}
@@ -9757,7 +10814,7 @@ function DelistsAddedToRange(props: any) {
             setPlaceholderProducts((prevState: any) => {
               return onChangeProductTableFields(
                 prevState,
-                'existingSupplier',
+                'newSupplier',
                 rowData,
                 // value ? value.label : ''
                 e.target.value
@@ -9780,7 +10837,7 @@ function DelistsAddedToRange(props: any) {
     return (
       <div className="card primeCardPlacholder">
         <AutoCompletePrime
-          value={rowData.existingSupplierSite}
+          value={rowData.newSupplierSite}
           suggestions={siteOption}
           completeMethod={(e: any) => searchCountry(e, 'Site')}
           className="p-inputtext-sm p-d-block p-mb-2 autoCompletePrimeInput"
@@ -9790,7 +10847,7 @@ function DelistsAddedToRange(props: any) {
             setPlaceholderProducts((prevState: any) => {
               return onChangeProductTableFields(
                 prevState,
-                'existingSupplierSite',
+                'newSupplierSite',
                 rowData,
                 // value ? value.label : ''
                 e.target.value
@@ -10204,7 +11261,7 @@ function DelistsAddedToRange(props: any) {
                             barCodePlaceholderTemplate) ||
                           (col.field === 'description' &&
                             descriptionPlaceholderTemplate) ||
-                          (col.field === 'existingSupplier' &&
+                          (col.field === 'newSupplier' &&
                             supplierCodePlaceholderTemplate) ||
                           (col.field === 'packquantity' &&
                             casePackPlaceholderTemplate) ||
@@ -10219,7 +11276,7 @@ function DelistsAddedToRange(props: any) {
                             wholeSalePlaceHolderTemplate) ||
                           (col.field === 'comments' &&
                             commentsPlaceHolderTemplate) ||
-                          (col.field === 'existingSupplierSite' &&
+                          (col.field === 'newSupplierSite' &&
                             supplierSiteCodePlaceholderTemplate)
                         }
                         bodyStyle={tableBodyStyle(col.width)}
@@ -10758,6 +11815,7 @@ function DelistsAddedToRange(props: any) {
       </Box>
     </Dialog>
   )
+
   const handleCompleteTaskDialogOpen = () => {
     setCompleteTaskDialogOpen(true)
   }
@@ -10960,6 +12018,24 @@ function DelistsAddedToRange(props: any) {
   }
 
   const handleCompleteTask = () => {
+    const checkPlaceHolderMin: any = importedData.filter((val: any) => {
+      return val.actionType === placeholderMin
+    })
+
+    if (
+      checkPlaceHolderMin.length > 0 &&
+      rafpendingActionDetailsCT06.taskName === 'CT19'
+    ) {
+      setCompleteTaskPlaceholderError(
+        '**There are some items with placeholder MIN, please replace it with ' +
+          newProductMin
+      )
+      return console.log('Placeholder Exist', 'Placeholder Exist')
+    } else {
+      setCompleteTaskPlaceholderError('')
+    }
+    // setCompleteTaskPlaceholderError('Complete Task')
+    // return console.log('handleCompleteTask', 'handleCompleteTask')
     if (rafpendingActionDetailsCT06) {
       setToastRemove('complete')
       // const completePayload = {
@@ -11154,11 +12230,12 @@ function DelistsAddedToRange(props: any) {
                 wholesale: item.wholesale,
                 ownBrand: item.ownBrand,
                 clearancePricing:
-              item.includeInClearancePricing && item.includeInClearancePricing
-                ? item.includeInClearancePricing
-                : eventDetails[0].clearancePriceCheck
-                ? eventDetails[0].clearancePriceCheck
-                : '',
+                  item.includeInClearancePricing &&
+                  item.includeInClearancePricing
+                    ? item.includeInClearancePricing
+                    : eventDetails[0].clearancePriceCheck
+                    ? eventDetails[0].clearancePriceCheck
+                    : '',
                 storeStockUnit: item.storeStockUnit,
                 depotStockUnit: item.depotStockUnit,
                 frwdForecastToLaunch: item.forward_forecast_to_launch,
@@ -11348,11 +12425,12 @@ function DelistsAddedToRange(props: any) {
                 wholesale: item.wholesale,
                 ownBrand: item.ownBrand,
                 clearancePricing:
-              item.includeInClearancePricing && item.includeInClearancePricing
-                ? item.includeInClearancePricing
-                : eventDetails[0].clearancePriceCheck
-                ? eventDetails[0].clearancePriceCheck
-                : '',
+                  item.includeInClearancePricing &&
+                  item.includeInClearancePricing
+                    ? item.includeInClearancePricing
+                    : eventDetails[0].clearancePriceCheck
+                    ? eventDetails[0].clearancePriceCheck
+                    : '',
                 storeStockUnit: item.storeStockUnit,
                 depotStockUnit: item.depotStockUnit,
                 frwdForecastToLaunch: item.forward_forecast_to_launch,
@@ -11838,7 +12916,7 @@ function DelistsAddedToRange(props: any) {
             <Grid item xl={1} lg={1} md={1} sm={1} xs={12}>
               OR
             </Grid>
-            <Grid item sm={4} xs={12}>
+            <Grid item sm={3} xs={12}>
               <Tooltip
                 title={
                   actionType ? (
@@ -11853,7 +12931,7 @@ function DelistsAddedToRange(props: any) {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleUploadDialogOpen}
+                  onClick={() => handleUploadDialogOpen('uploadFile')}
                 >
                   Upload File
                 </Button>
@@ -11866,10 +12944,10 @@ function DelistsAddedToRange(props: any) {
             md={6}
             sm={12}
             xs={12}
-            spacing={2}
+            spacing={1}
             style={{ textAlign: 'center' }}
           >
-            <Grid item sm={4} xs={12}>
+            <Grid item sm={3} xs={12}>
               <Button
                 // className="backButton"
                 variant="contained"
@@ -11880,7 +12958,7 @@ function DelistsAddedToRange(props: any) {
                 <Typography variant="body2">Add Placeholder MIN/PIN</Typography>
               </Button>
             </Grid>
-            <Grid item sm={4} xs={12}>
+            <Grid item sm={3} xs={12}>
               <Tooltip
                 title={
                   <Typography variant="caption">
@@ -11911,14 +12989,20 @@ function DelistsAddedToRange(props: any) {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid item sm={4} xs={12}>
+            <Grid item sm={3} xs={12}>
+              <Button variant="contained" color="primary">
+                <Typography variant="body2">Issue Delist Letter</Typography>
+              </Button>
+            </Grid>
+            <Grid item sm={3} xs={12}>
               <Button
-                // className="backButton"
-                // onClick={handlePlaceholderDialogOpen}
                 variant="contained"
                 color="primary"
+                onClick={() => handleUploadDialogOpen('finalRangeUploadFile')}
               >
-                <Typography variant="body2">Issue Delist Letter</Typography>
+                <Typography variant="body2">
+                  Upload Final Range Distribution
+                </Typography>
               </Button>
             </Grid>
           </Grid>
@@ -12061,6 +13145,7 @@ function DelistsAddedToRange(props: any) {
       {confirmBulkActionDelete}
       {confirmBulkActionCancel}
       {confirmUpdateDialog}
+      {planogramShowErrorsDialog}
     </>
   )
 }

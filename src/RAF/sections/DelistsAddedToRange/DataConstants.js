@@ -734,12 +734,12 @@ export const placeholderCols = [
     width: '200px',
   },
   {
-    field: 'existingSupplier',
+    field: 'newSupplier',
     header: 'Supplier Code',
     width: '240px',
   },
   {
-    field: 'existingSupplierSite',
+    field: 'newSupplierSite',
     header: 'Supplier Site Code',
     width: '240px',
   },
@@ -2176,6 +2176,78 @@ export const actionTypeListHovers = {
   placeholderMinHover:
     'Select if New Line Form Process has not began to trigger a new line set up. This line will populate with details once the new line set up process is complete',
 }
+
+export const actionTypeListErrorMessage = {
+  delistProductMinErrorMessage:
+    "For Delist Product (MIN) action type, New no. of ranged stores can’t be greater than '0'.",
+  productDistributionIncreaseMinErrorMessage:
+    'For Product Distribution Increase (MIN) action New no. of ranged stores can’t be less than Current no. of ranged stores.',
+  productDistributionDecreaseMinErrorMessage:
+    'For Product Distribution Increase (MIN) action New no. of ranged stores can’t be greater than Current no. of ranged stores.',
+  productShelfSpaceIncreaseErrorMessage:
+    'For Product Shelf Space Increase action New shelf fill (Units) can’t be less than Current shelf fill (Units).',
+  productShelfSpaceDecreaseErrorMessage:
+    'For Product Shelf Space Increase action New shelf fill (Units) can’t be greater than Current shelf fill (Units).',
+}
+
+export const planogramViewCols = [
+  {
+    field: 'actionType',
+    header: 'Action/ Type',
+    width: '240px',
+  },
+  // {
+  //   field: 'newnoofrangestoresPlanogram',
+  //   header: 'New No. of Range Stores',
+  //   width: '200px',
+  // },
+  // {
+  //   field: 'newShelfFillPlanogram',
+  //   header: 'New Shelf Fill (Units)',
+  //   width: '200px',
+  // },
+  {
+    field: 'min',
+    header: 'MIN Number',
+    width: '100px',
+  },
+  {
+    field: 'description',
+    header: 'Product Description',
+    width: '200px',
+  },
+  {
+    field: 'currentnoofrangedstores',
+    header: 'Current No. of Ranged Stores',
+    width: '200px',
+  },
+  {
+    field: 'newnoofrangestoresPlanogram', // store codes
+    header: 'New No. of Range Stores',
+    width: '200px',
+  },
+  {
+    field: 'currentVersusNewStores',
+    header: 'Current Versus New Stores',
+    width: '200px',
+  },
+  {
+    field: 'storesRangedCurrentVsProposed',
+    // header: "% stores ranged (current vs proposed)",
+    header: 'Percentage of No. of stores ranged(proposed vs current)',
+    width: '200px',
+  },
+  {
+    field: 'currentShelfFill',
+    header: 'Current Shelf Fill (Units)',
+    width: '200px',
+  },
+  {
+    field: 'newShelfFillPlanogram',
+    header: 'New Shelf Fill (Units)',
+    width: '200px',
+  },
+]
 
 //delistProductMin add-done upload-done
 //productDistributionIncreaseMin add-no upload-done

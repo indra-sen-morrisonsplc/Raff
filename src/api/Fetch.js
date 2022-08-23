@@ -56,6 +56,8 @@ const {
   PATCH_RANGERESET_ITEMS,
   GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
   DELETE_RAF_ITEM,
+  GET_RANGE_PLANOGRAM_ERROR,
+  PATCH_RANGE_PLANOGRAM_ERROR,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -630,6 +632,26 @@ export const deleteRafItem = (rangeResetId, minNumber) => {
   // let reqBody = `${JSON.stringify(req)}`
   // return serviceRequest(url, "GET", undefined);
   return serviceRequest(url, 'DELETE', undefined)
+}
+
+export const patchRangeResetPlanogramErrors = (
+  rangeResetId,
+  minNumber,
+  req
+) => {
+  let url = `${BASE_URL}${PATCH_RANGE_PLANOGRAM_ERROR}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{itemNumber}', minNumber)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PATCH', reqBody)
+}
+export const getRangeResetPlanogramErrors = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${GET_RANGE_PLANOGRAM_ERROR}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{itemNumber}', minNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'GET', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

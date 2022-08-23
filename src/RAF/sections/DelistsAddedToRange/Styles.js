@@ -74,6 +74,30 @@ export const useStyles = makeStyles((theme) => {
       paddingRight: '20px',
       // fontWeight: 500,
     },
+    errorOutlinedIconError: {
+      color: 'yellow',
+    },
+
+    // errorRoundedIconTableGrid: {
+    //   // color: "#e5e554",
+    //   color: "red",
+    // },
+    errorRoundedIconTableGrid: {
+      color: 'black',
+      '& path:first-child': {
+        color: '#ffff01',
+      },
+    },
+    errorOutlinedIconErrorTableGrid: {
+      color: 'red',
+    },
+
+    errorRoundedIcon: {
+      display: 'flex',
+    },
+    mainGridTable: {
+      background: 'red',
+    },
     rangeStoreDialogBox: {
       'max-width': '50%',
     },
