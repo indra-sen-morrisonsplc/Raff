@@ -839,7 +839,6 @@ export const bulkActionTypes = {
   deleteAction: 'Delete',
   clearDepotAction: 'Clear Depot By',
   finalStopOrderAction: 'Final Stop Order Date',
-  deleteAction: 'Delete',
   draftAction: 'Draft',
   stockCountRequestAction: 'Stock Count Requested',
   cancelAction: 'Cancel',
@@ -2192,7 +2191,7 @@ export const actionTypeListErrorMessage = {
 
 export const planogramViewCols = [
   {
-    field: 'actionType',
+    field: 'actionTypePlanogram',
     header: 'Action/ Type',
     width: '240px',
   },
