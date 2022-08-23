@@ -1239,7 +1239,7 @@ function CreateEvent(props: any) {
               list.filter(
                 (dep: any) =>
                   dep.groupName === group.groupName &&
-                  dep.categoryName === category.categoryName
+                  dep.categoryId === category.categoryId
               )
             )
             // console.log(

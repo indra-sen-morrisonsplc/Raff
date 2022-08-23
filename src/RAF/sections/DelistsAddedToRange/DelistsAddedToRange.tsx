@@ -6150,7 +6150,10 @@ function DelistsAddedToRange(props: any) {
             onlineStorePick: item.onlineStorePick,
             wholesale: item.wholesale,
             ownBrand: item.ownBrand,
-            clearancePricing: eventDetails[0].clearancePriceCheck
+            clearancePricing:
+            item.includeInClearancePricing && item.includeInClearancePricing
+              ? item.includeInClearancePricing
+              : eventDetails[0].clearancePriceCheck
               ? eventDetails[0].clearancePriceCheck
               : '',
             storeStockUnit: item.storeStockUnit,
@@ -11150,9 +11153,12 @@ function DelistsAddedToRange(props: any) {
                 onlineStorePick: item.onlineStorePick,
                 wholesale: item.wholesale,
                 ownBrand: item.ownBrand,
-                clearancePricing: eventDetails[0].clearancePriceCheck
-                  ? eventDetails[0].clearancePriceCheck
-                  : '',
+                clearancePricing:
+              item.includeInClearancePricing && item.includeInClearancePricing
+                ? item.includeInClearancePricing
+                : eventDetails[0].clearancePriceCheck
+                ? eventDetails[0].clearancePriceCheck
+                : '',
                 storeStockUnit: item.storeStockUnit,
                 depotStockUnit: item.depotStockUnit,
                 frwdForecastToLaunch: item.forward_forecast_to_launch,
@@ -11341,9 +11347,12 @@ function DelistsAddedToRange(props: any) {
                 onlineStorePick: item.onlineStorePick,
                 wholesale: item.wholesale,
                 ownBrand: item.ownBrand,
-                clearancePricing: eventDetails[0].clearancePriceCheck
-                  ? eventDetails[0].clearancePriceCheck
-                  : '',
+                clearancePricing:
+              item.includeInClearancePricing && item.includeInClearancePricing
+                ? item.includeInClearancePricing
+                : eventDetails[0].clearancePriceCheck
+                ? eventDetails[0].clearancePriceCheck
+                : '',
                 storeStockUnit: item.storeStockUnit,
                 depotStockUnit: item.depotStockUnit,
                 frwdForecastToLaunch: item.forward_forecast_to_launch,
