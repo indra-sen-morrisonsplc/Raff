@@ -115,6 +115,7 @@ import {
   deleteRafItem,
   patchRangeResetPlanogramErrors,
   getRangeResetPlanogramErrors,
+  getLocationsServiceByItemnumber,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -294,6 +295,7 @@ function DelistsAddedToRange(props: any) {
   const [checkMin, setCheckMin] = useState<any>(false)
   const [checkUpdate, setCheckUpdate] = useState<any>(false)
   const [minCheckError, setMinCheckError] = useState<any>(false)
+
   const [currentNoOfRangeStores, setCurrentNoOfRangeStores] = useState<any>(0)
   const [currentShelfFill, setCurrentShelfFill] = useState<any>(0)
   const [newShelfFill, setNewShelfFill] = useState<any>(0)
@@ -334,6 +336,7 @@ function DelistsAddedToRange(props: any) {
 
   const [completeTaskPlaceHolderError, setCompleteTaskPlaceholderError] =
     useState<any>('')
+  const [storeCodeFetchError, setStoreCodeFetchError] = useState<any>(false)
 
   let taskName = 'CT36'
 
@@ -1058,33 +1061,53 @@ function DelistsAddedToRange(props: any) {
       })
   }, [])
 
-  const onPageLoadStoreCode = () => {
+  // const onPageLoadStoreCode = () => {
+  //   setIsProgressLoader(true)
+  //   getLocationsStoreCodeAPI()
+  //     .then((res: any) => {
+  //       console.log('getLocationsStoreCodeAPI', res)
+  //       setIsProgressLoader(false)
+  //       const stores = res.data.stores
+  //       // const storeCodes = stores.map((val: any) => {
+  //       //   return {
+  //       //     label: val.name,
+  //       //     text: val.name,
+  //       //   }
+  //       // })
+  //       const storeCodes = stores.map((val: any) => {
+  //         return val.name
+  //       })
+  //       setStoreCode(storeCodes)
+  //     })
+  //     .catch((err: any) => {
+  //       console.log('getLocationsStoreCodeAPIError', err)
+  //       setIsProgressLoader(false)
+  //     })
+  // }
+
+  const storeCodeFetch = (minVal: any) => {
     setIsProgressLoader(true)
-    getLocationsStoreCodeAPI()
+    getLocationsServiceByItemnumber(minVal && minVal)
       .then((res: any) => {
-        console.log('getLocationsStoreCodeAPI', res)
         setIsProgressLoader(false)
-        const stores = res.data.stores
-        // const storeCodes = stores.map((val: any) => {
-        //   return {
-        //     label: val.name,
-        //     text: val.name,
-        //   }
-        // })
+        const stores = res.data.range
         const storeCodes = stores.map((val: any) => {
-          return val.name
+          return val.locationId
         })
         setStoreCode(storeCodes)
+        setStoreCodeFetchError(false)
       })
       .catch((err: any) => {
         console.log('getLocationsStoreCodeAPIError', err)
         setIsProgressLoader(false)
+        setStoreCodeFetchError(true)
       })
   }
 
-  useEffect(() => {
-    onPageLoadStoreCode()
-  }, [])
+  // useEffect(() => {
+  //   // onPageLoadStoreCode()
+  //   storeCodeFetch()
+  // }, [])
 
   useEffect(() => {
     setExistingSearchFields([
@@ -3768,11 +3791,11 @@ function DelistsAddedToRange(props: any) {
             <div className="gridBorderGreen">
               <p className="headBgGreen">New Ranged Stores</p>
               <ul className="childRange">
-                {/* {depotRegLoc &&
-                  depotRegLoc.rangeLocations &&
-                  depotRegLoc.rangeLocations.map((val: any) => (
+                {depotRegLoc &&
+                  depotRegLoc.newRangeLocations &&
+                  depotRegLoc.newRangeLocations.map((val: any) => (
                     <DepotviewButtons locations={val} />
-                  ))} */}
+                  ))}
               </ul>
             </div>
           </Grid>
@@ -5557,7 +5580,7 @@ function DelistsAddedToRange(props: any) {
     //   onPageLoadStoreCode()
     // }
     setSelectedStore([])
-    onPageLoadStoreCode()
+    // onPageLoadStoreCode()
   }
   const [supplierOptions, setSupplierOptions] = useState<any>([])
   const handleActionTypeDialogClose = () => {
@@ -6905,9 +6928,12 @@ function DelistsAddedToRange(props: any) {
       setSelectedStore(
         selectedStore.length === storeCode.length ? [] : storeCode
       )
+
       return
     }
     setSelectedStore(value)
+    setNoOfStores(value.length)
+    setNewStoreCount(value.length)
   }
 
   const storeCodePopup = () => {
@@ -6923,6 +6949,7 @@ function DelistsAddedToRange(props: any) {
           input={
             <OutlinedInput margin="dense" className={classes.inputFields} />
           }
+          disabled={storeCode ? (storeCode === [] ? true : false) : true}
         >
           {storeCode.map((option: string) => (
             <MenuItem key={option} value={option}>
@@ -7513,6 +7540,15 @@ function DelistsAddedToRange(props: any) {
               </Box>
             </Box>
           )}
+          {storeCodeFetchError && (
+            <Box sx={{ p: 1, display: 'flex', flexDirection: 'row' }}>
+              <Box>
+                <Typography variant="body2" color="error">
+                  Fetching Store Codes failed, Try Again
+                </Typography>
+              </Box>
+            </Box>
+          )}
           <Box
             sx={{
               display: 'flex',
@@ -7602,11 +7638,47 @@ function DelistsAddedToRange(props: any) {
                         value={min}
                         onChange={(e: any) => setMin(e.target.value)}
                       /> */}
-                      <OutlinedInput
+                      {/* <OutlinedInput
                         value={min}
                         onChange={(e: any) => setMin(e.target.value)}
                         className={classes.inputFields}
+                      /> */}
+
+                      <SearchSelect
+                        value={min}
+                        onChange={(e: any) => {
+                          setMin(e.target.value)
+                          setStoreCodeFetchError(false)
+                        }}
+                        placeholder="Min"
+                        onClick={() => {
+                          if (min && min !== '') {
+                            storeCodeFetch(min)
+                          }
+                        }}
+                        className={classes.inputFields}
                       />
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box>
+                    <Typography variant="subtitle2" color="primary">
+                      Store Code
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="primary">
+                      {/* <select
+                        placeholder="--Select--"
+                        value={storeCode}
+                        onChange={(e: any) => setStoreCode(e.target.value)}
+                        style={{ width: '160px' }}
+                      >
+                        <option value="001">Store-001</option>
+                      </select> */}
+                      {storeCodePopup()}
                     </Typography>
                   </Box>
                 </Box>
@@ -7625,29 +7697,10 @@ function DelistsAddedToRange(props: any) {
                       /> */}
                       <OutlinedInput
                         value={noOfStores}
-                        onChange={(e: any) => setNoOfStores(e.target.value)}
+                        // onChange={() => setNoOfStores(selectedStore && selectedStore.length)}
                         className={classes.inputFields}
+                        disabled
                       />
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="primary">
-                      Store Code
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" color="primary">
-                      {/* <select
-                        placeholder="--Select--"
-                        value={storeCode}
-                        onChange={(e: any) => setStoreCode(e.target.value)}
-                        style={{ width: '160px' }}
-                      >
-                        <option value="001">Store-001</option>
-                      </select> */}
-                      {storeCodePopup()}
                     </Typography>
                   </Box>
                 </Box>
@@ -7749,18 +7802,51 @@ function DelistsAddedToRange(props: any) {
                   <Box>
                     <Typography variant="subtitle2" color="primary">
                       {/* <input
-                      type="text"
-                      value={min}
-                      onChange={(e: any) => setMin(e.target.value)}
-                    /> */}
-                      <OutlinedInput
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                      {/* <OutlinedInput
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                        className={classes.inputFields}
+                      /> */}
+
+                      <SearchSelect
                         value={min}
                         onChange={(e: any) => {
                           setMin(e.target.value)
-                          setNewIngredientError(false)
+                          setStoreCodeFetchError(false)
+                        }}
+                        placeholder="Min"
+                        onClick={() => {
+                          if (min && min !== '') {
+                            storeCodeFetch(min)
+                          }
                         }}
                         className={classes.inputFields}
                       />
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box>
+                    <Typography variant="subtitle2" color="primary">
+                      Store Code
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="subtitle2" color="primary">
+                      {/* <select
+                        placeholder="--Select--"
+                        value={storeCode}
+                        onChange={(e: any) => setStoreCode(e.target.value)}
+                        style={{ width: '160px' }}
+                      >
+                        <option value="001">Store-001</option>
+                      </select> */}
+                      {storeCodePopup()}
                     </Typography>
                   </Box>
                 </Box>
@@ -7773,35 +7859,16 @@ function DelistsAddedToRange(props: any) {
                   <Box>
                     <Typography variant="subtitle2" color="primary">
                       {/* <input
-                      type="text"
-                      value={noOfStores}
-                      onChange={(e: any) => setNoOfStores(e.target.value)}
-                    /> */}
-                      <OutlinedInput
+                        type="text"
                         value={noOfStores}
                         onChange={(e: any) => setNoOfStores(e.target.value)}
+                      /> */}
+                      <OutlinedInput
+                        value={noOfStores}
+                        // onChange={() => setNoOfStores(selectedStore && selectedStore.length)}
                         className={classes.inputFields}
+                        disabled
                       />
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="primary">
-                      Store Code
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="subtitle2" color="primary">
-                      {/* <select
-                      placeholder="--Select--"
-                      value={storeCode}
-                      onChange={(e: any) => setStoreCode(e.target.value)}
-                      style={{ width: '160px' }}
-                    >
-                      <option value="001">Store-001</option>
-                    </select> */}
-                      {storeCodePopup()}
                     </Typography>
                   </Box>
                 </Box>
@@ -8038,61 +8105,27 @@ function DelistsAddedToRange(props: any) {
                     </Box>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
-                        <OutlinedInput
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        {/* <OutlinedInput
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                        className={classes.inputFields}
+                      /> */}
+
+                        <SearchSelect
                           value={min}
                           onChange={(e: any) => {
-                            setCurrentNoOfRangeStores(0)
                             setMin(e.target.value)
+                            setStoreCodeFetchError(false)
                           }}
-                          className={classes.inputFields}
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {/* <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        Current no. of Range Stores
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        className={classes.blueText}
-                      >
-                        {currentNoOfRangeStores && storeViewData ? (
-                          <button
-                            onClick={handleStoreViewDialogOpen}
-                            className={classes.blueTextButton}
-                          >
-                            {currentNoOfRangeStores && currentNoOfRangeStores}
-                          </button>
-                        ) : (
-                          <>0</>
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box> */}
-                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        New no.of Range Stores
-                        <span style={{ color: 'red' }}>*</span>
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        {/* <input
-                      type="text"
-                      value={comments}
-                      onChange={(e: any) => setComments(e.target.value)}
-                    /> */}
-                        <OutlinedInput
-                          type="number"
-                          value={newStoreCount}
-                          onChange={(e: any) => {
-                            if (e.target.value >= 0) {
-                              setNewStoreCount(e.target.value)
+                          placeholder="Min"
+                          onClick={() => {
+                            if (min && min !== '') {
+                              storeCodeFetch(min)
                             }
                           }}
                           className={classes.inputFields}
@@ -8100,6 +8133,7 @@ function DelistsAddedToRange(props: any) {
                       </Typography>
                     </Box>
                   </Box>
+
                   <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
@@ -8109,14 +8143,36 @@ function DelistsAddedToRange(props: any) {
                     <Box>
                       <Typography variant="subtitle2" color="primary">
                         {/* <select
-                      placeholder="--Select--"
-                      value={storeCode}
-                      onChange={(e: any) => setStoreCode(e.target.value)}
-                      style={{ width: '160px' }}
-                    >
-                      <option value="001">Store-001</option>
-                    </select> */}
+                        placeholder="--Select--"
+                        value={storeCode}
+                        onChange={(e: any) => setStoreCode(e.target.value)}
+                        style={{ width: '160px' }}
+                      >
+                        <option value="001">Store-001</option>
+                      </select> */}
                         {storeCodePopup()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        New no. of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={noOfStores}
+                        onChange={(e: any) => setNoOfStores(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={noOfStores}
+                          // onChange={() => setNoOfStores(selectedStore && selectedStore.length)}
+                          className={classes.inputFields}
+                          disabled
+                        />
                       </Typography>
                     </Box>
                   </Box>
@@ -8155,61 +8211,27 @@ function DelistsAddedToRange(props: any) {
                     </Box>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
-                        <OutlinedInput
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        {/* <OutlinedInput
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                        className={classes.inputFields}
+                      /> */}
+
+                        <SearchSelect
                           value={min}
                           onChange={(e: any) => {
-                            setCurrentNoOfRangeStores(0)
                             setMin(e.target.value)
+                            setStoreCodeFetchError(false)
                           }}
-                          className={classes.inputFields}
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {/* <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        Current no. of Range Stores
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        className={classes.blueText}
-                      >
-                        {currentNoOfRangeStores && storeViewData ? (
-                          <button
-                            onClick={handleStoreViewDialogOpen}
-                            className={classes.blueTextButton}
-                          >
-                            {currentNoOfRangeStores && currentNoOfRangeStores}
-                          </button>
-                        ) : (
-                          <>0</>
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box> */}
-                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        New no.of Range Stores
-                        <span style={{ color: 'red' }}>*</span>
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="subtitle2" color="primary">
-                        {/* <input
-                      type="text"
-                      value={comments}
-                      onChange={(e: any) => setComments(e.target.value)}
-                    /> */}
-                        <OutlinedInput
-                          type="number"
-                          value={newStoreCount}
-                          onChange={(e: any) => {
-                            if (e.target.value >= 0) {
-                              setNewStoreCount(e.target.value)
+                          placeholder="Min"
+                          onClick={() => {
+                            if (min && min !== '') {
+                              storeCodeFetch(min)
                             }
                           }}
                           className={classes.inputFields}
@@ -8217,6 +8239,7 @@ function DelistsAddedToRange(props: any) {
                       </Typography>
                     </Box>
                   </Box>
+
                   <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
@@ -8226,14 +8249,36 @@ function DelistsAddedToRange(props: any) {
                     <Box>
                       <Typography variant="subtitle2" color="primary">
                         {/* <select
-                      placeholder="--Select--"
-                      value={storeCode}
-                      onChange={(e: any) => setStoreCode(e.target.value)}
-                      style={{ width: '160px' }}
-                    >
-                      <option value="001">Store-001</option>
-                    </select> */}
+                        placeholder="--Select--"
+                        value={storeCode}
+                        onChange={(e: any) => setStoreCode(e.target.value)}
+                        style={{ width: '160px' }}
+                      >
+                        <option value="001">Store-001</option>
+                      </select> */}
                         {storeCodePopup()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        New no. of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={noOfStores}
+                        onChange={(e: any) => setNoOfStores(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={noOfStores}
+                          // onChange={() => setNoOfStores(selectedStore && selectedStore.length)}
+                          className={classes.inputFields}
+                          disabled
+                        />
                       </Typography>
                     </Box>
                   </Box>
@@ -9507,6 +9552,66 @@ function DelistsAddedToRange(props: any) {
       </Box>
     </Dialog>
   )
+
+  const [errorAlertForPlano, setErrorAlertForPlano] = useState<any>(false)
+  const errorPlanoDialogClose = () => {
+    setErrorAlertForPlano(false)
+  }
+  const errorPlanoDialog = (
+    <Dialog
+      open={errorAlertForPlano}
+      onClose={errorPlanoDialogClose}
+      fullWidth
+      classes={{
+        paperFullWidth: '50%',
+        // depotStockTableData
+        //   ? classes.placeholderDialogFull
+        //   : classes.placeholderDialog,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          // width: small ? '400px' : '260px',
+          // height: "250px",
+          // border: '3px solid green',
+          borderRadius: 5,
+          p: 1,
+        }}
+      >
+        <DialogHeader
+          title={'Alert'}
+          // title={`North East`}
+          onClose={errorPlanoDialogClose}
+        />
+        <Box
+          sx={{
+            display: 'flex',
+            p: 3,
+            // pb: 0,
+            justifyContent: 'right',
+          }}
+        >
+          <Grid item xl={12} lg={12} md={12} sm={12} xs={12}>
+            <>
+              <Typography variant="h6" style={{ fontWeight: '900' }}>
+                Alert!
+              </Typography>
+              <Typography style={{ fontSize: '17px' }}>
+                <strong style={{ fontWeight: '900' }}>
+                  Planogram comparison{' '}
+                </strong>{' '}
+                error is still exist, resolve all the errors to complete the
+                task.
+              </Typography>
+            </>
+          </Grid>
+        </Box>
+      </Box>
+    </Dialog>
+  )
+
   const [newlyAddedTitle, setNewlyAddedTitle] = useState<any>(false)
   const productListTable = (
     <Grid
@@ -12018,6 +12123,13 @@ function DelistsAddedToRange(props: any) {
   }
 
   const handleCompleteTask = () => {
+    const finalRangeLength = [...xlslPlanogramimportedData]
+    if (finalRangeLength.length > 0) {
+      setErrorAlertForPlano(true)
+      return
+    } else {
+      setErrorAlertForPlano(false)
+    }
     const checkPlaceHolderMin: any = importedData.filter((val: any) => {
       return val.actionType === placeholderMin
     })
@@ -13146,6 +13258,7 @@ function DelistsAddedToRange(props: any) {
       {confirmBulkActionCancel}
       {confirmUpdateDialog}
       {planogramShowErrorsDialog}
+      {errorPlanoDialog}
     </>
   )
 }
