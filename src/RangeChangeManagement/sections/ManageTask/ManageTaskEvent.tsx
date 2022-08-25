@@ -2396,7 +2396,7 @@ function ManageTaskEvent(props: any) {
             // stateKey="dt-state-demo-session-eventmanage"
             showGridlines
             scrollable
-            scrollHeight="300px"
+            scrollHeight="400px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2469,7 +2469,7 @@ function ManageTaskEvent(props: any) {
             // alwaysShowPaginator={false}
             showGridlines
             scrollable
-            scrollHeight="300px"
+            scrollHeight="400px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2525,7 +2525,7 @@ function ManageTaskEvent(props: any) {
       return (
         <DataTable
           value={importedData}
-          rows={10}
+          // rows={10}
           // paginator
           // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
           // currentPageReportTemplate="{first} - {last} of {totalRecords}"

@@ -31,7 +31,7 @@ import {
 import Alert from '@material-ui/lab/Alert'
 import { teal } from '@material-ui/core/colors'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { SearchOutlined } from '@material-ui/icons'
+import { FolderOpenRounded, SearchOutlined } from '@material-ui/icons'
 import ErrorOutlineTwoToneIcon from '@material-ui/icons/ErrorOutlineTwoTone'
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded'
 import ErrorOutlinedIcon from '@material-ui/icons/ErrorOutlined'
@@ -5029,6 +5029,25 @@ function DelistsAddedToRange(props: any) {
     })
   }
 
+  const excelDatetoDate = (eDate: any) => {
+    if (!isNaN(eDate)) {
+      let date1 = Math.round((eDate - (25568 + 1)) * 86400 * 1000)
+      console.log(date1)
+      if (!isNaN(date1)) {
+        console.log(date1)
+        let date = new Date(Math.round((eDate - (25568 + 1)) * 86400 * 1000))
+          .toISOString()
+          .split('T')[0]
+        return date
+      } else {
+        console.log(null)
+        return ''
+      }
+    } else {
+      return ''
+    }
+  }
+
   const handleUpload = (e: any) => {
     // e.preventDefault();
     handleUploadDialogClose()
@@ -5047,8 +5066,8 @@ function DelistsAddedToRange(props: any) {
           const wb = xlsx.read(event.target.result, { type: 'array' })
           const wsname = wb.SheetNames[0]
           const ws = wb.Sheets[wsname]
-          const data = xlsx.utils.sheet_to_json(ws, { raw: false }) //dateNF:'yyyy-mm-dd'}
-          console.log(data)
+          const data = xlsx.utils.sheet_to_json(ws) //dateNF:'yyyy-mm-dd'}
+
           const data1 = xlsx.utils.sheet_to_json(ws, { header: 1 })
           const cols: any = data1[0]
 
@@ -5081,6 +5100,25 @@ function DelistsAddedToRange(props: any) {
                     return item.trim()
                   })
                 : ''
+
+            var effectiveDateFrom = d.EffectiveDateFrom
+              ? excelDatetoDate(d.EffectiveDateFrom) !== ''
+                ? excelDatetoDate(d.EffectiveDateFrom)?.toString()
+                : null
+              : null
+
+            var effectiveDateTo = d.EffectiveDateTo
+              ? excelDatetoDate(d.EffectiveDateTo) !== ''
+                ? excelDatetoDate(d.EffectiveDateTo)?.toString()
+                : null
+              : null
+            var minValue = d.MIN
+              ? d.MIN.toString()
+              : d.MINPIN && d.MINPIN.toString()
+
+            console.log('props date', effectiveDateFrom, effectiveDateTo)
+
+            console.log('props data', d)
             if (
               d.ActionType &&
               d.ActionType === delistProductMin &&
@@ -5091,7 +5129,7 @@ function DelistsAddedToRange(props: any) {
               // || actionType === undefined
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN,
+                minValue,
                 delistProductMin,
                 index + 1,
                 d.Comments, //optional
@@ -5113,7 +5151,7 @@ function DelistsAddedToRange(props: any) {
               d.MINPIN !== undefined
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN,
+                minValue,
                 newProductMin,
                 index + 1,
                 d.Comments, //optional
@@ -5135,7 +5173,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN,
+                minValue,
                 delistIngredientMin,
                 index + 1,
                 d.Comments, //optional
@@ -5156,7 +5194,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN,
+                minValue,
                 newIngredientMin,
                 index + 1,
                 d.Comments, //optional
@@ -5183,8 +5221,8 @@ function DelistsAddedToRange(props: any) {
                 d.Comments, //optional
                 'NA',
                 'NA',
-                d.EffectiveDateFrom, //optional
-                d.EffectiveDateTo, //optional
+                effectiveDateFrom, //optional
+                effectiveDateTo, //optional
                 'NA',
                 '',
                 '',
@@ -5204,8 +5242,8 @@ function DelistsAddedToRange(props: any) {
                 d.Comments, //optional
                 'NA',
                 'NA',
-                d.EffectiveDateFrom, //optional
-                d.EffectiveDateTo, //optional
+                effectiveDateFrom, //optional
+                effectiveDateTo, //optional
                 'NA',
                 '',
                 '',
@@ -5219,7 +5257,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN, // Mandatory
+                minValue, // Mandatory
                 productShelfSpaceIncrease,
                 index + 1,
                 d.Comments,
@@ -5240,7 +5278,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN, // Mandatory
+                minValue, // Mandatory
                 productShelfSpaceDecrease,
                 index + 1,
                 d.Comments,
@@ -5261,20 +5299,21 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN, // Mandatory
+                minValue, // Mandatory
                 supplyChange,
                 index + 1,
                 d.Comments, //optional
+                d.NewNumberofRangeStores
+                  ? d.NewNumberofRangeStores
+                  : storeArray != '' && storeArray.length,
+                storeArray,
+                effectiveDateFrom, // Mandatory
+                effectiveDateTo, //optional
                 'NA',
-                'NA',
-                d.EffectiveDateFrom, // Mandatory
-                d.EffectiveDateTo, //optional
-                'NA',
-                d.NewNumberofRangeStores,
-                d.SupplierExisting, // Mandatory
-                d.SupplierSiteExisting, //optional
-                d.SupplierNew, // Mandatory
-                d.SupplierSiteNew, //optional
+                d.SupplierCode, // Mandatory
+                d.SupplierSiteCode, //optional
+                d.NewSupplier, // Mandatory
+                d.NewSupplierSite, //optional
               ])
             } else if (
               d.ActionType &&
@@ -5285,7 +5324,7 @@ function DelistsAddedToRange(props: any) {
               d.NewNumberofStoresRestrictions !== undefined
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN, // Mandatory
+                minValue, // Mandatory
                 productDistributionDecreaseMin,
                 index + 1,
                 d.Comments, //optional
@@ -5308,7 +5347,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
-                d.MIN ? d.MIN : d.MINPIN, //Mandatory
+                minValue, //Mandatory
                 productDistributionIncreaseMin,
                 index + 1,
                 d.Comments, //optional
@@ -5898,6 +5937,7 @@ function DelistsAddedToRange(props: any) {
         // supplierSiteExisting_x,
         // supplierNew_x,
         // supplierSiteNew_x,
+        formData.numberOfRangeStores = newnoofrangestoreNewMin
         formData.existingSupplier = supplierExisting_x
         formData.existingSupplierSite = supplierSiteExisting_x
         formData.newSupplier = supplierNew_x
@@ -6259,7 +6299,7 @@ function DelistsAddedToRange(props: any) {
         if (
           eventDetails &&
           eventDetails[0].categoryId &&
-          eventDetails[0].categoryId !==
+          eventDetails[0].categoryId.toString() !==
             values[0].value.data.reportingHierarchy.category
         ) {
           setIsProgressLoader(false)
@@ -6276,7 +6316,7 @@ function DelistsAddedToRange(props: any) {
         if (
           eventDetails &&
           eventDetails[0].departmentId &&
-          eventDetails[0].departmentId !==
+          eventDetails[0].departmentId.toString() !==
             values[0].value.data.reportingHierarchy.department
         ) {
           setIsProgressLoader(false)
