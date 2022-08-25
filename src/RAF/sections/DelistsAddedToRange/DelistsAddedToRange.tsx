@@ -1852,7 +1852,8 @@ function DelistsAddedToRange(props: any) {
         rowData.actionType === placeholderMin ||
         rowData.actionType === newOutercaseCode ||
         rowData.actionType === newProductMin ||
-        rowData.actionType === productDistributionDecreaseMin)
+        rowData.actionType === productDistributionDecreaseMin ||
+        rowData.actionType === supplyChange)
     ) {
       return <>NA</>
     } else {
@@ -2378,14 +2379,14 @@ function DelistsAddedToRange(props: any) {
   const weeksCoveronTotalStockTemplate = (rowData: any) => {
     if (
       rowData.actionType === newProductMin ||
-      rowData.actionType === newIngredientMin
+      rowData.actionType === newIngredientMin ||
+      rowData.actionType === placeholderMin ||
+      rowData.actionType === supplyChange
     ) {
       return <></>
     } else if (
       rowData.actionType === newOutercaseCode ||
-      rowData.actionType === delistOutercaseCode ||
-      rowData.actionType === placeholderMin ||
-      rowData.actionType === supplyChange
+      rowData.actionType === delistOutercaseCode
     ) {
       return <>NA</>
     } else {
@@ -3683,8 +3684,7 @@ function DelistsAddedToRange(props: any) {
     // console.log('ingredientMinTemplate', rowData)
     if (
       rowData &&
-      (rowData.actionType === newIngredientMin ||
-        rowData.actionType === placeholderMin ||
+      (rowData.actionType === placeholderMin ||
         rowData.actionType === newOutercaseCode ||
         rowData.actionType === delistOutercaseCode ||
         rowData.actionType === supplyChange)
@@ -3693,6 +3693,8 @@ function DelistsAddedToRange(props: any) {
         // <>{rowData && rowData.noOfRecipeMin ? rowData.noOfRecipeMin : 'NA'}</>
         <>NA</>
       )
+    } else if (rowData.actionType === newIngredientMin) {
+      return <></>
     } else if (
       rowData &&
       (rowData.actionType !== delistOutercaseCode ||
