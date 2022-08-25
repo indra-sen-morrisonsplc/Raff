@@ -291,7 +291,7 @@ export const getStatusEventCamundaAPINew = (
   filter
 ) => {
   let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
-  const params = `limit=1000&userRole=${userRole}&tradingGrp=${tradingGrp}&filter=${filter}`
+  const params = `limit=10000&userRole=${userRole}&tradingGrp=${tradingGrp}&filter=${filter}`
   url = url.replace('{userId}', empId)
   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
   return serviceRequest(url, 'GET', undefined, params)

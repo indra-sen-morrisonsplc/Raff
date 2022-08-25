@@ -1092,7 +1092,7 @@ function DelistsAddedToRange(props: any) {
         setIsProgressLoader(false)
         const stores = res.data.range
         const storeCodes = stores.map((val: any) => {
-          return val.locationId
+          return val.locationId.toString()
         })
         setStoreCode(storeCodes)
         setStoreCodeFetchError(false)
@@ -1851,6 +1851,7 @@ function DelistsAddedToRange(props: any) {
         rowData.actionType === productShelfSpaceIncrease ||
         rowData.actionType === placeholderMin ||
         rowData.actionType === newOutercaseCode ||
+        rowData.actionType === newProductMin ||
         rowData.actionType === productDistributionDecreaseMin)
     ) {
       return <>NA</>
@@ -4021,9 +4022,10 @@ function DelistsAddedToRange(props: any) {
         if (
           rowData.actionType === delistProductMin ||
           rowData.actionType === productDistributionDecreaseMin ||
-          rowData.actionType === productShelfSpaceDecrease ||
+          // rowData.actionType === productShelfSpaceDecrease ||
           rowData.actionType === delistIngredientMin ||
-          rowData.actionType === supplyChange
+          rowData.actionType === delistOutercaseCode
+          // rowData.actionType === supplyChange
         ) {
           setImportedData((prevState: any) => {
             return onChangeProductTableFields(
@@ -4135,9 +4137,10 @@ function DelistsAddedToRange(props: any) {
         if (
           rowData.actionType === delistProductMin ||
           rowData.actionType === productDistributionDecreaseMin ||
-          rowData.actionType === productShelfSpaceDecrease ||
+          // rowData.actionType === productShelfSpaceDecrease ||
           rowData.actionType === delistIngredientMin ||
-          rowData.actionType === supplyChange
+          rowData.actionType === delistOutercaseCode
+          // rowData.actionType === supplyChange
         ) {
           setImportedData((prevState: any) => {
             return onChangeProductTableFields(
@@ -5444,15 +5447,15 @@ function DelistsAddedToRange(props: any) {
             } else {
               console.log(d.MINPIN + 'Error')
               setExceelErrors((prevState: any) => {
-                return [...prevState, ...d]
+                return [...prevState, d]
               })
-              toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: `Barcode field is empty`,
-                life: life,
-                className: 'login-toast',
-              })
+              // toast.current.show({
+              //   severity: 'error',
+              //   summary: 'Error',
+              //   detail: `Barcode field is empty`,
+              //   life: life,
+              //   className: 'login-toast',
+              // })
             }
           })
 
