@@ -131,6 +131,7 @@ import './styles.css'
 import { exportExcel } from './ExportExcel'
 import ConfirmBox from '../../../components/ConfirmBox/ConfirmBox'
 import ConfirmBox1 from '../../components/ConfirmBox1/confirmBox1'
+import { differenceInBusinessDays } from 'date-fns/esm'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -1087,21 +1088,58 @@ function DelistsAddedToRange(props: any) {
 
   const storeCodeFetch = (minVal: any) => {
     setIsProgressLoader(true)
-    getLocationsServiceByItemnumber(minVal && minVal)
-      .then((res: any) => {
-        setIsProgressLoader(false)
-        const stores = res.data.range
-        const storeCodes = stores.map((val: any) => {
-          return val.locationId.toString()
+    if (actionType.value === productDistributionIncreaseMin) {
+      Promise.allSettled([
+        getLocationsServiceByItemnumber(minVal && minVal),
+        getLocationsStoreCodeAPI(),
+      ])
+        .then((res: any) => {
+          setIsProgressLoader(false)
+          if (
+            res &&
+            res[0].status === 'fulfilled' &&
+            res[1].status === 'fulfilled'
+          ) {
+            let storecodes1 = res[0].value.data.range.map((data: any) =>
+              data.locationId.toString()
+            )
+            let storecodes2 = res[1].value.data.stores.map((data: any) =>
+              data.name.toString()
+            )
+            console.log('storecodes', storecodes1, storecodes2)
+            let difference = storecodes2.filter(
+              (x: any) => !storecodes1.includes(x)
+            )
+            difference.sort((x: any, y: any) =>
+              x.localeCompare(y, 'en', { numeric: true })
+            )
+            console.log('storecodes2', difference)
+            setStoreCode(difference)
+            setStoreCodeFetchError(false)
+          } else {
+            setStoreCodeFetchError(true)
+          }
         })
-        setStoreCode(storeCodes)
-        setStoreCodeFetchError(false)
-      })
-      .catch((err: any) => {
-        console.log('getLocationsStoreCodeAPIError', err)
-        setIsProgressLoader(false)
-        setStoreCodeFetchError(true)
-      })
+        .catch((err: any) => {
+          setIsProgressLoader(false)
+        })
+    } else {
+      getLocationsServiceByItemnumber(minVal && minVal)
+        .then((res: any) => {
+          setIsProgressLoader(false)
+          const stores = res.data.range
+          const storeCodes = stores.map((val: any) => {
+            return val.locationId.toString()
+          })
+          setStoreCode(storeCodes)
+          setStoreCodeFetchError(false)
+        })
+        .catch((err: any) => {
+          console.log('getLocationsStoreCodeAPIError', err)
+          setIsProgressLoader(false)
+          setStoreCodeFetchError(true)
+        })
+    }
   }
 
   // useEffect(() => {
@@ -5305,7 +5343,9 @@ function DelistsAddedToRange(props: any) {
                 d.Comments, //optional
                 d.NewNumberofRangeStores
                   ? d.NewNumberofRangeStores
-                  : storeArray != '' && storeArray.length,
+                  : storeArray != ''
+                  ? storeArray.length
+                  : null,
                 storeArray,
                 effectiveDateFrom, // Mandatory
                 effectiveDateTo, //optional
