@@ -324,7 +324,7 @@ function DelistsAddedToRange(props: any) {
   const [finalRangeState, setFinalRangeState] = useState<any>(false)
   const [clearDepotBulkActionOpen, setClearDepotBulkActionOpen] =
     useState<any>(false)
-  const [clearDepotSelected, setClearDepotSelected] = useState<any>()
+  const [clearDepotSelected, setClearDepotSelected] = useState<any>('')
   const [bulkActionOptions, setBulkActionOptions] = useState<any>()
   const [finalStopOrderBulkActionOpen, setFinalStopOrderBulkActionOpen] =
     useState<any>(false)
@@ -2157,7 +2157,14 @@ function DelistsAddedToRange(props: any) {
               })
             }
           }}
-          input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
+          placeholder="Select a value"
+          // input={
+          //   <OutlinedInput
+          //     margin="dense"
+          //     className={classes.muiSelect}
+          //     placeholder="Select a value"
+          //   />
+          // }
         >
           {/* <MenuItem
             value={'Week-4'}
@@ -4137,18 +4144,24 @@ function DelistsAddedToRange(props: any) {
               value={clearDepotSelected}
               // onChange={(e) => eventHandleDetailsSOT(e)}
               onChange={(e: any) => {
-                if (e.target.value !== null) {
+                if (e.target.value !== null && e.target.value !== '') {
                   setClearDepotSelected(e.target.value)
                 }
               }}
+              // placeholder="Select Clear Depot Week"
+              // variant="outlined"
               input={
                 <OutlinedInput
                   margin="dense"
                   className={classes.muiSelect}
                   placeholder="Clear Depot By"
+                  value = 'Select Depot Clear Week'
                 />
               }
             >
+              <MenuItem value={''} className={classes.muiSelect} disabled>
+                Select Depot Clear Week
+              </MenuItem>
               {clearDepotByOptions.map((op: any) => {
                 return (
                   <MenuItem
