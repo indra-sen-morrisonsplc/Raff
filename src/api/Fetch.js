@@ -656,7 +656,9 @@ export const getRangeResetPlanogramErrors = (rangeResetId, minNumber) => {
 }
 
 export const getLocationsServiceByItemnumber = (itemNumber) => {
-  let url = `${BASE_URL}${GET_LOCATIONS_SERVICE}`
+  let base = 'https://sit-api.morrisons.com/'
+  let url = `${base}${GET_LOCATIONS_SERVICE}`
+  // let url = `${BASE_URL}${GET_LOCATIONS_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   const params = 'limit=1000'
   return serviceRequest(url, 'GET', undefined, params)

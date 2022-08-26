@@ -337,6 +337,8 @@ function DelistsAddedToRange(props: any) {
   const [completeTaskPlaceHolderError, setCompleteTaskPlaceholderError] =
     useState<any>('')
   const [storeCodeFetchError, setStoreCodeFetchError] = useState<any>(false)
+  const [storeCodeLength, setStoreCodeLength] = useState<any>()
+  const [newStoreViewData, setNewStoreViewData] = useState<any>()
 
   let taskName = 'CT36'
 
@@ -1114,6 +1116,7 @@ function DelistsAddedToRange(props: any) {
             )
             console.log('storecodes2', difference)
             setStoreCode(difference)
+            setStoreCodeLength(storecodes1.length)
             setStoreCodeFetchError(false)
           } else {
             setStoreCodeFetchError(true)
@@ -1131,6 +1134,7 @@ function DelistsAddedToRange(props: any) {
             return val.locationId.toString()
           })
           setStoreCode(storeCodes)
+          setStoreCodeLength(storeCodes.length)
           setStoreCodeFetchError(false)
         })
         .catch((err: any) => {
@@ -3042,6 +3046,13 @@ function DelistsAddedToRange(props: any) {
             setDepotStockData([])
             setDepotRegions([])
           }
+          if (res.data.hasOwnProperty('newStoreView') && store === 'store') {
+            setNewStoreViewData(res.data.newStoreView)
+            setStorePopupHeader(res.data)
+          } else {
+            setNewStoreViewData([])
+            setStorePopupHeader('')
+          }
           setIsProgressLoader(false)
         })
         .catch((err: any) => {
@@ -3164,7 +3175,11 @@ function DelistsAddedToRange(props: any) {
           <DataTable
             // value={rangedStoresTableData}
             // value={rangedStoresData}
-            value={storeViewApi}
+            value={
+              viewTemplateName === 'New Number of Ranged Stores'
+                ? newStoreViewData
+                : storeViewApi
+            }
             showGridlines
             className="p-datatable-sm"
             scrollable
@@ -3189,6 +3204,14 @@ function DelistsAddedToRange(props: any) {
       </Box>
     </Dialog>
   )
+
+  useEffect(() => {
+    console.log('new store view', newStoreViewData)
+  }, [newStoreViewData])
+
+  useEffect(() => {
+    console.log('store view', storeViewApi)
+  }, [storeViewApi])
 
   const currentNoOfRangeStoresTemplate = (rowData: any) => {
     //storeViewDummyRes
@@ -5684,7 +5707,6 @@ function DelistsAddedToRange(props: any) {
     // if (actionType === 'New Product (MIN)') {
     //   onPageLoadStoreCode()
     // }
-    setSelectedStore([])
     // onPageLoadStoreCode()
   }
   const [supplierOptions, setSupplierOptions] = useState<any>([])
@@ -5699,6 +5721,7 @@ function DelistsAddedToRange(props: any) {
     setNewIngredientError(false)
     setNewShelfFill(0)
     setNewStoreCount(0)
+    setSelectedStore([])
   }
 
   const handleFromDate = (date: any) => {
@@ -6077,8 +6100,8 @@ function DelistsAddedToRange(props: any) {
 
     if (
       type === newProductMin ||
-      type === 'Product Distribution Decrease (MIN)' ||
-      type === 'Product Distribution Increase (MIN)'
+      type === productDistributionDecreaseMin ||
+      type === productDistributionIncreaseMin
     ) {
       // formData.storeCode = storecodeNewMin ? storecodeNewMin.join(',') : ''
       // formData.storeCode =
@@ -6087,6 +6110,7 @@ function DelistsAddedToRange(props: any) {
       //     : storecodeNewMin
       //     ? storecodeNewMin.join(',')
       //     : ''
+      console.log('storecode select', storecodeNewMin)
       formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
       formData.numberOfRangeStores = newnoofrangestoreNewMin
       formData.comments = comments === '' ? comment : comments
@@ -6507,7 +6531,6 @@ function DelistsAddedToRange(props: any) {
 
     // return
     if (actionType.value === delistProductMin) {
-      handleActionTypeDialogClose()
       if (min !== '') {
         console.log('hello')
         getAndCheckItemNumber([
@@ -6526,8 +6549,9 @@ function DelistsAddedToRange(props: any) {
           '',
         ])
       }
-    } else if (actionType.value === newProductMin) {
       handleActionTypeDialogClose()
+    } else if (actionType.value === newProductMin) {
+      // handleActionTypeDialogClose()
       if (min !== '') {
         console.log('hello')
         getAndCheckItemNumber([
@@ -6546,6 +6570,7 @@ function DelistsAddedToRange(props: any) {
           '',
         ])
       }
+      handleActionTypeDialogClose()
     } else if (actionType.value === delistIngredientMin) {
       // handleActionTypeDialogClose()
 
@@ -6615,7 +6640,7 @@ function DelistsAddedToRange(props: any) {
           setIsProgressLoader(false)
         })
     } else if (actionType.value === delistOutercaseCode) {
-      handleActionTypeDialogClose()
+      // handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
         delistOutercaseCode,
@@ -6631,8 +6656,9 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === newOutercaseCode) {
       handleActionTypeDialogClose()
+    } else if (actionType.value === newOutercaseCode) {
+      // handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
         newOutercaseCode,
@@ -6648,6 +6674,7 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
+      handleActionTypeDialogClose()
     } else if (actionType.value === productDistributionIncreaseMin) {
       // getRangeByIdAndMinNumber('1304', min)
       //   .then((res: any) => {
@@ -6669,7 +6696,7 @@ function DelistsAddedToRange(props: any) {
       //   })
 
       // minCheck &&
-      handleActionTypeDialogClose()
+      // handleActionTypeDialogClose()
       // minCheck &&
       getAndCheckItemNumber([
         min,
@@ -6686,6 +6713,7 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
+      handleActionTypeDialogClose()
     } else if (actionType.value === productDistributionDecreaseMin) {
       // getRangeByIdAndMinNumber('1304', min)
       //   .then((res: any) => {
@@ -6707,7 +6735,7 @@ function DelistsAddedToRange(props: any) {
       //   })
 
       // minCheck &&
-      handleActionTypeDialogClose()
+      // handleActionTypeDialogClose()
       // minCheck &&
       getAndCheckItemNumber([
         min,
@@ -6724,6 +6752,7 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
+      handleActionTypeDialogClose()
     } else if (actionType.value === productShelfSpaceIncrease) {
       // getRangeByIdAndMinNumber('1304', min)
       //   .then((res: any) => {
@@ -6745,7 +6774,7 @@ function DelistsAddedToRange(props: any) {
       //   })
 
       // minCheck &&
-      handleActionTypeDialogClose()
+      // handleActionTypeDialogClose()
       // minCheck &&
       getAndCheckItemNumber([
         min,
@@ -6762,6 +6791,7 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
+      handleActionTypeDialogClose()
     } else if (actionType.value === productShelfSpaceDecrease) {
       // getRangeByIdAndMinNumber('1304', min)
       //   .then((res: any) => {
@@ -6783,7 +6813,7 @@ function DelistsAddedToRange(props: any) {
       //   })
 
       // minCheck &&
-      handleActionTypeDialogClose()
+      // handleActionTypeDialogClose()
       // minCheck &&
       getAndCheckItemNumber([
         min,
@@ -6800,8 +6830,9 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === 'Supplier Change') {
       handleActionTypeDialogClose()
+    } else if (actionType.value === supplyChange) {
+      // handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
         'Supplier Change',
@@ -6818,6 +6849,7 @@ function DelistsAddedToRange(props: any) {
         supplierNew,
         supplierSiteNew,
       ])
+      handleActionTypeDialogClose()
     }
     setMin('')
     setComments('')
@@ -6827,6 +6859,10 @@ function DelistsAddedToRange(props: any) {
     setNewShelfFill(0)
     setCheckUpdate(false)
   }
+
+  useEffect(() => {
+    console.log('selected store', selectedStore)
+  }, [selectedStore])
 
   const handleCancelUpdate = () => {
     setCheckMin(false)
@@ -6854,6 +6890,15 @@ function DelistsAddedToRange(props: any) {
     const formdata = importedData &&
       eventDetails && {
         items: importedData.map((item: any) => {
+          let newNumberOfRangeStores =
+            item.numberOfRangeStores !== 'NA'
+              ? item.actionType === productDistributionDecreaseMin
+                ? storeCodeLength - parseInt(item.numberOfRangeStores)
+                : item.actionType === productDistributionIncreaseMin
+                ? storeCodeLength + parseInt(item.numberOfRangeStores)
+                : item.numberOfRangeStores
+              : null
+          console.log('new storecodes', newNumberOfRangeStores)
           return {
             itemNumber: item.min !== 'NA' ? item.min : null,
             description: item.description,
@@ -6904,10 +6949,7 @@ function DelistsAddedToRange(props: any) {
             existingSupplier: item.existingSupplier,
             existingSupplierSite: item.existingSupplierSite,
             rangedStoresCurrent: item.currentnoofrangedstores,
-            rangedStoresNew:
-              item.numberOfRangeStores !== 'NA'
-                ? item.numberOfRangeStores
-                : null,
+            rangedStoresNew: newNumberOfRangeStores,
             currentVsNewStores: item.currentVersusNewStores,
             rangedStoresPercent: item.storesRangedCurrentVsProposed,
             shelfFillCurrent:
@@ -7308,6 +7350,7 @@ function DelistsAddedToRange(props: any) {
           if (res.data.hasOwnProperty('storeView')) {
             setStoreViewData(res.data.storeView)
           }
+
           console.log('existing', res.data.existingSupplier)
           setSupplierExisting(res.data.existingSupplier)
           setSupplierSiteExisting(res.data.existingSupplierSite)
@@ -9813,12 +9856,14 @@ function DelistsAddedToRange(props: any) {
         <Grid item xl={12} lg={12} md={12} sm={12} xs={12}>
           <DataTable
             value={importedData}
-            showGridlines
             selectionMode="checkbox"
             selection={selectedProductListItems}
             onSelectionChange={(e: any) => {
               setSelectedProductListItems(e.value)
             }}
+            showGridlines
+            scrollable
+            scrollHeight="300px"
           >
             <Column
               selectionMode="multiple"
