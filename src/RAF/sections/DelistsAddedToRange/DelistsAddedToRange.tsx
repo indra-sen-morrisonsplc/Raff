@@ -131,7 +131,6 @@ import './styles.css'
 import { exportExcel } from './ExportExcel'
 import ConfirmBox from '../../../components/ConfirmBox/ConfirmBox'
 import ConfirmBox1 from '../../components/ConfirmBox1/confirmBox1'
-import { differenceInBusinessDays } from 'date-fns/esm'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -7791,7 +7790,7 @@ function DelistsAddedToRange(props: any) {
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      New no. of Range Stores
+                      Delta no. of Range Stores
                     </Typography>
                   </Box>
                   <Box>
@@ -7959,7 +7958,7 @@ function DelistsAddedToRange(props: any) {
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      New no. of Range Stores
+                      Delta no. of Range Stores
                     </Typography>
                   </Box>
                   <Box>
@@ -8263,7 +8262,7 @@ function DelistsAddedToRange(props: any) {
                   <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
-                        New no. of Range Stores
+                        Delta no. of Range Stores
                       </Typography>
                     </Box>
                     <Box>
@@ -8369,7 +8368,7 @@ function DelistsAddedToRange(props: any) {
                   <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box>
                       <Typography variant="subtitle2" color="primary">
-                        New no. of Range Stores
+                        Delta no. of Range Stores
                       </Typography>
                     </Box>
                     <Box>
