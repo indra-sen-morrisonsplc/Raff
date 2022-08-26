@@ -59,6 +59,7 @@ const {
   GET_RANGE_PLANOGRAM_ERROR,
   PATCH_RANGE_PLANOGRAM_ERROR,
   GET_LOCATIONS_SERVICE,
+  DELETE_RANGE_PLANOGRAM_ERROR,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -662,6 +663,15 @@ export const getLocationsServiceByItemnumber = (itemNumber) => {
   url = url.replace('{itemNumber}', itemNumber)
   const params = 'limit=1000'
   return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const deleteRangeResetsPlanogramError = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${DELETE_RANGE_PLANOGRAM_ERROR}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{itemNumber}', minNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'DELETE', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

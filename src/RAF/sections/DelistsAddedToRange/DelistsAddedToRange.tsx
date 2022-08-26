@@ -116,6 +116,7 @@ import {
   patchRangeResetPlanogramErrors,
   getRangeResetPlanogramErrors,
   getLocationsServiceByItemnumber,
+  deleteRangeResetsPlanogramError,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -730,6 +731,7 @@ function DelistsAddedToRange(props: any) {
                 depotClearbyReservedQtyWholesale: null,
                 depotClearbyReservedQtyOnline: null,
                 depotClearbyReservedQtyTotal: null,
+                newAdded: false,
 
                 comments: item.comments ? item.comments : null, //uncomment when deploying
                 // min: '500000033',
@@ -1621,15 +1623,74 @@ function DelistsAddedToRange(props: any) {
     }
   }
 
+  const onChangeProductTableFieldsProductMain = (
+    prevState: any,
+    field: any,
+    rowDataSelected: any,
+    eventValue: any
+  ) => {
+    let newArr = [...importedData]
+    let index = newArr.findIndex(
+      (data: any) => data.min === rowDataSelected.min
+    )
+    if (index !== -1) {
+      if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === delistProductMin &&
+        rowDataSelected.numberOfRangeStores > 0
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productDistributionIncreaseMin &&
+        rowDataSelected.numberOfRangeStores <
+          newArr[index].currentnoofrangedstores
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productDistributionDecreaseMin &&
+        rowDataSelected.numberOfRangeStores >
+          newArr[index].currentnoofrangedstores
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productShelfSpaceIncrease &&
+        rowDataSelected.newShelfFill < newArr[index].currentShelfFill
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = true
+      } else if (
+        rowDataSelected.min == newArr[index].min &&
+        eventValue === productShelfSpaceDecrease &&
+        rowDataSelected.newShelfFill > newArr[index].currentShelfFill
+      ) {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = true
+      } else {
+        newArr[index].actionType = eventValue
+        newArr[index].showErrorProduct = false
+      }
+    }
+    setImportedData(newArr)
+    console.log('setImportedData newArr', newArr)
+  }
+
   const actionTypeTemplate = (rowData: any) => {
-    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    const check: any = supplierSelected.filter(
+      (val: any) => rowData.min === val.min
+    )
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
       return (
         <Select
           value={rowData && rowData.actionType}
           onChange={(e: any) => {
             setImportedData((prevState: any) => {
-              return onChangeProductTableFields(
+              return onChangeProductTableFieldsProductMain(
                 prevState,
                 'actionType',
                 rowData,
@@ -1669,6 +1730,49 @@ function DelistsAddedToRange(props: any) {
                   className={classes.errorRoundedIconTableGrid}
                 />
               )}
+            </>
+          )}
+          {rowData.showErrorProduct && (
+            <>
+              {/* {finalRangeState && */}
+              {true &&
+                (rowData.actionType === delistProductMin ||
+                  rowData.actionType === productDistributionIncreaseMin ||
+                  rowData.actionType === productDistributionDecreaseMin ||
+                  rowData.actionType === productShelfSpaceIncrease ||
+                  rowData.actionType === productShelfSpaceDecrease) && (
+                  <LightTooltip
+                    arrow
+                    placement="right-start"
+                    // className={classes.tooltipError}
+                    style={{ color: 'white' }}
+                    title={
+                      <Typography variant="caption">
+                        {rowData.actionType === delistProductMin &&
+                          delistProductMinErrorMessage}
+                        {rowData.actionType ===
+                          productDistributionIncreaseMin && //productDistributionIncreaseMin
+                          productDistributionIncreaseMinErrorMessage}
+                        {rowData.actionType ===
+                          productDistributionDecreaseMin &&
+                          productDistributionDecreaseMinErrorMessage}
+                        {rowData.actionType === productShelfSpaceIncrease &&
+                          productShelfSpaceIncreaseErrorMessage}
+                        {rowData.actionType === productShelfSpaceDecrease &&
+                          productShelfSpaceDecreaseErrorMessage}
+                      </Typography>
+                    }
+                  >
+                    {/* <span className={classes.excli_mark_error}>!</span>
+                     */}
+                    <span>
+                      <ErrorOutlinedIcon
+                        className={classes.errorOutlinedIconErrorTableGrid}
+                      />
+                      {/* className={classes.errorOutlinedIconError} */}
+                    </span>
+                  </LightTooltip>
+                )}
             </>
           )}
         </span>
@@ -4155,7 +4259,7 @@ function DelistsAddedToRange(props: any) {
                   margin="dense"
                   className={classes.muiSelect}
                   placeholder="Clear Depot By"
-                  value = 'Select Depot Clear Week'
+                  value="Select Depot Clear Week"
                 />
               }
             >
@@ -4787,19 +4891,27 @@ function DelistsAddedToRange(props: any) {
         NewShelfFillUnits: shelfFillNew,
         StoreCode: storecodeNewMin,
       } = d
+      let storeString =
+        storecodeNewMin && storecodeNewMin !== '' && storecodeNewMin.toString()
+      let storeArray =
+        storeString && storeString != ''
+          ? storeString.split(',').map((item: any) => {
+              return item.trim()
+            })
+          : ''
       const checkingImportedData: any = importedData.filter((val: any) => {
         if (d.MIN) {
-          return val.min === d.MIN
+          return val.min === d.MIN.toString()
         } else {
-          return val.min === d.MINPIN
+          return val.min === d.MINPIN.toString()
         }
       })
       let updateFlad = 0
       const checkIfExist = xlslPlanogramimportedData.some((item: any) => {
         if (d.MIN) {
-          return item.min === d.MIN
+          return item.min === d.MIN.toString()
         } else {
-          return item.min === d.MINPIN
+          return item.min === d.MINPIN.toString()
         }
       })
       console.log('checkIfExist', checkIfExist)
@@ -4817,9 +4929,9 @@ function DelistsAddedToRange(props: any) {
         )
         let indexXlPlano = xlslPlanogramimportedData.findIndex((data: any) => {
           if (d.MIN) {
-            return data.min === d.MIN
+            return data.min === d.MIN.toString()
           } else {
-            return data.min === d.MINPIN
+            return data.min === d.MINPIN.toString()
           }
         })
         console.log('indexXlPlano', indexXlPlano)
@@ -4828,18 +4940,20 @@ function DelistsAddedToRange(props: any) {
           if (
             newData[index].actionType === delistProductMin &&
             newData[index].min === checkingImportedData[0].min &&
-            storecodeNewMin &&
+            // storecodeNewMin &&
+            // // storecodeNewMin.split(',').length > 0
             // storecodeNewMin.split(',').length > 0
-            storecodeNewMin.split(',').length > 0
+            storeArray &&
+            storeArray.length > 0
           ) {
             newData[index].showError = true
-            newData[index].newnoofrangestoresPlanogram =
-              storecodeNewMin !== 'NA'
-                ? storecodeNewMin && storecodeNewMin.split(',').length
-                : ''
+            newData[index].newnoofrangestoresPlanogram = storeArray.length
+            // storecodeNewMin !== 'NA'
+            //   ? storecodeNewMin && storecodeNewMin.split(',').length
+            //   : ''
             newData[index].newShelfFillPlanogram = shelfFillNew
             newData[index].actionTypePlanogram = newData[index].actionType
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray // storecodeNewMin
             // return newData
             if (indexXlPlano !== -1) {
               onlyXl[indexXlPlano] = newData[index]
@@ -4851,17 +4965,17 @@ function DelistsAddedToRange(props: any) {
           } else if (
             newData[index].actionType === productDistributionIncreaseMin &&
             newData[index].min === checkingImportedData[0].min &&
-            storecodeNewMin &&
-            storecodeNewMin.split(',').length <
-              newData[index].currentnoofrangedstores
+            // storecodeNewMin &&
+            // storecodeNewMin.split(',').length <
+            storeArray.length < newData[index].currentnoofrangedstores
           ) {
             newData[index].showError = true
-            newData[index].newnoofrangestoresPlanogram =
-              storecodeNewMin && storecodeNewMin.split(',').length
+            newData[index].newnoofrangestoresPlanogram = storeArray.length
+            // storecodeNewMin && storecodeNewMin.split(',').length
 
             newData[index].newShelfFillPlanogram = shelfFillNew
             newData[index].actionTypePlanogram = newData[index].actionType
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray // storecodeNewMin
             // return newData
             // onlyXl.push(newData[index])
             if (indexXlPlano !== -1) {
@@ -4873,17 +4987,17 @@ function DelistsAddedToRange(props: any) {
           } else if (
             newData[index].actionType === productDistributionDecreaseMin &&
             newData[index].min === checkingImportedData[0].min &&
-            storecodeNewMin &&
-            storecodeNewMin.split(',').length >
-              newData[index].currentnoofrangedstores
+            // storecodeNewMin &&
+            // storecodeNewMin.split(',').length >
+            storeArray.length > newData[index].currentnoofrangedstores
           ) {
             newData[index].showError = true
-            newData[index].newnoofrangestoresPlanogram =
-              storecodeNewMin !== 'NA'
-                ? storecodeNewMin && storecodeNewMin.split(',').length
-                : ''
+            newData[index].newnoofrangestoresPlanogram = storeArray.length
+            // storecodeNewMin !== 'NA'
+            //   ? storecodeNewMin && storecodeNewMin.split(',').length
+            //   : ''
             newData[index].newShelfFillPlanogram = shelfFillNew
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray // storecodeNewMin
             newData[index].actionTypePlanogram = newData[index].actionType
             // return newData
             // onlyXl.push(newData[index])
@@ -4900,12 +5014,12 @@ function DelistsAddedToRange(props: any) {
             shelfFillNew < newData[index].currentShelfFill
           ) {
             newData[index].showError = true
-            newData[index].newnoofrangestoresPlanogram =
-              storecodeNewMin !== 'NA'
-                ? storecodeNewMin && storecodeNewMin.split(',').length
-                : ''
+            newData[index].newnoofrangestoresPlanogram = storeArray.length
+            // storecodeNewMin !== 'NA'
+            //   ? storecodeNewMin && storecodeNewMin.split(',').length
+            //   : ''
             newData[index].newShelfFillPlanogram = shelfFillNew
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray //storecodeNewMin
             newData[index].actionTypePlanogram = newData[index].actionType
             // return newData
             // onlyXl.push(newData[index])
@@ -4922,12 +5036,12 @@ function DelistsAddedToRange(props: any) {
             shelfFillNew > newData[index].currentShelfFill
           ) {
             newData[index].showError = true
-            newData[index].newnoofrangestoresPlanogram =
-              storecodeNewMin !== 'NA'
-                ? storecodeNewMin && storecodeNewMin.split(',').length
-                : ''
+            newData[index].newnoofrangestoresPlanogram = storeArray.length
+            // storecodeNewMin !== 'NA'
+            //   ? storecodeNewMin && storecodeNewMin.split(',').length
+            //   : ''
             newData[index].newShelfFillPlanogram = shelfFillNew
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray //storecodeNewMin
             newData[index].actionTypePlanogram = newData[index].actionType
             // onlyXl.push(newData[index])
             if (indexXlPlano !== -1) {
@@ -4940,10 +5054,11 @@ function DelistsAddedToRange(props: any) {
           } else {
             newData[index].newnoofrangestoresPlanogram =
               storecodeNewMin !== 'NA'
-                ? storecodeNewMin && storecodeNewMin.split(',').length
+                ? // ? storecodeNewMin && storecodeNewMin.split(',').length
+                  storeArray.length
                 : ''
             newData[index].newShelfFillPlanogram = shelfFillNew
-            newData[index].storeCodeExpands = storecodeNewMin
+            newData[index].storeCodeExpands = storeArray // storecodeNewMin
             newData[index].actionTypePlanogram = newData[index].actionType
             newData[index].showError = false
             // return newData
@@ -4969,7 +5084,7 @@ function DelistsAddedToRange(props: any) {
       } else {
         // if (updateFlad === 0) {
         setXlslItemNotFoundPlanogram((prevState: any) => {
-          return [...prevState, d.MIN]
+          return [...prevState, d.MIN.toString()]
         })
       }
 
@@ -5167,9 +5282,11 @@ function DelistsAddedToRange(props: any) {
           }
 
           result.map((d: any, index: any) => {
+            let storeString =
+              d.StoreCode && d.StoreCode !== '' && d.StoreCode.toString()
             let storeArray =
-              d.StoreCode && d.StoreCode != ''
-                ? d.StoreCode.split(',').map(function (item: any) {
+              storeString && storeString != ''
+                ? storeString.split(',').map((item: any) => {
                     return item.trim()
                   })
                 : ''
@@ -6143,45 +6260,101 @@ function DelistsAddedToRange(props: any) {
       formData.comments = comments === '' ? comment : comments
     }
     // formData.newShelfFill = shelfFillNew
-
+    formData.showErrorProduct = false
     if (importedData && importedData.length > 0) {
-      if (finalRangeState) {
-        // let minCheck = importedData.findIndex(
-        //   (data: any) => data.min === formData.min
-        // )
-        // let newData = [...importedData]
-        // if (minCheck !== -1) {
-        //   updateFlag = 1
-        //   newData[minCheck].storeCode = storecodeNewMin ? storecodeNewMin : ''
-        //   newData[minCheck].newShelfFill = shelfFillNew
-        //   // newData[minCheck]['newAdded'] = true
-        //   setUpdateImported(newData)
-        // } else {
-        //   formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
-        //   formData.actionType = newProductMin
-        //   formData.newShelfFill = shelfFillNew
-        //   // formData.lineStatus = 'Draft'
-        //   formData.newAdded = true
-        //   setNewImportedData([formData])
-        // }
-      } else {
-        setImportedData((prevState: any) => {
-          let newData: any = [...prevState]
-          let index = newData.findIndex(
-            (data: any) => data.min === formData.min
-          )
-          if (index !== -1) {
-            updateFlag = 1
-            newData[index] = formData
-            return newData
+      // if (finalRangeState) {
+      // let minCheck = importedData.findIndex(
+      //   (data: any) => data.min === formData.min
+      // )
+      // let newData = [...importedData]
+      // if (minCheck !== -1) {
+      //   updateFlag = 1
+      //   newData[minCheck].storeCode = storecodeNewMin ? storecodeNewMin : ''
+      //   newData[minCheck].newShelfFill = shelfFillNew
+      //   // newData[minCheck]['newAdded'] = true
+      //   setUpdateImported(newData)
+      // } else {
+      //   formData.storeCode = storecodeNewMin ? storecodeNewMin : ''
+      //   formData.actionType = newProductMin
+      //   formData.newShelfFill = shelfFillNew
+      //   // formData.lineStatus = 'Draft'
+      //   formData.newAdded = true
+      //   setNewImportedData([formData])
+      // }
+      // } else {
+      //importedsetting
+      setImportedData((prevState: any) => {
+        let newData: any = [...prevState]
+        let index = newData.findIndex((data: any) => data.min === formData.min)
+        if (index !== -1) {
+          updateFlag = 1
+          if (
+            formData.actionType === delistProductMin &&
+            formData.storeCode &&
+            formData.storeCode.length > 0
+          ) {
+            // newData[index].showErrorProduct = true
+            newData[index].actionType = formData.actionType
+          } else if (
+            formData.actionType === productDistributionIncreaseMin &&
+            formData.storeCode &&
+            formData.storeCode.length < newData[index].currentnoofrangedstores
+          ) {
+            // newData[index].showErrorProduct = true
+            newData[index].actionType = formData.actionType
+            newData[index].numberOfRangeStores =
+              formData.storeCode && formData.storeCode.length
+            newData[index].numberOfRangeStoresDestrucure =
+              formData.storeCode && formData.storeCode
+          } else if (
+            formData.actionType === productDistributionDecreaseMin &&
+            formData.storeCode &&
+            formData.storeCode.length > newData[index].currentnoofrangedstores
+          ) {
+            // newData[index].showErrorProduct = true
+            newData[index].actionType = formData.actionType
+            newData[index].numberOfRangeStores =
+              formData.storeCode && formData.storeCode.length
+            newData[index].numberOfRangeStoresDestrucure =
+              formData.storeCode && formData.storeCode
+          } else if (
+            formData.actionType === productShelfSpaceIncrease &&
+            formData.newShelfFill &&
+            formData.newShelfFill < newData[index].currentShelfFill
+          ) {
+            // newData[index].showErrorProduct = true
+            newData[index].actionType = formData.actionType
+            newData[index].newShelfFill =
+              formData.newShelfFill && formData.newShelfFill
+          } else if (
+            formData.actionType === productShelfSpaceIncrease &&
+            formData.newShelfFill &&
+            formData.newShelfFill > newData[index].currentShelfFill
+          ) {
+            // newData[index].showErrorProduct = true
+            newData[index].actionType = formData.actionType
+            newData[index].newShelfFill =
+              formData.newShelfFill && formData.newShelfFill
           } else {
-            // newData.append([formData])
-            return [...prevState, formData]
+            // newData[index].showErrorProduct = false
+            newData[index].actionType = formData.actionType
+            newData[index].numberOfRangeStores =
+              formData.storeCode && formData.storeCode.length
+            newData[index].numberOfRangeStoresDestrucure =
+              formData.storeCode && formData.storeCode
+            newData[index].newShelfFill =
+              formData.newShelfFill && formData.newShelfFill
           }
-        })
-        // return newData
-        // return [...prevState, formData]
-      }
+          // newData[index] = formData
+          return newData
+        } else {
+          // newData.append([formData])
+          return [...prevState, formData]
+        }
+      })
+      // // return newData
+      // // return [...prevState, formData]
+      // }
     } else {
       setImportedData([formData])
     }
@@ -6898,7 +7071,78 @@ function DelistsAddedToRange(props: any) {
       Do you want to Continue?"
     />
   )
+
+  const [productListCompleteAlertError, setProductListCompleteAlertError] =
+    useState<any>(false)
+  const checkingErrorsOnSave = () => {
+    let newArr = [...importedData]
+    // let index = newArr.findIndex(
+    //   (data: any) => data.min === rowDataSelected.min
+    // )
+    // if (index !== -1) {
+    let checkTrueExists: any = []
+    const importData: any = newArr.map((item: any) => {
+      if (
+        item.actionType === delistProductMin &&
+        item.numberOfRangeStores > 0
+      ) {
+        item.showErrorProduct = true
+        checkTrueExists.push(true)
+        return item
+      } else if (
+        item.actionType === productDistributionIncreaseMin &&
+        item.numberOfRangeStores < item.currentnoofrangedstores
+      ) {
+        item.showErrorProduct = true
+        checkTrueExists.push(true)
+        return item
+      } else if (
+        item.actionType === productDistributionDecreaseMin &&
+        item.numberOfRangeStores > item.currentnoofrangedstores
+      ) {
+        item.showErrorProduct = true
+        checkTrueExists.push(true)
+        return item
+      } else if (
+        item === productShelfSpaceIncrease &&
+        item < item.currentShelfFill
+      ) {
+        item.showErrorProduct = true
+        checkTrueExists.push(true)
+        return item
+      } else if (
+        item === productShelfSpaceDecrease &&
+        item > item.currentShelfFill
+      ) {
+        item.showErrorProduct = true
+        checkTrueExists.push(true)
+        return item
+      } else {
+        item.showErrorProduct = false
+        checkTrueExists.push(false)
+        return item
+      }
+    })
+
+    // }
+    setImportedData(importData)
+    // console.log('importData', importData)
+    let check = checkTrueExists.includes(true)
+    setProductListCompleteAlertError(check)
+    return check
+  }
+  const [showErrorIcon, setShowErrorIcon] = useState<any>(false)
   const handleProductListSave = () => {
+    if (checkingErrorsOnSave()) {
+      setShowErrorIcon(true)
+      return console.log('handleProductListSave', 'ErrorExist')
+    } else {
+      setShowErrorIcon(false)
+      console.log('handleProductListSave', 'NOErrorExist')
+    }
+    // patchApiErrors()
+
+    // return
     console.log('handleProductListSave', importedData)
     const formdata = importedData &&
       eventDetails && {
@@ -9335,6 +9579,8 @@ function DelistsAddedToRange(props: any) {
   }
   const refreshPage = () => {
     initialSummaryCall()
+    setFinalRangeState(false)
+    setNewlyAddedTitle(false)
     // setIsProgressLoader(true)
     // setRefreshClick(!refreshClick)
     // setIsProgressLoader(false)
@@ -9368,7 +9614,7 @@ function DelistsAddedToRange(props: any) {
     xlslPlanogramimportedData.map((val: any) => {
       const {
         min,
-        actionType,
+        actionTypePlanogram,
         showError,
         newShelfFillPlanogram,
         newnoofrangestoresPlanogram,
@@ -9380,7 +9626,7 @@ function DelistsAddedToRange(props: any) {
           storeCodeExpands.map((currentStoreNum: any) => {
             itemArray.push({
               itemNumber: min,
-              actionType: actionType,
+              actionType: actionTypePlanogram,
               uploadStatus: showError ? 'ERROR' : 'SUCCESS',
               storeNumber: currentStoreNum,
               newShelfFill: newShelfFillPlanogram,
@@ -9391,7 +9637,7 @@ function DelistsAddedToRange(props: any) {
           storeCodeExpands.split(',').map((currentStoreNum: any) => {
             itemArray.push({
               itemNumber: min,
-              actionType: actionType,
+              actionType: actionTypePlanogram,
               uploadStatus: showError ? 'ERROR' : 'SUCCESS',
               storeNumber: currentStoreNum,
               newShelfFill: newShelfFillPlanogram,
@@ -9482,6 +9728,7 @@ function DelistsAddedToRange(props: any) {
     console.log('handlePlanogramSave', 'handlePlanogramSave')
     let impData: any = [...importedData]
     let planoData: any = [...xlslPlanogramimportedData]
+    let firstShowImport: any = []
 
     const data = impData.map((main: any, indexImp: any) => {
       let indexPlano = planoData.findIndex((data: any) => data.min === main.min)
@@ -9503,8 +9750,29 @@ function DelistsAddedToRange(props: any) {
         return
       }
     })
-    impData.reverse()
-    setImportedData(impData)
+    // impData.reverse()
+    // const impDataSort = impData.map((item: any) => {
+    //   if (item.newAdded === true) {
+    //     return impData.unshift()
+    //   } else {
+    //     return item
+    //   }
+    // })
+    console.log('firstShowImport', firstShowImport)
+
+    let showFirstNewlyAdded: any = []
+    let showLast: any = []
+
+    impData.map((val: any) => {
+      if (val.newAdded) {
+        showFirstNewlyAdded.push(val)
+      } else {
+        showLast.push(val)
+      }
+    })
+    let mainData = [...showFirstNewlyAdded, ...showLast]
+    setImportedData(mainData)
+    // setImportedData(impData)
     setXlslPlanogramimportedData(planoData)
     console.log('planoData patchApiErrors', planoData)
     setXlslItemNotFoundPlanogram([])
@@ -9523,6 +9791,23 @@ function DelistsAddedToRange(props: any) {
     let _tasks = xlslPlanogramimportedData.filter(
       (value: any) => !selectedPlanogramItems.includes(value)
     )
+    let deleteTask = xlslPlanogramimportedData.filter((value: any) =>
+      selectedPlanogramItems.includes(value)
+    )
+    deleteTask.length > 0 &&
+      deleteTask.map((deleteItem: any) => {
+        deleteRangeResetsPlanogramError(
+          rafpendingActionDetailsCT06.eventId,
+          deleteItem.min
+        )
+          .then((res: any) => {
+            console.log('Success', res)
+          })
+          .catch((err: any) => {
+            console.log('deleteError', err)
+          })
+      })
+
     setXlslPlanogramimportedData(_tasks)
     setSelectedPlanogramItems([])
   }
@@ -9796,7 +10081,11 @@ function DelistsAddedToRange(props: any) {
       </Grid>
       <Grid item container xl={5} lg={5} md={5} sm={5} xs={12} spacing={2}>
         <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
-          <Button color="primary" onClick={handlePlanogramClick}>
+          <Button
+            color="primary"
+            disabled={xlslPlanogramimportedData.length === 0}
+            onClick={handlePlanogramClick}
+          >
             Planogram Errors{' '}
             <span style={{ color: 'red' }}>
               {' '}
@@ -10102,6 +10391,18 @@ function DelistsAddedToRange(props: any) {
                   className={classes.errorRoundedIconTableGrid}
                 />
                 <>Newly added records</>
+              </span>
+            </>
+          )}
+          {showErrorIcon && (
+            // {true && (
+            <>
+              <span className={classes.errorRoundedIcon}>
+                {' '}
+                <ErrorOutlinedIcon
+                  className={classes.errorOutlinedIconErrorTableGrid}
+                />
+                <> Error</>
               </span>
             </>
           )}
@@ -12290,7 +12591,7 @@ function DelistsAddedToRange(props: any) {
 
   const handleCompleteTask = () => {
     const finalRangeLength = [...xlslPlanogramimportedData]
-    if (finalRangeLength.length > 0) {
+    if (finalRangeLength.length > 0 || productListCompleteAlertError) {
       setErrorAlertForPlano(true)
       return
     } else {
