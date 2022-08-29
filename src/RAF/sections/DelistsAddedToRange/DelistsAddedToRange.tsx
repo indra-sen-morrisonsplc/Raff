@@ -88,6 +88,7 @@ import {
   ct36TableCols,
   clearDepotByOptions,
   bulkActionTypes,
+  actionTypeListCT19,
   // supplierCodes
 } from './DataConstants'
 // import TextFieldWithSearch from './sections/TextFieldWithSearch/TextFieldWithSearch'
@@ -731,6 +732,8 @@ function DelistsAddedToRange(props: any) {
                 depotClearbyReservedQtyWholesale: null,
                 depotClearbyReservedQtyOnline: null,
                 depotClearbyReservedQtyTotal: null,
+                primaryOrder: item.primaryOrder && item.primaryOrder,
+                purchaseOrders: item.purchaseOrders && item.purchaseOrders,
                 newAdded: false,
 
                 comments: item.comments ? item.comments : null, //uncomment when deploying
@@ -762,6 +765,7 @@ function DelistsAddedToRange(props: any) {
             setImportedData(data)
             console.log('setImportedData1304@all', data)
             console.log('ImportedData1304@all', data)
+            initalLoadSummaryGetSupplierNameByCode(data)
           }
           setIsProgressLoader(false)
         })
@@ -770,6 +774,29 @@ function DelistsAddedToRange(props: any) {
           setImportedData(null)
           setIsProgressLoader(false)
         })
+  }
+  const initalLoadSummaryGetSupplierNameByCode = (data: any) => {
+    console.log('SummaryData', data)
+    let supplierName: any = ''
+    let updateImportedData = data && [...data]
+    updateImportedData &&
+      updateImportedData.map((item: any) => {
+        if (item.primaryOrder.supplierId) {
+          // summary
+          supplerNameBySupplierCode(
+            item.primaryOrder.supplierId,
+            item.min,
+            updateImportedData
+          )
+        } else {
+          // service
+          supplerNameBySupplierCode(
+            item.existingSupplierSite,
+            item.min,
+            updateImportedData
+          )
+        }
+      })
   }
 
   useEffect(() => {
@@ -1685,36 +1712,79 @@ function DelistsAddedToRange(props: any) {
       (val: any) => rowData.min === val.min
     )
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
-      return (
-        <Select
-          value={rowData && rowData.actionType}
-          onChange={(e: any) => {
-            setImportedData((prevState: any) => {
-              return onChangeProductTableFieldsProductMain(
-                prevState,
-                'actionType',
-                rowData,
-                e.target.value
-              )
-            })
-          }}
-          input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
-        >
-          {actionTypeOptions.map((type: any) => {
-            if (type.value !== 'Multiple Selection') {
-              return (
-                <MenuItem
-                  value={type.value}
-                  key={type.label}
-                  className={classes.muiSelect}
-                >
-                  {type.value}
-                </MenuItem>
-              )
+      if (
+        rafpendingActionDetailsCT06 &&
+        rafpendingActionDetailsCT06.taskName.toLowerCase() === 'ct19' &&
+        rowData.actionType === placeholderMin
+      ) {
+        return (
+          <Select
+            value={rowData && rowData.actionType}
+            onChange={(e: any) => {
+              setImportedData((prevState: any) => {
+                return onChangeProductTableFieldsProductMain(
+                  prevState,
+                  'actionType',
+                  rowData,
+                  e.target.value
+                )
+              })
+            }}
+            input={
+              <OutlinedInput margin="dense" className={classes.muiSelect} />
             }
-          })}
-        </Select>
-      )
+          >
+            {actionTypeListCT19 &&
+              actionTypeListCT19.map((type: any) => {
+                if (type.value !== 'Multiple Selection') {
+                  return (
+                    <MenuItem
+                      value={type.value}
+                      key={type.label}
+                      className={classes.muiSelect}
+                    >
+                      {type.value}
+                    </MenuItem>
+                  )
+                }
+              })}
+          </Select>
+        )
+      } else {
+        return (
+          <Select
+            value={rowData && rowData.actionType}
+            onChange={(e: any) => {
+              setImportedData((prevState: any) => {
+                return onChangeProductTableFieldsProductMain(
+                  prevState,
+                  'actionType',
+                  rowData,
+                  e.target.value
+                )
+              })
+            }}
+            input={
+              <OutlinedInput margin="dense" className={classes.muiSelect} />
+            }
+          >
+            {actionTypeOptions &&
+              actionTypeOptions.map((type: any) => {
+                // if (type.value !== 'Multiple Selection') {
+                return (
+                  <MenuItem
+                    value={type.value}
+                    key={type.label}
+                    className={classes.muiSelect}
+                  >
+                    {type.value}
+                  </MenuItem>
+                )
+                // }
+              })}
+          </Select>
+        )
+      }
     } else {
       return (
         <span>
@@ -3612,11 +3682,145 @@ function DelistsAddedToRange(props: any) {
       return <span>{rowData && rowData.existingSupplier}</span>
     }
   }
+
+  const [onChangeSupplierState, setOnChangeSupplierState] = useState<any>(false)
+  const [supplierChangeValue, setSupplierChangeValue] = useState<any>('')
+
+  const supplierOnchange = (e: any, rowData: any) => {
+    setIsProgressLoader(true)
+    const { min } = rowData
+
+    getSupplierServiceBySupplierId(e)
+      .then((res: any) => {
+        setImportedData((prevState: any) => {
+          let dataSupplier = [...importedData]
+          let index = dataSupplier.findIndex((data: any) => data.min === min)
+          dataSupplier[index].existingSupplier = res.data.supplierName
+          return dataSupplier
+        })
+        setIsProgressLoader(false)
+        setSupplierChangeValue(res.data.supplierName)
+      })
+      .catch((err: any) => {
+        setImportedData((prevState: any) => {
+          let dataSupplier = [...importedData]
+          let index = dataSupplier.findIndex((data: any) => data.min === min)
+          dataSupplier[index].existingSupplier = ''
+          return dataSupplier
+        })
+        setIsProgressLoader(false)
+        setSupplierChangeValue('')
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: e + ' No Supplier Name Error',
+          life: life,
+          className: 'login-toast',
+        })
+      })
+  }
+
+  const onChangeProductTableFieldsProductSupplier: any = (
+    prevState: any,
+    existingSupplier: any,
+    existingSupplierCode: any,
+    rowDataSelected: any,
+    eventValue: any
+    // supplierName: any
+  ) => {
+    return prevState.map((obj: any) =>
+      obj._idCheck === rowDataSelected._idCheck
+        ? Object.assign(obj, {
+            [existingSupplierCode]: eventValue,
+            [existingSupplier]: supplierChangeValue,
+          })
+        : obj
+    )
+  }
+
   const existingSupplierSiteProductListTemplate = (rowData: any) => {
+    let primayOrder: any =
+      rowData && rowData.primaryOrder && rowData.primaryOrder.supplierId // On open show default -->1->2
+    // let supplierService_3: any = rowData && rowData.existingSupplierSite // supplier service -->3
+    let purchaseLocation: any =
+      rowData && rowData.purchaseOrders && rowData.purchaseOrders.locations // open -->1 historyorder-->2
+    // let newArr: any = ['2192', '2954', '2194', '2199']
+
+    let optionsSupplierId: any = []
+    let openOrder: any = []
+    let historyOrder: any = []
+    purchaseLocation &&
+      purchaseLocation.map((item: any) => {
+        item.history &&
+          item.history.orders.length > 0 &&
+          item.history.orders.map((order: any) => {
+            if (order && historyOrder.indexOf(order.supplierId) === -1) {
+              historyOrder.push(order.supplierId)
+            }
+          })
+        item.open &&
+          item.open.orders.length > 0 &&
+          item.open.orders.map((order: any) => {
+            if (order && openOrder.indexOf(order.supplierId) === -1) {
+              openOrder.push(order.supplierId)
+            }
+          })
+      })
+    if (openOrder.length > 0) {
+      optionsSupplierId = openOrder
+    } else if (historyOrder.length > 0) {
+      optionsSupplierId = historyOrder
+    } else {
+      optionsSupplierId.push(primayOrder)
+    }
     if (rowData.actionType === placeholderMin) {
       return <>NA</>
     } else {
-      return <span>{rowData && rowData.existingSupplierSite}</span>
+      console.log('existing', rowData)
+      // let valueDefault: any = ''
+      // if (onChangeSupplierState) {
+      //   valueDefault = rowData && rowData.existingSupplierSite
+      // } else if (primayOrder) {
+      //   valueDefault = primayOrder
+      // } else {
+      //   valueDefault = rowData && rowData.existingSupplierSite
+      // }
+      // supplierOnchange(rowData && rowData.existingSupplierSite, rowData)
+      return (
+        <Select
+          // value={onChangeSupplierState ? supplierService_3 : primay}
+          // value={valueDefault}
+          value={rowData && rowData.existingSupplierSite}
+          onChange={(e: any) => {
+            setImportedData((prevState: any) => {
+              supplierOnchange(e.target.value, rowData)
+              setOnChangeSupplierState(true)
+              return onChangeProductTableFieldsProductSupplier(
+                prevState,
+                'existingSupplier',
+                'existingSupplierSite',
+                rowData,
+                e.target.value
+                // supplierChangeValue
+              )
+            })
+          }}
+          input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
+        >
+          {optionsSupplierId.map((supplierId: any) => {
+            // {newArr.map((supplierId: any) => {
+            return (
+              <MenuItem
+                value={supplierId}
+                key={supplierId}
+                className={classes.muiSelect}
+              >
+                {supplierId}
+              </MenuItem>
+            )
+          })}
+        </Select>
+      )
     }
   }
   const handleIngredientDialogOpen = (minVal: any) => {
@@ -5345,7 +5549,8 @@ function DelistsAddedToRange(props: any) {
                 newProductMin,
                 index + 1,
                 d.Comments, //optional
-                d.NewNumberofRangeStores, //optional
+                // d.NewNumberofRangeStores, //optional
+                d.IndicativeNoofStores,
                 // d.StoreCode, //optional
                 storeArray,
                 'NA',
@@ -5521,7 +5726,8 @@ function DelistsAddedToRange(props: any) {
                 index + 1,
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, // Mandatory
-                d.NewNumberofStoresRestrictions, // Mandatory // when deploy
+                // d.NewNumberofStoresRestrictions, // Mandatory // when deploy
+                d.IndicativeNoofStores,
                 // d.StoreCode, //optional
                 storeArray,
                 'NA',
@@ -5543,7 +5749,8 @@ function DelistsAddedToRange(props: any) {
                 productDistributionIncreaseMin,
                 index + 1,
                 d.Comments, //optional
-                d.NewNumberofRangeStores, //optional
+                // d.NewNumberofRangeStores, //optional
+                d.IndicativeNoofStores,
                 // d.StoreCode, //optional
                 storeArray,
                 'NA',
@@ -6141,8 +6348,29 @@ function DelistsAddedToRange(props: any) {
     }
     // formData.supplierId = supplierV1.supplierName;
     // formData.supplierSiteNameCode = supplierV1.supplierSiteNameCode;
-    formData.existingSupplier = supplierV1.supplierName
-    formData.existingSupplierSite = supplierV1.supplierSiteNameCode
+    // formData.existingSupplier = supplierV1.supplierName
+    // formData.existingSupplierSite = supplierV1.supplierSiteNameCode
+    //sridhar
+    if (values[1].status !== 'rejected') {
+      const summaryData = values[1].value.data
+      formData.existingSupplierSite = summaryData.primaryOrder.supplierId
+      formData.existingSupplier = ''
+      supplerNameBySupplierCode(
+        summaryData.primaryOrder.supplierId,
+        min,
+        importedData
+      )
+
+      //setCheckExistingSupplier(false)
+    } else if (supplierV1) {
+      // formData.existingSupplier = 'Sridhar'
+      formData.existingSupplier = supplierV1.supplierName
+      formData.existingSupplierSite = supplierV1.supplierSiteNameCode
+      // setCheckExistingSupplier(true)
+    } else {
+      formData.existingSupplier = 'No data in summary and service'
+      formData.existingSupplierSite = ''
+    }
     if (values[1].value) {
       const rangeIdMinV1 = values[1].value.data //
       formData.lastPoDate = rangeIdMinV1.lastPODate //rangeresetIdMinService
@@ -6261,6 +6489,7 @@ function DelistsAddedToRange(props: any) {
     }
     // formData.newShelfFill = shelfFillNew
     formData.showErrorProduct = false
+
     if (importedData && importedData.length > 0) {
       // if (finalRangeState) {
       // let minCheck = importedData.findIndex(
@@ -6288,6 +6517,7 @@ function DelistsAddedToRange(props: any) {
         let index = newData.findIndex((data: any) => data.min === formData.min)
         if (index !== -1) {
           updateFlag = 1
+          console.log('imported 1')
           if (
             formData.actionType === delistProductMin &&
             formData.storeCode &&
@@ -6348,6 +6578,7 @@ function DelistsAddedToRange(props: any) {
           // newData[index] = formData
           return newData
         } else {
+          console.log('imported 2')
           // newData.append([formData])
           return [...prevState, formData]
         }
@@ -6356,7 +6587,14 @@ function DelistsAddedToRange(props: any) {
       // // return [...prevState, formData]
       // }
     } else {
-      setImportedData([formData])
+      console.log('imported 3')
+      setImportedData((prevState: any) => {
+        if (prevState) {
+          return [...prevState, formData]
+        } else {
+          return [formData]
+        }
+      })
     }
     // let existingData = [...importedData]
     // if (existingData && existingData.length > 0) {
@@ -6439,6 +6677,57 @@ function DelistsAddedToRange(props: any) {
     setActionType('')
     setUploadFileClick(false)
     // setFinalRangeState(false)
+  }
+
+  const supplerNameBySupplierCode = (
+    suppliercode: any,
+    minNumber: any,
+    initalData: any
+  ) => {
+    const importData = initalData && [...initalData]
+    let index = importData.findIndex((data: any) => data.min === minNumber)
+    console.log('suppliercode', suppliercode)
+    if (suppliercode === null || suppliercode === undefined) {
+      return ''
+    }
+    let existingSupplier: any = ''
+    suppliercode &&
+      getSupplierServiceBySupplierId(suppliercode)
+        .then((res: any) => {
+          console.log('LoadSupplierSuccess', res)
+          setImportedData((prevState: any) => {
+            importData[index].existingSupplier = res.data.supplierName
+            importData[index].existingSupplierSite = suppliercode
+            return importData
+          })
+          // existingSupplier = res.data.supplierName
+          // return res.data.supplierName
+        })
+        .catch((err: any) => {
+          // existingSupplier = 'NoSupplierFound'
+          setImportedData((prevState: any) => {
+            importData[index].existingSupplier = ''
+            importData[index].existingSupplierSite = suppliercode
+            console.log('LoadSupplierError', err)
+            //   toast.current.show({
+            //   severity: 'error',
+            //   summary: 'Error',
+            //   detail: suppliercode + ' No Supplier Name Error',
+            //   life: life,
+            //   className: 'login-toast',
+            // })
+            return importData
+          })
+          // console.log('LoadSupplierError', err)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: suppliercode + ' No Supplier Name Error',
+            life: life,
+            className: 'login-toast',
+          })
+          // return existingSupplier
+        })
   }
 
   useEffect(() => {

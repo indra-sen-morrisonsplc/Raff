@@ -749,7 +749,7 @@ export const placeholderCols = [
     width: '200px',
   },
   {
-    field: 'newnoofrangestores',
+    field: 'numberOfRangeStores',
     header: 'New No.of Range Stores',
     width: '150px',
   },
@@ -2245,6 +2245,18 @@ export const planogramViewCols = [
     field: 'newShelfFillPlanogram',
     header: 'New Shelf Fill (Units)',
     width: '200px',
+  },
+]
+
+export const actionTypeListCT19 = [
+  {
+    value: 'New Product (MIN)',
+    label: 'New Product (MIN)',
+  },
+
+  {
+    value: 'New Product (MIN) Placeholder',
+    label: 'New Product (MIN) Placeholder',
   },
 ]
 
