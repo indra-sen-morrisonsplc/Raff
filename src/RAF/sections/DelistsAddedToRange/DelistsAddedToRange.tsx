@@ -327,7 +327,7 @@ function DelistsAddedToRange(props: any) {
   const [finalRangeState, setFinalRangeState] = useState<any>(false)
   const [clearDepotBulkActionOpen, setClearDepotBulkActionOpen] =
     useState<any>(false)
-  const [clearDepotSelected, setClearDepotSelected] = useState<any>('')
+  const [clearDepotSelected, setClearDepotSelected] = useState<any>(0)
   const [bulkActionOptions, setBulkActionOptions] = useState<any>()
   const [finalStopOrderBulkActionOpen, setFinalStopOrderBulkActionOpen] =
     useState<any>(false)
@@ -4394,11 +4394,15 @@ function DelistsAddedToRange(props: any) {
   }
   const handleClearDepotBulkActionDialogClose = () => {
     setClearDepotBulkActionOpen(false)
-    setClearDepotSelected('')
+    setClearDepotSelected(0)
     setBulkActions(null)
   }
   const applyClearDepot = () => {
-    if (clearDepotSelected && clearDepotSelected != '') {
+    if (
+      clearDepotSelected &&
+      clearDepotSelected !== '' &&
+      clearDepotSelected !== 0
+    ) {
       selectedProductListItems.map((rowData: any) => {
         if (
           rowData.actionType === delistProductMin ||
@@ -4460,18 +4464,24 @@ function DelistsAddedToRange(props: any) {
                   setClearDepotSelected(e.target.value)
                 }
               }}
-              // placeholder="Select Clear Depot Week"
+              placeholder="Select Clear Depot Week"
               // variant="outlined"
+              // defaultValue={0}
               input={
                 <OutlinedInput
                   margin="dense"
                   className={classes.muiSelect}
                   placeholder="Clear Depot By"
-                  value="Select Depot Clear Week"
+                  // style={{ width: '200px' }}
                 />
               }
             >
-              <MenuItem value={''} className={classes.muiSelect} disabled>
+              <MenuItem
+                value={0}
+                className={classes.muiSelect}
+                // selected
+                disabled
+              >
                 Select Depot Clear Week
               </MenuItem>
               {clearDepotByOptions.map((op: any) => {
@@ -4486,6 +4496,14 @@ function DelistsAddedToRange(props: any) {
                 )
               })}
             </Select>
+
+            {/* <AutocompleteSelect
+                          // isMulti={true}
+                          value={ClearDepotSelected}
+                          options={supplierOptions} //multipesri
+                          onChange={handleSupplierSite}
+                          placeholder=""
+                        /> */}
           </Box>
         </Box>
 
@@ -12047,7 +12065,7 @@ function DelistsAddedToRange(props: any) {
 
             <Grid item xs={12} sm={8}>
               <Typography variant="subtitle2" color="primary">
-                <input
+                {/* <input
                   type="text"
                   required
                   // className={classes.placeholderCountStyle}
@@ -12056,6 +12074,20 @@ function DelistsAddedToRange(props: any) {
                   }}
                   value={placeholderCount}
                   onChange={(e: any) => setPlaceholderCount(e.target.value)}
+                /> */}
+                <OutlinedInput
+                  type="number"
+                  required
+                  // className={classes.placeholderCountStyle}
+                  style={{
+                    width: small ? '88%' : '100%',
+                  }}
+                  value={placeholderCount}
+                  onChange={(e: any) => {
+                    if (e.target.value && e.target.value >= 0) {
+                      setPlaceholderCount(e.target.value)
+                    }
+                  }}
                 />
               </Typography>
             </Grid>
