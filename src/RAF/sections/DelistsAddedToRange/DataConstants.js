@@ -443,14 +443,12 @@ export const productListCols = [
     width: '200px',
   },
   {
-    // field: 'currentshelffill_vs_newfill',
-    field: 'currentVsNewShelfFill',
+    field: 'currentshelffill_vs_newfill',
     header: 'Current Shelf Fill Vs New Fill',
     width: '200px',
   },
   {
-    // field: 'currentshelffill_vs_newfill_percant',
-    field: 'currentVsNewShelfFillPercent',
+    field: 'currentshelffill_vs_newfill_percant',
     header: 'Current Shelf Fill Vs New Fill %',
     width: '200px',
   },
@@ -641,6 +639,65 @@ export const productListCols = [
   // },
 ]
 
+export const planogramViewCols = [
+  {
+    field: 'actionTypePlanogram',
+    header: 'Action/ Type',
+    width: '240px',
+  },
+  // {
+  //   field: 'newnoofrangestoresPlanogram',
+  //   header: 'New No. of Range Stores',
+  //   width: '200px',
+  // },
+  // {
+  //   field: 'newShelfFillPlanogram',
+  //   header: 'New Shelf Fill (Units)',
+  //   width: '200px',
+  // },
+  {
+    field: 'min',
+    header: 'MIN Number',
+    width: '100px',
+  },
+  {
+    field: 'description',
+    header: 'Product Description',
+    width: '200px',
+  },
+  {
+    field: 'currentnoofrangedstores',
+    header: 'Current No. of Ranged Stores',
+    width: '200px',
+  },
+  {
+    field: 'newnoofrangestoresPlanogram', // store codes
+    header: 'New No. of Range Stores',
+    width: '200px',
+  },
+  {
+    field: 'currentVersusNewStores',
+    header: 'Current Versus New Stores',
+    width: '200px',
+  },
+  {
+    field: 'storesRangedCurrentVsProposed',
+    // header: "% stores ranged (current vs proposed)",
+    header: 'Percentage of No. of stores ranged(proposed vs current)',
+    width: '200px',
+  },
+  {
+    field: 'currentShelfFill',
+    header: 'Current Shelf Fill (Units)',
+    width: '200px',
+  },
+  {
+    field: 'newShelfFillPlanogram',
+    header: 'New Shelf Fill (Units)',
+    width: '200px',
+  },
+]
+
 export const massActions = [
   {
     value: 'Delete',
@@ -734,12 +791,12 @@ export const placeholderCols = [
     width: '200px',
   },
   {
-    field: 'newSupplier',
+    field: 'existingSupplier',
     header: 'Supplier Code',
     width: '240px',
   },
   {
-    field: 'newSupplierSite',
+    field: 'existingSupplierSite',
     header: 'Supplier Site Code',
     width: '240px',
   },
@@ -839,6 +896,7 @@ export const bulkActionTypes = {
   deleteAction: 'Delete',
   clearDepotAction: 'Clear Depot By',
   finalStopOrderAction: 'Final Stop Order Date',
+  deleteAction: 'Delete',
   draftAction: 'Draft',
   stockCountRequestAction: 'Stock Count Requested',
   cancelAction: 'Cancel',
@@ -2100,6 +2158,17 @@ export const clearDepotByOptions = [
     label: 'Week - 8',
   },
 ]
+export const actionTypeListCT19 = [
+  {
+    value: 'New Product (MIN)',
+    label: 'New Product (MIN)',
+  },
+
+  {
+    value: 'New Product (MIN) Placeholder',
+    label: 'New Product (MIN) Placeholder',
+  },
+]
 // const delistProductMin = "Delist Product (MIN)";
 // const productDistributionIncreaseMin =
 //   "Product Distribution Increase (MIN)";
@@ -2175,7 +2244,6 @@ export const actionTypeListHovers = {
   placeholderMinHover:
     'Select if New Line Form Process has not began to trigger a new line set up. This line will populate with details once the new line set up process is complete',
 }
-
 export const actionTypeListErrorMessage = {
   delistProductMinErrorMessage:
     "For Delist Product (MIN) action type, New no. of ranged stores can’t be greater than '0'.",
@@ -2188,77 +2256,6 @@ export const actionTypeListErrorMessage = {
   productShelfSpaceDecreaseErrorMessage:
     'For Product Shelf Space Increase action New shelf fill (Units) can’t be greater than Current shelf fill (Units).',
 }
-
-export const planogramViewCols = [
-  {
-    field: 'actionTypePlanogram',
-    header: 'Action/ Type',
-    width: '240px',
-  },
-  // {
-  //   field: 'newnoofrangestoresPlanogram',
-  //   header: 'New No. of Range Stores',
-  //   width: '200px',
-  // },
-  // {
-  //   field: 'newShelfFillPlanogram',
-  //   header: 'New Shelf Fill (Units)',
-  //   width: '200px',
-  // },
-  {
-    field: 'min',
-    header: 'MIN Number',
-    width: '100px',
-  },
-  {
-    field: 'description',
-    header: 'Product Description',
-    width: '200px',
-  },
-  {
-    field: 'currentnoofrangedstores',
-    header: 'Current No. of Ranged Stores',
-    width: '200px',
-  },
-  {
-    field: 'newnoofrangestoresPlanogram', // store codes
-    header: 'New No. of Range Stores',
-    width: '200px',
-  },
-  {
-    field: 'currentVersusNewStores',
-    header: 'Current Versus New Stores',
-    width: '200px',
-  },
-  {
-    field: 'storesRangedCurrentVsProposed',
-    // header: "% stores ranged (current vs proposed)",
-    header: 'Percentage of No. of stores ranged(proposed vs current)',
-    width: '200px',
-  },
-  {
-    field: 'currentShelfFill',
-    header: 'Current Shelf Fill (Units)',
-    width: '200px',
-  },
-  {
-    field: 'newShelfFillPlanogram',
-    header: 'New Shelf Fill (Units)',
-    width: '200px',
-  },
-]
-
-export const actionTypeListCT19 = [
-  {
-    value: 'New Product (MIN)',
-    label: 'New Product (MIN)',
-  },
-
-  {
-    value: 'New Product (MIN) Placeholder',
-    label: 'New Product (MIN) Placeholder',
-  },
-]
 
 //delistProductMin add-done upload-done
 //productDistributionIncreaseMin add-no upload-done

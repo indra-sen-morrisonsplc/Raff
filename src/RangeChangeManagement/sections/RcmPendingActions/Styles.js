@@ -24,6 +24,14 @@ export const useStyles = makeStyles((theme) => ({
     border: 'none',
     backgroundColor: 'inherit',
   },
+  errorMessageColor: {
+    color: '#d32f22',
+    // marginLeft: '14px',
+    marginRight: '14px',
+    marginTop: '4px',
+    paddingTop: '10px',
+    lineHeight: 3,
+  },
   exploreButton: {
     color: 'blue',
     fontSize: '12px',

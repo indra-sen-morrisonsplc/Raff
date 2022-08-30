@@ -52,6 +52,12 @@ export const allMessages = {
     errorRemoveCompletedTasks:
       'Failed to Remove - Completed Tasks cannot be Removed',
     itemIdError: 'Min number is invalid',
+    RafTradingGroupError:
+      'The Selected Items is from wrong Trading Group.Please select items which belong to event hierarchy',
+    RafCategoryError:
+      'The Selected Items is from wrong Category.Please select which belong to from event hierarchy',
+    RafDepartmentError:
+      'The Selected Items is from wrong Department.Please select items which belong to event hierarchy',
   },
   success: {
     successPost: 'Log posted successfully',

@@ -3410,6 +3410,7 @@ function PendingActionUpdate(props: any) {
                 <textarea
                   cols={10}
                   rows={5}
+                  maxLength={500}
                   className={classes.textArea}
                   placeholder={comments1}
                   onChange={(e) => {

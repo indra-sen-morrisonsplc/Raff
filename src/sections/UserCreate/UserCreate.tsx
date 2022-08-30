@@ -2761,6 +2761,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             <Box className={classes.inputFieldBox}>
               <Typography variant="body2">
                 <textarea
+                  maxLength={500}
                   cols={10}
                   rows={5}
                   className={classes.textArea}

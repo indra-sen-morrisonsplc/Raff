@@ -133,6 +133,7 @@ import './styles.css'
 import { exportExcel } from './ExportExcel'
 import ConfirmBox from '../../../components/ConfirmBox/ConfirmBox'
 import ConfirmBox1 from '../../components/ConfirmBox1/confirmBox1'
+import { InputTextarea } from 'primereact/inputtextarea'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -3656,7 +3657,10 @@ function DelistsAddedToRange(props: any) {
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
       return (
-        <OutlinedInput
+        <InputTextarea
+          cols={20}
+          autoResize
+          maxLength={500}
           value={rowData && rowData.comments}
           onChange={(e: any) => {
             setImportedData((prevState: any) => {
@@ -3710,13 +3714,13 @@ function DelistsAddedToRange(props: any) {
         })
         setIsProgressLoader(false)
         setSupplierChangeValue('')
-        toast.current.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: e + ' No Supplier Name Error',
-          life: life,
-          className: 'login-toast',
-        })
+        // toast.current.show({
+        //   severity: 'error',
+        //   summary: 'Error',
+        //   detail: e + ' No Supplier Name Error',
+        //   life: life,
+        //   className: 'login-toast',
+        // })
       })
   }
 
@@ -3771,7 +3775,7 @@ function DelistsAddedToRange(props: any) {
     } else if (historyOrder.length > 0) {
       optionsSupplierId = historyOrder
     } else {
-      optionsSupplierId.push(primayOrder)
+      optionsSupplierId.push(rowData && rowData.existingSupplierSite)
     }
     if (rowData.actionType === placeholderMin) {
       return <>NA</>
@@ -5698,8 +5702,8 @@ function DelistsAddedToRange(props: any) {
                 supplyChange,
                 index + 1,
                 d.Comments, //optional
-                d.NewNumberofRangeStores
-                  ? d.NewNumberofRangeStores
+                d.IndicativeNoofStores
+                  ? d.IndicativeNoofStores
                   : storeArray != ''
                   ? storeArray.length
                   : null,
@@ -6719,13 +6723,13 @@ function DelistsAddedToRange(props: any) {
             return importData
           })
           // console.log('LoadSupplierError', err)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: suppliercode + ' No Supplier Name Error',
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'error',
+          //   summary: 'Error',
+          //   detail: suppliercode + ' No Supplier Name Error',
+          //   life: life,
+          //   className: 'login-toast',
+          // })
           // return existingSupplier
         })
   }
@@ -6828,7 +6832,7 @@ function DelistsAddedToRange(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error',
-            detail: `${minValue} Trading Group did'nt match.`,
+            detail: allMessages.error.RafTradingGroupError,
             life: life,
             className: 'login-toast',
           })
@@ -6844,7 +6848,7 @@ function DelistsAddedToRange(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error',
-            detail: `${minValue} Category did'nt match.`,
+            detail: allMessages.error.RafCategoryError,
             life: life,
             className: 'login-toast',
           })
@@ -6861,7 +6865,7 @@ function DelistsAddedToRange(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error',
-            detail: `${minValue} Department did'nt match.`,
+            detail: allMessages.error.RafDepartmentError,
             life: life,
             className: 'login-toast',
           })
@@ -8304,7 +8308,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -8411,7 +8418,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -8473,7 +8483,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -8579,7 +8592,10 @@ function DelistsAddedToRange(props: any) {
                       value={comments}
                       onChange={(e: any) => setComments(e.target.value)}
                     /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -8677,7 +8693,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                        <OutlinedInput
+                        <InputTextarea
+                          cols={20}
+                          autoResize
+                          maxLength={500}
                           value={comments}
                           onChange={(e: any) => setComments(e.target.value)}
                           className={classes.inputFields}
@@ -8776,7 +8795,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                        <OutlinedInput
+                        <InputTextarea
+                          cols={20}
+                          autoResize
+                          maxLength={500}
                           value={comments}
                           onChange={(e: any) => setComments(e.target.value)}
                           className={classes.inputFields}
@@ -8883,7 +8905,10 @@ function DelistsAddedToRange(props: any) {
                       value={comments}
                       onChange={(e: any) => setComments(e.target.value)}
                     /> */}
-                        <OutlinedInput
+                        <InputTextarea
+                          cols={20}
+                          autoResize
+                          maxLength={500}
                           value={comments}
                           onChange={(e: any) => setComments(e.target.value)}
                           className={classes.inputFields}
@@ -8989,7 +9014,10 @@ function DelistsAddedToRange(props: any) {
                       value={comments}
                       onChange={(e: any) => setComments(e.target.value)}
                     /> */}
-                        <OutlinedInput
+                        <InputTextarea
+                          cols={20}
+                          autoResize
+                          maxLength={500}
                           value={comments}
                           onChange={(e: any) => setComments(e.target.value)}
                           className={classes.inputFields}
@@ -9103,7 +9131,10 @@ function DelistsAddedToRange(props: any) {
                       value={comments}
                       onChange={(e: any) => setComments(e.target.value)}
                     /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -9216,7 +9247,10 @@ function DelistsAddedToRange(props: any) {
                       value={comments}
                       onChange={(e: any) => setComments(e.target.value)}
                     /> */}
-                      <OutlinedInput
+                      <InputTextarea
+                        cols={20}
+                        autoResize
+                        maxLength={500}
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                         className={classes.inputFields}
@@ -9471,7 +9505,10 @@ function DelistsAddedToRange(props: any) {
                         value={comments}
                         onChange={(e: any) => setComments(e.target.value)}
                       /> */}
-                        <OutlinedInput
+                        <InputTextarea
+                          cols={20}
+                          autoResize
+                          maxLength={500}
                           value={comments}
                           onChange={(e: any) => setComments(e.target.value)}
                           className={classes.inputFields}
@@ -13017,6 +13054,15 @@ function DelistsAddedToRange(props: any) {
         const formdata = importedData &&
           eventDetails && {
             items: importedData.map((item: any) => {
+              let newNumberOfRangeStores =
+                item.numberOfRangeStores !== 'NA'
+                  ? item.actionType === productDistributionDecreaseMin
+                    ? storeCodeLength - parseInt(item.numberOfRangeStores)
+                    : item.actionType === productDistributionIncreaseMin
+                    ? storeCodeLength + parseInt(item.numberOfRangeStores)
+                    : item.numberOfRangeStores
+                  : null
+              console.log('new storecodes', newNumberOfRangeStores)
               return {
                 itemNumber: item.min !== 'NA' ? item.min : null,
                 description: item.description,
@@ -13055,7 +13101,6 @@ function DelistsAddedToRange(props: any) {
                   ? eventDetails[0].wastageRange
                   : null,
                 eventLineStatus: item.lineStatus,
-                // eventLineStatus: 'Request For Stock Count',
                 man: item.man !== 'NA' ? item.man : null,
                 ingredientMin:
                   item.ingredientMin !== 'NA' ? item.ingredientMin : null,
@@ -13068,10 +13113,7 @@ function DelistsAddedToRange(props: any) {
                 existingSupplier: item.existingSupplier,
                 existingSupplierSite: item.existingSupplierSite,
                 rangedStoresCurrent: item.currentnoofrangedstores,
-                rangedStoresNew:
-                  item.numberOfRangeStores !== 'NA'
-                    ? item.numberOfRangeStores
-                    : null,
+                rangedStoresNew: newNumberOfRangeStores,
                 currentVsNewStores: item.currentVersusNewStores,
                 rangedStoresPercent: item.storesRangedCurrentVsProposed,
                 shelfFillCurrent:
@@ -13130,9 +13172,10 @@ function DelistsAddedToRange(props: any) {
                 effectiveToDate: item.effectiveDateTo
                   ? `${item.effectiveDateTo} ${'00:00:00.00'}`
                   : '',
-                derangedLocations: item.storeNumbersForspecificStoreRange
-                  ? item.storeNumbersForspecificStoreRange
-                  : null,
+                // derangedLocations: item.storeNumbersForspecificStoreRange
+                //   ? item.storeNumbersForspecificStoreRange
+                //   : null,
+                derangedLocations: item.storeCode ? item.storeCode : null,
                 perStorePerWeek: item.perStorepPerWeek
                   ? item.perStorepPerWeek
                   : '',
@@ -13212,6 +13255,15 @@ function DelistsAddedToRange(props: any) {
         const formdata = importedData &&
           eventDetails && {
             items: importedData.map((item: any) => {
+              let newNumberOfRangeStores =
+                item.numberOfRangeStores !== 'NA'
+                  ? item.actionType === productDistributionDecreaseMin
+                    ? storeCodeLength - parseInt(item.numberOfRangeStores)
+                    : item.actionType === productDistributionIncreaseMin
+                    ? storeCodeLength + parseInt(item.numberOfRangeStores)
+                    : item.numberOfRangeStores
+                  : null
+              console.log('new storecodes', newNumberOfRangeStores)
               return {
                 itemNumber: item.min !== 'NA' ? item.min : null,
                 description: item.description,
@@ -13249,7 +13301,6 @@ function DelistsAddedToRange(props: any) {
                 wastageRange: eventDetails[0].wastageRange
                   ? eventDetails[0].wastageRange
                   : null,
-                // eventLineStatus: item.lineStatus,
                 eventLineStatus: 'Draft',
                 man: item.man !== 'NA' ? item.man : null,
                 ingredientMin:
@@ -13263,10 +13314,7 @@ function DelistsAddedToRange(props: any) {
                 existingSupplier: item.existingSupplier,
                 existingSupplierSite: item.existingSupplierSite,
                 rangedStoresCurrent: item.currentnoofrangedstores,
-                rangedStoresNew:
-                  item.numberOfRangeStores !== 'NA'
-                    ? item.numberOfRangeStores
-                    : null,
+                rangedStoresNew: newNumberOfRangeStores,
                 currentVsNewStores: item.currentVersusNewStores,
                 rangedStoresPercent: item.storesRangedCurrentVsProposed,
                 shelfFillCurrent:
@@ -13325,9 +13373,10 @@ function DelistsAddedToRange(props: any) {
                 effectiveToDate: item.effectiveDateTo
                   ? `${item.effectiveDateTo} ${'00:00:00.00'}`
                   : '',
-                derangedLocations: item.storeNumbersForspecificStoreRange
-                  ? item.storeNumbersForspecificStoreRange
-                  : null,
+                // derangedLocations: item.storeNumbersForspecificStoreRange
+                //   ? item.storeNumbersForspecificStoreRange
+                //   : null,
+                derangedLocations: item.storeCode ? item.storeCode : null,
                 perStorePerWeek: item.perStorepPerWeek
                   ? item.perStorepPerWeek
                   : '',

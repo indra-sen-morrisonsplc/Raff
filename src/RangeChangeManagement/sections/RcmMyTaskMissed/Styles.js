@@ -36,6 +36,14 @@ export const useStyles = makeStyles((theme) => ({
       cursor: 'default',
     },
   },
+  errorMessageColor: {
+    color: '#d32f22',
+    // marginLeft: '14px',
+    marginRight: '14px',
+    marginTop: '4px',
+    paddingTop: '10px',
+    lineHeight: 3,
+  },
   linkButton: {
     border: 0,
     color: theme.palette.secondary.main,

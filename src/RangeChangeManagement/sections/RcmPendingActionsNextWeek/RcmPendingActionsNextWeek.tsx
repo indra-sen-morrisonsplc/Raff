@@ -18,7 +18,7 @@ import { useStyles } from './Styles'
 import { Toast } from 'primereact/toast'
 import { pendingActionDetails, pendingActionTableHeaders } from './tableHeader'
 // import { reset_mygroupunassignAction } from '../../../redux/Actions/PendingAction'
-import { routes, life } from '../../../util/Constants'
+import { routes, life, extensions } from '../../../util/Constants'
 import {
   putClaimTaskAPI,
   getAllActiveUsersAPI,
@@ -40,6 +40,7 @@ import {
 } from '../../../redux/Actions/PendingAction/Action'
 import LightTooltip from '../../components/LightToolTip/LightTooltip'
 import { Info } from '@material-ui/icons'
+import { InputTextarea } from 'primereact/inputtextarea'
 
 const Input = styled('input')({
   display: 'none',
@@ -75,6 +76,8 @@ function RcmPendingActionsNextWeek(props: any) {
   const [roleNametoId, setRoleNametoId] = React.useState(false)
   const [uploadedFile, setUploadedFile] = useState<any>()
   const [comments, setComments] = useState('')
+  const [wrongExtn, setWrongExtn] = React.useState(false)
+  const [wrongExtnError, setWrongExtnError] = React.useState('')
   //
 
   const goBack = () => {
@@ -560,7 +563,25 @@ function RcmPendingActionsNextWeek(props: any) {
 
   const handleFileUpload = (event: any) => {
     console.log(event.target.files[0])
-    setUploadedFile(event.target.files[0])
+    const checkextension = event.target.files[0]
+      ? new RegExp(
+          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+          'i'
+        ).test(event.target.files[0].name)
+      : false
+    const fileSize = event.target.files[0].size / 1024 / 1024
+    if (
+      (!checkextension || event.target.files[0].size === 0 || fileSize > 5) &&
+      event.target.files[0]
+    ) {
+      setUploadedFile(null)
+      setWrongExtn(true)
+      setWrongExtnError(allMessages.error.invalidExtension)
+    } else {
+      setUploadedFile(event.target.files[0])
+      setWrongExtn(false)
+      setWrongExtnError('')
+    }
   }
 
   const assignToOtherDialog = (
@@ -657,6 +678,11 @@ function RcmPendingActionsNextWeek(props: any) {
               >
                 Browse...
               </button>
+              {wrongExtn && (
+                <span className={classes.errorMessageColor}>
+                  {wrongExtnError}
+                </span>
+              )}
             </Typography>
             {/* </div> */}
           </Grid>
@@ -665,8 +691,9 @@ function RcmPendingActionsNextWeek(props: any) {
             <Typography variant="body2" color="primary">
               Comments
               <br />
-              <textarea
-                rows={5}
+              <InputTextarea
+                rows={3}
+                maxLength={50}
                 className={classes.comments}
                 value={comments}
                 onChange={(e: any) => setComments(e.target.value)}

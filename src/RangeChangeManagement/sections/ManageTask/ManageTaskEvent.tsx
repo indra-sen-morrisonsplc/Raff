@@ -236,7 +236,7 @@ function ManageTaskEvent(props: any) {
         console.log(res.data)
         if (res.data.length > 0) {
           const data = res.data
-            // .filter((d: any) => d.status.toLowerCase() != 'cancelled')
+            .filter((d: any) => d.eventStatus)
             .map((d: any) => {
               return {
                 name: d.name,
@@ -2396,7 +2396,7 @@ function ManageTaskEvent(props: any) {
             // stateKey="dt-state-demo-session-eventmanage"
             showGridlines
             scrollable
-            scrollHeight="400px"
+            scrollHeight="450px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2469,7 +2469,7 @@ function ManageTaskEvent(props: any) {
             // alwaysShowPaginator={false}
             showGridlines
             scrollable
-            scrollHeight="400px"
+            scrollHeight="450px"
             // scrollHeight={above670px ? '450px' : '300px'}
             // frozenWidth={above670px ? '250px' : '200px'}
           >
@@ -2540,7 +2540,7 @@ function ManageTaskEvent(props: any) {
           className="p-datatable-sm"
           showGridlines
           scrollable
-          scrollHeight="300px"
+          scrollHeight="450px"
           // scrollHeight="flex"
           // scrollHeight={above670px ? '300px' : '250px'}
           // frozenWidth="300px"

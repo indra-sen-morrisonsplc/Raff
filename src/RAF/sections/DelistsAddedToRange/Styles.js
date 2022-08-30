@@ -74,30 +74,6 @@ export const useStyles = makeStyles((theme) => {
       paddingRight: '20px',
       // fontWeight: 500,
     },
-    errorOutlinedIconError: {
-      color: 'yellow',
-    },
-
-    // errorRoundedIconTableGrid: {
-    //   // color: "#e5e554",
-    //   color: "red",
-    // },
-    errorRoundedIconTableGrid: {
-      color: 'black',
-      '& path:first-child': {
-        color: '#ffff01',
-      },
-    },
-    errorOutlinedIconErrorTableGrid: {
-      color: 'red',
-    },
-
-    errorRoundedIcon: {
-      display: 'flex',
-    },
-    mainGridTable: {
-      background: 'red',
-    },
     rangeStoreDialogBox: {
       'max-width': '50%',
     },
@@ -238,6 +214,22 @@ export const useStyles = makeStyles((theme) => {
       width: '200px',
       padding: '8px',
       height: 38,
+    },
+    errorRoundedIconTableGrid: {
+      color: 'black',
+      '& path:first-child': {
+        color: '#ffff01',
+      },
+    },
+    errorOutlinedIconError: {
+      color: 'yellow',
+    },
+    errorOutlinedIconErrorTableGrid: {
+      color: 'red',
+    },
+
+    errorRoundedIcon: {
+      display: 'flex',
     },
     bulkActionSelect: {
       backgroundColor: theme.palette.primary.main,

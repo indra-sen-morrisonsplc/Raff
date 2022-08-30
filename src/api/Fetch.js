@@ -55,10 +55,10 @@ const {
   GET_LOCATIONS,
   PATCH_RANGERESET_ITEMS,
   GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
-  DELETE_RAF_ITEM,
-  GET_RANGE_PLANOGRAM_ERROR,
-  PATCH_RANGE_PLANOGRAM_ERROR,
   GET_LOCATIONS_SERVICE,
+  GET_RANGE_PLANOGRAM_ERROR,
+  DELETE_RAF_ITEM,
+  PATCH_RANGE_PLANOGRAM_ERROR,
   DELETE_RANGE_PLANOGRAM_ERROR,
 } = config
 
@@ -291,7 +291,9 @@ export const getStatusEventCamundaAPINew = (
   tradingGrp,
   filter
 ) => {
+  // let base = 'https://sit-api.morrisons.com/'
   let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
+  // let url = `${base}${EVENT_DASHBOARD_GET_CAMUNDA}`
   const params = `limit=10000&userRole=${userRole}&tradingGrp=${tradingGrp}&filter=${filter}`
   url = url.replace('{userId}', empId)
   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
@@ -560,9 +562,9 @@ export const getProductServiceByItemnumber = (itemNumber) => {
   return serviceRequest(url, 'GET', undefined)
 }
 export const getProductSupplierServiceByItemnumber = (itemNumber) => {
-  // let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
-  let base = 'https://sit-api.morrisons.com/'
-  let url = `${base}${GET_PRODUCT_SUPPLIER_SERVICE}`
+  let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
+  // let base = 'https://sit-api.morrisons.com/'
+  // let url = `${base}${GET_PRODUCT_SUPPLIER_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   // let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'GET', undefined)
@@ -583,6 +585,12 @@ export const getProductCompositionServiceByItemnumber = (itemNumber) => {
   // let reqBody = `${JSON.stringify(req)}`
   // return serviceRequest(url, "GET", undefined);
   return serviceRequest(url, 'GET', undefined)
+}
+export const getLocationsServiceByItemnumber = (itemNumber) => {
+  let url = `${BASE_URL}${GET_LOCATIONS_SERVICE}`
+  url = url.replace('{itemNumber}', itemNumber)
+  const params = 'limit=1000'
+  return serviceRequest(url, 'GET', undefined, params)
 }
 export const getRangeByIdAndMinNumber = (rangeResetId, minNumber) => {
   let url = `${BASE_URL}${GET_RANGE_SUMMARY_BY_ID_MIN}`
@@ -627,6 +635,15 @@ export const getRangeResetEventsStoreDepot = (
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const deleteRangeResetsPlanogramError = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${DELETE_RANGE_PLANOGRAM_ERROR}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{itemNumber}', minNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'DELETE', undefined)
+}
+
 export const deleteRafItem = (rangeResetId, minNumber) => {
   let url = `${BASE_URL}${DELETE_RAF_ITEM}`
   url = url.replace('{rangeResetId}', rangeResetId)
@@ -654,24 +671,6 @@ export const getRangeResetPlanogramErrors = (rangeResetId, minNumber) => {
   // let reqBody = `${JSON.stringify(req)}`
   // return serviceRequest(url, "GET", undefined);
   return serviceRequest(url, 'GET', undefined)
-}
-
-export const getLocationsServiceByItemnumber = (itemNumber) => {
-  // let base = 'https://sit-api.morrisons.com/'
-  // let url = `${base}${GET_LOCATIONS_SERVICE}`
-  let url = `${BASE_URL}${GET_LOCATIONS_SERVICE}`
-  url = url.replace('{itemNumber}', itemNumber)
-  const params = 'limit=1000'
-  return serviceRequest(url, 'GET', undefined, params)
-}
-
-export const deleteRangeResetsPlanogramError = (rangeResetId, minNumber) => {
-  let url = `${BASE_URL}${DELETE_RANGE_PLANOGRAM_ERROR}`
-  url = url.replace('{rangeResetId}', rangeResetId)
-  url = url.replace('{itemNumber}', minNumber)
-  // let reqBody = `${JSON.stringify(req)}`
-  // return serviceRequest(url, "GET", undefined);
-  return serviceRequest(url, 'DELETE', undefined)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

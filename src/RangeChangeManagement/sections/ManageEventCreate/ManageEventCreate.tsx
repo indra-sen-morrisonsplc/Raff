@@ -1245,9 +1245,10 @@ function ManageEventCreate(props: any) {
           >
             <strong>Comments</strong>
             <InputTextarea
+              maxLength={500}
               value={inputTextareaValue}
               onChange={(e) => setInputTextareaValue(e.target.value)}
-              rows={5}
+              rows={3}
               cols={43}
               autoResize
             />
