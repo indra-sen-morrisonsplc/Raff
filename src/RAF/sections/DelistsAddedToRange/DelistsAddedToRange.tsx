@@ -1146,7 +1146,18 @@ function DelistsAddedToRange(props: any) {
             )
             console.log('storecodes2', difference)
             setStoreCode(difference)
-            setStoreCodeLength(storecodes1.length)
+            setStoreCodeLength((prevState: any) => {
+              let newEntry = {
+                storeMin: minVal,
+                storeLength: storecodes1.length,
+              }
+              if (prevState && prevState.length > 0) {
+                return [...prevState, newEntry]
+              } else {
+                return [newEntry]
+              }
+            })
+
             setStoreCodeFetchError(false)
           } else {
             setStoreCodeFetchError(true)
@@ -1164,7 +1175,18 @@ function DelistsAddedToRange(props: any) {
             return val.locationId.toString()
           })
           setStoreCode(storeCodes)
-          setStoreCodeLength(storeCodes.length)
+          // setStoreCodeLength(storeCodes.length)
+          setStoreCodeLength((prevState: any) => {
+            let newEntry = {
+              storeMin: minVal,
+              storeLength: storeCodes.length,
+            }
+            if (prevState && prevState.length > 0) {
+              return [...prevState, newEntry]
+            } else {
+              return [newEntry]
+            }
+          })
           setStoreCodeFetchError(false)
         })
         .catch((err: any) => {
@@ -5566,6 +5588,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection') &&
               d.MINPIN !== undefined
             ) {
+              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue,
                 newProductMin,
@@ -5742,6 +5765,7 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection') &&
               d.NewNumberofStoresRestrictions !== undefined
             ) {
+              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue, // Mandatory
                 productDistributionDecreaseMin,
@@ -5766,13 +5790,15 @@ function DelistsAddedToRange(props: any) {
               (actionType.value === productDistributionIncreaseMin ||
                 actionType.value === 'Multiple Selection')
             ) {
+              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue, //Mandatory
                 productDistributionIncreaseMin,
                 index + 1,
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, //optional
-                d.IndicativeNoofStores,
+                // d.IndicativeNoofStores,
+                storeArray.length + storeCodeLength,
                 // d.StoreCode, //optional
                 storeArray,
                 'NA',
@@ -7173,34 +7199,28 @@ function DelistsAddedToRange(props: any) {
       ])
       handleActionTypeDialogClose()
     } else if (actionType.value === productDistributionIncreaseMin) {
-      // getRangeByIdAndMinNumber('1304', min)
-      //   .then((res: any) => {
-      //     setMinCheckError(false)
-      //     console.log('checking min', res.data)
-      //     let shelfFillCurrent = res.data.shelfFillCurrent
-      //       ? res.data.shelfFillCurrent
-      //       : 0
-      //     setCurrentShelfFill(shelfFillCurrent)
-      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
-      //       ? res.data.rangedStoresCurrent
-      //       : 0
-      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
-      //     setMinCheck(true)
-      //   })
-      //   .catch((err: any) => {
-      //     setMinCheck(false)
-      //     setMinCheckError(true)
-      //   })
+      let newNumberOfRangeStores = null
 
-      // minCheck &&
-      // handleActionTypeDialogClose()
-      // minCheck &&
+      let storeCodeArray =
+        storeCodeLength &&
+        storeCodeLength.filter((item1: any) => item1.storeMin === min)
+      if (storeCodeArray.length > -1) {
+        newNumberOfRangeStores = newStoreCount
+          ? actionType.value === productDistributionDecreaseMin
+            ? storeCodeArray[0].storeLength - newStoreCount
+            : actionType.value === productDistributionIncreaseMin
+            ? storeCodeArray[0].storeLength + newStoreCount
+            : newStoreCount
+          : null
+      }
+
       getAndCheckItemNumber([
         min,
         productDistributionIncreaseMin,
         '',
         comments,
-        newStoreCount,
+        // newStoreCount,
+        newNumberOfRangeStores,
         selectedStore,
         '',
         '',
@@ -7212,34 +7232,27 @@ function DelistsAddedToRange(props: any) {
       ])
       handleActionTypeDialogClose()
     } else if (actionType.value === productDistributionDecreaseMin) {
-      // getRangeByIdAndMinNumber('1304', min)
-      //   .then((res: any) => {
-      //     setMinCheckError(false)
-      //     console.log('checking min', res.data)
-      //     let shelfFillCurrent = res.data.shelfFillCurrent
-      //       ? res.data.shelfFillCurrent
-      //       : 0
-      //     setCurrentShelfFill(shelfFillCurrent)
-      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
-      //       ? res.data.rangedStoresCurrent
-      //       : 0
-      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
-      //     setMinCheck(true)
-      //   })
-      //   .catch((err: any) => {
-      //     setMinCheck(false)
-      //     setMinCheckError(true)
-      //   })
+      let newNumberOfRangeStores = null
 
-      // minCheck &&
-      // handleActionTypeDialogClose()
-      // minCheck &&
+      let storeCodeArray =
+        storeCodeLength &&
+        storeCodeLength.filter((item1: any) => item1.storeMin === min)
+      if (storeCodeArray.length > -1) {
+        newNumberOfRangeStores = newStoreCount
+          ? actionType.value === productDistributionDecreaseMin
+            ? storeCodeArray[0].storeLength - newStoreCount
+            : actionType.value === productDistributionIncreaseMin
+            ? storeCodeArray[0].storeLength + newStoreCount
+            : newStoreCount
+          : null
+      }
       getAndCheckItemNumber([
         min,
         productDistributionDecreaseMin,
         '',
         comments,
-        newStoreCount,
+        // newStoreCount,
+        newNumberOfRangeStores,
         selectedStore,
         '',
         '',
@@ -7443,6 +7456,7 @@ function DelistsAddedToRange(props: any) {
     return check
   }
   const [showErrorIcon, setShowErrorIcon] = useState<any>(false)
+
   const handleProductListSave = () => {
     if (checkingErrorsOnSave()) {
       setShowErrorIcon(true)
@@ -7458,15 +7472,24 @@ function DelistsAddedToRange(props: any) {
     const formdata = importedData &&
       eventDetails && {
         items: importedData.map((item: any) => {
-          let newNumberOfRangeStores =
-            item.numberOfRangeStores !== 'NA'
-              ? item.actionType === productDistributionDecreaseMin
-                ? storeCodeLength - parseInt(item.numberOfRangeStores)
-                : item.actionType === productDistributionIncreaseMin
-                ? storeCodeLength + parseInt(item.numberOfRangeStores)
-                : item.numberOfRangeStores
-              : null
-          console.log('new storecodes', newNumberOfRangeStores)
+          // let newNumberOfRangeStores = null
+
+          // let storeCodeArray =
+          //   storeCodeLength &&
+          //   storeCodeLength.filter((item1: any) => item1.storeMin === item.min)
+          // if (storeCodeArray.length > -1) {
+          //   newNumberOfRangeStores =
+          //     item.numberOfRangeStores !== 'NA'
+          //       ? item.actionType === productDistributionDecreaseMin
+          //         ? storeCodeArray[0].storeLength -
+          //           parseInt(item.numberOfRangeStores)
+          //         : item.actionType === productDistributionIncreaseMin
+          //         ? storeCodeArray[0].storeLength +
+          //           parseInt(item.numberOfRangeStores)
+          //         : item.numberOfRangeStores
+          //       : null
+          // }
+          // console.log('new storecodes', newNumberOfRangeStores)
           return {
             itemNumber: item.min !== 'NA' ? item.min : null,
             description: item.description,
@@ -7517,7 +7540,7 @@ function DelistsAddedToRange(props: any) {
             existingSupplier: item.existingSupplier,
             existingSupplierSite: item.existingSupplierSite,
             rangedStoresCurrent: item.currentnoofrangedstores,
-            rangedStoresNew: newNumberOfRangeStores,
+            rangedStoresNew: item.numberOfRangeStores, //newNumberOfRangeStores,
             currentVsNewStores: item.currentVersusNewStores,
             rangedStoresPercent: item.storesRangedCurrentVsProposed,
             shelfFillCurrent:
@@ -13086,15 +13109,36 @@ function DelistsAddedToRange(props: any) {
         const formdata = importedData &&
           eventDetails && {
             items: importedData.map((item: any) => {
-              let newNumberOfRangeStores =
-                item.numberOfRangeStores !== 'NA'
-                  ? item.actionType === productDistributionDecreaseMin
-                    ? storeCodeLength - parseInt(item.numberOfRangeStores)
-                    : item.actionType === productDistributionIncreaseMin
-                    ? storeCodeLength + parseInt(item.numberOfRangeStores)
-                    : item.numberOfRangeStores
-                  : null
-              console.log('new storecodes', newNumberOfRangeStores)
+              // let newNumberOfRangeStores =
+              //   item.numberOfRangeStores !== 'NA'
+              //     ? item.actionType === productDistributionDecreaseMin
+              //       ? storeCodeLength - parseInt(item.numberOfRangeStores)
+              //       : item.actionType === productDistributionIncreaseMin
+              //       ? storeCodeLength + parseInt(item.numberOfRangeStores)
+              //       : item.numberOfRangeStores
+              //     : null
+
+              // let newNumberOfRangeStores = null
+
+              // let storeCodeArray =
+              //   storeCodeLength &&
+              //   storeCodeLength.filter(
+              //     (item1: any) => item1.storeMin === item.min
+              //   )
+              // if (storeCodeArray.length > -1) {
+              //   newNumberOfRangeStores =
+              //     item.numberOfRangeStores !== 'NA'
+              //       ? item.actionType === productDistributionDecreaseMin
+              //         ? storeCodeArray[0].storeLength -
+              //           parseInt(item.numberOfRangeStores)
+              //         : item.actionType === productDistributionIncreaseMin
+              //         ? storeCodeArray[0].storeLength +
+              //           parseInt(item.numberOfRangeStores)
+              //         : item.numberOfRangeStores
+              //       : null
+              // }
+
+              // console.log('new storecodes', newNumberOfRangeStores)
               return {
                 itemNumber: item.min !== 'NA' ? item.min : null,
                 description: item.description,
@@ -13145,7 +13189,7 @@ function DelistsAddedToRange(props: any) {
                 existingSupplier: item.existingSupplier,
                 existingSupplierSite: item.existingSupplierSite,
                 rangedStoresCurrent: item.currentnoofrangedstores,
-                rangedStoresNew: newNumberOfRangeStores,
+                rangedStoresNew: item.numberOfRangeStores, //newNumberOfRangeStores,
                 currentVsNewStores: item.currentVersusNewStores,
                 rangedStoresPercent: item.storesRangedCurrentVsProposed,
                 shelfFillCurrent:
