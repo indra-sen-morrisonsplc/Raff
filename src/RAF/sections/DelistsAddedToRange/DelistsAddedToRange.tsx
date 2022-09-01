@@ -6914,54 +6914,54 @@ function DelistsAddedToRange(props: any) {
           return
         }
 
-        // if (
-        //   eventDetails &&
-        //   eventDetails[0].tradeGroup !==
-        //     values[0].value.data.reportingHierarchy.groupName
-        // ) {
-        //   setIsProgressLoader(false)
-        //   toast.current.show({
-        //     severity: 'error',
-        //     summary: 'Error',
-        //     detail: allMessages.error.RafTradingGroupError,
-        //     life: life,
-        //     className: 'login-toast',
-        //   })
-        //   return
-        // }
-        // if (
-        //   eventDetails &&
-        //   eventDetails[0].categoryId &&
-        //   eventDetails[0].categoryId.toString() !==
-        //     values[0].value.data.reportingHierarchy.category
-        // ) {
-        //   setIsProgressLoader(false)
-        //   toast.current.show({
-        //     severity: 'error',
-        //     summary: 'Error',
-        //     detail: allMessages.error.RafCategoryError,
-        //     life: life,
-        //     className: 'login-toast',
-        //   })
-        //   return
-        // }
+        if (
+          eventDetails &&
+          eventDetails[0].tradeGroup !==
+            values[0].value.data.reportingHierarchy.groupName
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: allMessages.error.RafTradingGroupError,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
+        if (
+          eventDetails &&
+          eventDetails[0].categoryId &&
+          eventDetails[0].categoryId.toString() !==
+            values[0].value.data.reportingHierarchy.category
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: allMessages.error.RafCategoryError,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
 
-        // if (
-        //   eventDetails &&
-        //   eventDetails[0].departmentId &&
-        //   eventDetails[0].departmentId.toString() !==
-        //     values[0].value.data.reportingHierarchy.department
-        // ) {
-        //   setIsProgressLoader(false)
-        //   toast.current.show({
-        //     severity: 'error',
-        //     summary: 'Error',
-        //     detail: allMessages.error.RafDepartmentError,
-        //     life: life,
-        //     className: 'login-toast',
-        //   })
-        //   return
-        // }
+        if (
+          eventDetails &&
+          eventDetails[0].departmentId &&
+          eventDetails[0].departmentId.toString() !==
+            values[0].value.data.reportingHierarchy.department
+        ) {
+          setIsProgressLoader(false)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: allMessages.error.RafDepartmentError,
+            life: life,
+            className: 'login-toast',
+          })
+          return
+        }
 
         if (
           (actionType.value === delistProductMin ||
@@ -7513,7 +7513,7 @@ function DelistsAddedToRange(props: any) {
   const showErrorAboveCT26 = () => {
     if (rafpendingActionDetailsCT06) {
       if (
-        rafpendingActionDetailsCT06.taskName === 'CT18' ||
+        // rafpendingActionDetailsCT06.taskName === 'CT18' ||
         rafpendingActionDetailsCT06.taskName === 'CT27' ||
         rafpendingActionDetailsCT06.taskName === 'CT26' ||
         rafpendingActionDetailsCT06.taskName === 'CT29' ||
