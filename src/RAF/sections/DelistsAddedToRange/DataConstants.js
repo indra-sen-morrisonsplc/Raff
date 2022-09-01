@@ -791,12 +791,12 @@ export const placeholderCols = [
     width: '200px',
   },
   {
-    field: 'existingSupplier',
+    field: 'newSupplier',
     header: 'Supplier Code',
     width: '240px',
   },
   {
-    field: 'existingSupplierSite',
+    field: 'newSupplierSite',
     header: 'Supplier Site Code',
     width: '240px',
   },

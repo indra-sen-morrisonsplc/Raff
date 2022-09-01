@@ -186,6 +186,8 @@ function ManageTaskEvent(props: any) {
     orderStopDateCheck: 'Y',
     stopOrder: 'Y',
   })
+  const [wrongExtn, setWrongExtn] = React.useState(false)
+  const [wrongExtnError, setWrongExtnError] = React.useState('')
 
   const {
     DEFAULT,
@@ -809,7 +811,22 @@ function ManageTaskEvent(props: any) {
   }
 
   const handleFileUpload = (event: any) => {
-    setUploadedFile(event.target.files[0])
+    const fileSize = event.target.files[0].size / 1024 / 1024
+    if (
+      (event.target.files[0].size === 0 || fileSize > 5) &&
+      event.target.files[0]
+    ) {
+      setUploadedFile(null)
+      setWrongExtn(true)
+      setWrongExtnError(
+        'Empty Files or FileSize greater than 5MB.Please check file size'
+      )
+    } else {
+      setUploadedFile(event.target.files[0])
+      setWrongExtn(false)
+      setWrongExtnError('')
+    }
+
     // setConfirmtable(false)
   }
 
@@ -2305,6 +2322,11 @@ function ManageTaskEvent(props: any) {
               >
                 Browse...
               </button>
+              {wrongExtn && (
+                <span className={classes.errorMessageColor}>
+                  {wrongExtnError}
+                </span>
+              )}
             </Box>
           </Box>
           <Box

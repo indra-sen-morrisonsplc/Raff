@@ -694,7 +694,7 @@ function RcmPendingActionsWeek5(props: any) {
               <br />
               <InputTextarea
                 rows={3}
-                maxLength={50}
+                maxLength={500}
                 className={classes.comments}
                 value={comments}
                 onChange={(e: any) => setComments(e.target.value)}

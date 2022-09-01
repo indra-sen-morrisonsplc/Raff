@@ -106,6 +106,14 @@ export const useStyles = makeStyles((theme) => {
       height: '100%',
       color: theme.palette.background.paper,
     },
+    errorMessageColor: {
+      color: '#d32f22',
+      // marginLeft: '14px',
+      marginRight: '14px',
+      marginTop: '4px',
+      paddingTop: '10px',
+      lineHeight: 3,
+    },
     value: {
       flex: 1,
     },

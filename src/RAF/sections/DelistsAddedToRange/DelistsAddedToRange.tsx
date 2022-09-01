@@ -1152,12 +1152,20 @@ function DelistsAddedToRange(props: any) {
                 storeLength: storecodes1.length,
               }
               if (prevState && prevState.length > 0) {
-                return [...prevState, newEntry]
+                let index = prevState.findIndex(
+                  (item: any) => item.storeMin === minVal
+                )
+                if (index !== -1) {
+                  let newData = [...prevState]
+                  newData[index] = newEntry
+                  return newData
+                } else {
+                  return [...prevState, newEntry]
+                }
               } else {
                 return [newEntry]
               }
             })
-
             setStoreCodeFetchError(false)
           } else {
             setStoreCodeFetchError(true)
@@ -1745,12 +1753,27 @@ function DelistsAddedToRange(props: any) {
             value={rowData && rowData.actionType}
             onChange={(e: any) => {
               setImportedData((prevState: any) => {
-                return onChangeProductTableFieldsProductMain(
-                  prevState,
-                  'actionType',
-                  rowData,
-                  e.target.value
-                )
+                // return onChangeProductTableFields(
+                //   prevState,
+                //   'actionType',
+                //   rowData,
+                //   e.target.value
+                // )
+                if (showErrorAboveCT26()) {
+                  return onChangeProductTableFieldsProductMain(
+                    prevState,
+                    'actionType',
+                    rowData,
+                    e.target.value
+                  )
+                } else {
+                  return onChangeProductTableFields(
+                    prevState,
+                    'actionType',
+                    rowData,
+                    e.target.value
+                  )
+                }
               })
             }}
             input={
@@ -1779,12 +1802,27 @@ function DelistsAddedToRange(props: any) {
             value={rowData && rowData.actionType}
             onChange={(e: any) => {
               setImportedData((prevState: any) => {
-                return onChangeProductTableFieldsProductMain(
-                  prevState,
-                  'actionType',
-                  rowData,
-                  e.target.value
-                )
+                // return onChangeProductTableFields(
+                //   prevState,
+                //   'actionType',
+                //   rowData,
+                //   e.target.value
+                // )
+                if (showErrorAboveCT26()) {
+                  return onChangeProductTableFieldsProductMain(
+                    prevState,
+                    'actionType',
+                    rowData,
+                    e.target.value
+                  )
+                } else {
+                  return onChangeProductTableFields(
+                    prevState,
+                    'actionType',
+                    rowData,
+                    e.target.value
+                  )
+                }
               })
             }}
             input={
@@ -3369,8 +3407,21 @@ function DelistsAddedToRange(props: any) {
             </span>
             <button
               className="backButton"
+              // onClick={() =>
+              //   exportExcel(storeViewApi, rangedStoresTableCols, 'StoresData')
+              // }
               onClick={() =>
-                exportExcel(storeViewApi, rangedStoresTableCols, 'StoresData')
+                viewTemplateName === 'New Number of Ranged Stores'
+                  ? exportExcel(
+                      newStoreViewData,
+                      rangedStoresTableCols,
+                      'StoresData'
+                    )
+                  : exportExcel(
+                      storeViewApi,
+                      rangedStoresTableCols,
+                      'StoresData'
+                    )
               }
             >
               Download
@@ -4486,15 +4537,14 @@ function DelistsAddedToRange(props: any) {
                   setClearDepotSelected(e.target.value)
                 }
               }}
-              placeholder="Select Clear Depot Week"
+              // placeholder="Select Clear Depot Week"
               // variant="outlined"
-              // defaultValue={0}
               input={
                 <OutlinedInput
                   margin="dense"
                   className={classes.muiSelect}
                   placeholder="Clear Depot By"
-                  // style={{ width: '200px' }}
+                  value="Select Depot Clear Week"
                 />
               }
             >
@@ -4518,14 +4568,6 @@ function DelistsAddedToRange(props: any) {
                 )
               })}
             </Select>
-
-            {/* <AutocompleteSelect
-                          // isMulti={true}
-                          value={ClearDepotSelected}
-                          options={supplierOptions} //multipesri
-                          onChange={handleSupplierSite}
-                          placeholder=""
-                        /> */}
           </Box>
         </Box>
 
@@ -5588,7 +5630,6 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection') &&
               d.MINPIN !== undefined
             ) {
-              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue,
                 newProductMin,
@@ -5765,7 +5806,6 @@ function DelistsAddedToRange(props: any) {
                 actionType.value === 'Multiple Selection') &&
               d.NewNumberofStoresRestrictions !== undefined
             ) {
-              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue, // Mandatory
                 productDistributionDecreaseMin,
@@ -5773,7 +5813,8 @@ function DelistsAddedToRange(props: any) {
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, // Mandatory
                 // d.NewNumberofStoresRestrictions, // Mandatory // when deploy
-                d.IndicativeNoofStores,
+                // d.IndicativeNoofStores,
+                storeCodeLength - storeArray.length,
                 // d.StoreCode, //optional
                 storeArray,
                 'NA',
@@ -5790,14 +5831,13 @@ function DelistsAddedToRange(props: any) {
               (actionType.value === productDistributionIncreaseMin ||
                 actionType.value === 'Multiple Selection')
             ) {
-              storeCodeFetch(d.IndicativeNoofStores && d.IndicativeNoofStores)
               getAndCheckItemNumber([
                 minValue, //Mandatory
                 productDistributionIncreaseMin,
                 index + 1,
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, //optional
-                // d.IndicativeNoofStores,
+                //d.IndicativeNoofStores,
                 storeArray.length + storeCodeLength,
                 // d.StoreCode, //optional
                 storeArray,
@@ -6200,6 +6240,7 @@ function DelistsAddedToRange(props: any) {
       supplierNew_x,
       supplierSiteNew_x,
     ] = props
+    console.log('proooops1', props)
     let updateFlag = 0
     var minVal = 1000000000000
     var max = 9999999999999
@@ -6575,26 +6616,27 @@ function DelistsAddedToRange(props: any) {
             newData[index].actionType = formData.actionType
           } else if (
             formData.actionType === productDistributionIncreaseMin &&
-            formData.storeCode &&
-            formData.storeCode.length < newData[index].currentnoofrangedstores
+            formData.numberOfRangeStores &&
+            formData.numberOfRangeStores <
+              newData[index].currentnoofrangedstores
           ) {
             // newData[index].showErrorProduct = true
             newData[index].actionType = formData.actionType
             newData[index].numberOfRangeStores =
-              formData.storeCode && formData.storeCode.length
-            newData[index].numberOfRangeStoresDestrucure =
-              formData.storeCode && formData.storeCode
+              formData.numberOfRangeStores && formData.numberOfRangeStores
+            newData[index].storeCode = formData.storeCode && formData.storeCode
           } else if (
             formData.actionType === productDistributionDecreaseMin &&
             formData.storeCode &&
-            formData.storeCode.length > newData[index].currentnoofrangedstores
+            formData.numberOfRangeStores &&
+            formData.numberOfRangeStores >
+              newData[index].currentnoofrangedstores
           ) {
             // newData[index].showErrorProduct = true
             newData[index].actionType = formData.actionType
             newData[index].numberOfRangeStores =
-              formData.storeCode && formData.storeCode.length
-            newData[index].numberOfRangeStoresDestrucure =
-              formData.storeCode && formData.storeCode
+              formData.numberOfRangeStores && formData.numberOfRangeStores
+            newData[index].storeCode = formData.storeCode && formData.storeCode
           } else if (
             formData.actionType === productShelfSpaceIncrease &&
             formData.newShelfFill &&
@@ -6617,9 +6659,8 @@ function DelistsAddedToRange(props: any) {
             // newData[index].showErrorProduct = false
             newData[index].actionType = formData.actionType
             newData[index].numberOfRangeStores =
-              formData.storeCode && formData.storeCode.length
-            newData[index].numberOfRangeStoresDestrucure =
-              formData.storeCode && formData.storeCode
+              formData.numberOfRangeStores && formData.numberOfRangeStores
+            newData[index].storeCode = formData.storeCode && formData.storeCode
             newData[index].newShelfFill =
               formData.newShelfFill && formData.newShelfFill
           }
@@ -6739,43 +6780,49 @@ function DelistsAddedToRange(props: any) {
       return ''
     }
     let existingSupplier: any = ''
-    suppliercode &&
-      getSupplierServiceBySupplierId(suppliercode)
-        .then((res: any) => {
-          console.log('LoadSupplierSuccess', res)
-          setImportedData((prevState: any) => {
-            importData[index].existingSupplier = res.data.supplierName
-            importData[index].existingSupplierSite = suppliercode
-            return importData
+    if (index !== -1) {
+      suppliercode &&
+        getSupplierServiceBySupplierId(suppliercode)
+          .then((res: any) => {
+            console.log('LoadSupplierSuccess', res)
+
+            setImportedData((prevState: any) => {
+              importData[index].existingSupplier = res.data.supplierName
+              importData[index].existingSupplierSite = suppliercode
+              return importData
+            })
+
+            // existingSupplier = res.data.supplierName
+            // return res.data.supplierName
           })
-          // existingSupplier = res.data.supplierName
-          // return res.data.supplierName
-        })
-        .catch((err: any) => {
-          // existingSupplier = 'NoSupplierFound'
-          setImportedData((prevState: any) => {
-            importData[index].existingSupplier = ''
-            importData[index].existingSupplierSite = suppliercode
-            console.log('LoadSupplierError', err)
-            //   toast.current.show({
+          .catch((err: any) => {
+            // existingSupplier = 'NoSupplierFound'
+
+            setImportedData((prevState: any) => {
+              importData[index].existingSupplier = ''
+              importData[index].existingSupplierSite = suppliercode
+              console.log('LoadSupplierError', err)
+              //   toast.current.show({
+              //   severity: 'error',
+              //   summary: 'Error',
+              //   detail: suppliercode + ' No Supplier Name Error',
+              //   life: life,
+              //   className: 'login-toast',
+              // })
+              return importData
+            })
+
+            // console.log('LoadSupplierError', err)
+            // toast.current.show({
             //   severity: 'error',
             //   summary: 'Error',
             //   detail: suppliercode + ' No Supplier Name Error',
             //   life: life,
             //   className: 'login-toast',
             // })
-            return importData
+            // return existingSupplier
           })
-          // console.log('LoadSupplierError', err)
-          // toast.current.show({
-          //   severity: 'error',
-          //   summary: 'Error',
-          //   detail: suppliercode + ' No Supplier Name Error',
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-          // return existingSupplier
-        })
+    }
   }
 
   useEffect(() => {
@@ -6867,54 +6914,54 @@ function DelistsAddedToRange(props: any) {
           return
         }
 
-        if (
-          eventDetails &&
-          eventDetails[0].tradeGroup !==
-            values[0].value.data.reportingHierarchy.groupName
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafTradingGroupError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
-        if (
-          eventDetails &&
-          eventDetails[0].categoryId &&
-          eventDetails[0].categoryId.toString() !==
-            values[0].value.data.reportingHierarchy.category
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafCategoryError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].tradeGroup !==
+        //     values[0].value.data.reportingHierarchy.groupName
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafTradingGroupError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].categoryId &&
+        //   eventDetails[0].categoryId.toString() !==
+        //     values[0].value.data.reportingHierarchy.category
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafCategoryError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
 
-        if (
-          eventDetails &&
-          eventDetails[0].departmentId &&
-          eventDetails[0].departmentId.toString() !==
-            values[0].value.data.reportingHierarchy.department
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafDepartmentError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].departmentId &&
+        //   eventDetails[0].departmentId.toString() !==
+        //     values[0].value.data.reportingHierarchy.department
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafDepartmentError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
 
         if (
           (actionType.value === delistProductMin ||
@@ -7213,14 +7260,14 @@ function DelistsAddedToRange(props: any) {
             : newStoreCount
           : null
       }
-
       getAndCheckItemNumber([
         min,
         productDistributionIncreaseMin,
         '',
         comments,
-        // newStoreCount,
+        //newStoreCount,
         newNumberOfRangeStores,
+
         selectedStore,
         '',
         '',
@@ -7455,15 +7502,57 @@ function DelistsAddedToRange(props: any) {
     setProductListCompleteAlertError(check)
     return check
   }
-  const [showErrorIcon, setShowErrorIcon] = useState<any>(false)
 
-  const handleProductListSave = () => {
-    if (checkingErrorsOnSave()) {
-      setShowErrorIcon(true)
-      return console.log('handleProductListSave', 'ErrorExist')
+  const hideCT36 = () => {
+    if (rafpendingActionDetailsCT06.taskName === 'CT36') {
+      return false
     } else {
-      setShowErrorIcon(false)
-      console.log('handleProductListSave', 'NOErrorExist')
+      return true
+    }
+  }
+  const showErrorAboveCT26 = () => {
+    if (rafpendingActionDetailsCT06) {
+      if (
+        rafpendingActionDetailsCT06.taskName === 'CT18' ||
+        rafpendingActionDetailsCT06.taskName === 'CT27' ||
+        rafpendingActionDetailsCT06.taskName === 'CT26' ||
+        rafpendingActionDetailsCT06.taskName === 'CT29' ||
+        rafpendingActionDetailsCT06.taskName === 'CT30'
+        // ||
+        // rafpendingActionDetailsCT06.taskName === 'CT36'
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+  const showErrorbelowCT26 = () => {
+    if (rafpendingActionDetailsCT06) {
+      if (
+        rafpendingActionDetailsCT06.taskName === 'CT26' ||
+        rafpendingActionDetailsCT06.taskName === 'CT27' ||
+        rafpendingActionDetailsCT06.taskName === 'CT29' ||
+        rafpendingActionDetailsCT06.taskName === 'CT30'
+        // ||
+        // rafpendingActionDetailsCT06.taskName === 'CT36'
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+  const [showErrorIcon, setShowErrorIcon] = useState<any>(false)
+  const handleProductListSave = () => {
+    if (showErrorAboveCT26()) {
+      if (checkingErrorsOnSave()) {
+        setShowErrorIcon(true)
+        return console.log('handleProductListSave', 'ErrorExist')
+      } else {
+        setShowErrorIcon(false)
+        console.log('handleProductListSave', 'NOErrorExist')
+      }
     }
     // patchApiErrors()
 
@@ -7472,23 +7561,14 @@ function DelistsAddedToRange(props: any) {
     const formdata = importedData &&
       eventDetails && {
         items: importedData.map((item: any) => {
-          // let newNumberOfRangeStores = null
-
-          // let storeCodeArray =
-          //   storeCodeLength &&
-          //   storeCodeLength.filter((item1: any) => item1.storeMin === item.min)
-          // if (storeCodeArray.length > -1) {
-          //   newNumberOfRangeStores =
-          //     item.numberOfRangeStores !== 'NA'
-          //       ? item.actionType === productDistributionDecreaseMin
-          //         ? storeCodeArray[0].storeLength -
-          //           parseInt(item.numberOfRangeStores)
-          //         : item.actionType === productDistributionIncreaseMin
-          //         ? storeCodeArray[0].storeLength +
-          //           parseInt(item.numberOfRangeStores)
-          //         : item.numberOfRangeStores
-          //       : null
-          // }
+          // let newNumberOfRangeStores =
+          //   item.numberOfRangeStores !== 'NA'
+          //     ? item.actionType === productDistributionDecreaseMin
+          //       ? storeCodeLength - parseInt(item.numberOfRangeStores)
+          //       : item.actionType === productDistributionIncreaseMin
+          //       ? storeCodeLength + parseInt(item.numberOfRangeStores)
+          //       : item.numberOfRangeStores
+          //     : null
           // console.log('new storecodes', newNumberOfRangeStores)
           return {
             itemNumber: item.min !== 'NA' ? item.min : null,
@@ -7540,7 +7620,7 @@ function DelistsAddedToRange(props: any) {
             existingSupplier: item.existingSupplier,
             existingSupplierSite: item.existingSupplierSite,
             rangedStoresCurrent: item.currentnoofrangedstores,
-            rangedStoresNew: item.numberOfRangeStores, //newNumberOfRangeStores,
+            rangedStoresNew: item.numberOfRangeStores,
             currentVsNewStores: item.currentVersusNewStores,
             rangedStoresPercent: item.storesRangedCurrentVsProposed,
             shelfFillCurrent:
@@ -9948,6 +10028,7 @@ function DelistsAddedToRange(props: any) {
     initialSummaryCall()
     setFinalRangeState(false)
     setNewlyAddedTitle(false)
+    setShowErrorIcon(false)
     // setIsProgressLoader(true)
     // setRefreshClick(!refreshClick)
     // setIsProgressLoader(false)
@@ -10447,19 +10528,21 @@ function DelistsAddedToRange(props: any) {
         </Typography>
       </Grid>
       <Grid item container xl={5} lg={5} md={5} sm={5} xs={12} spacing={2}>
-        <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
-          <Button
-            color="primary"
-            disabled={xlslPlanogramimportedData.length === 0}
-            onClick={handlePlanogramClick}
-          >
-            Planogram Errors{' '}
-            <span style={{ color: 'red' }}>
-              {' '}
-              ({xlslPlanogramimportedData.length})
-            </span>
-          </Button>
-        </Grid>
+        {hideCT36() && (
+          <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
+            <Button
+              color="primary"
+              disabled={xlslPlanogramimportedData.length === 0}
+              onClick={handlePlanogramClick}
+            >
+              Planogram Errors{' '}
+              <span style={{ color: 'red' }}>
+                {' '}
+                ({xlslPlanogramimportedData.length})
+              </span>
+            </Button>
+          </Grid>
+        )}
         <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
           {/* <FormControl
             variant="outlined"
@@ -12104,6 +12187,7 @@ function DelistsAddedToRange(props: any) {
                   // className={classes.placeholderCountStyle}
                   style={{
                     width: small ? '88%' : '100%',
+                    height: '40px',
                   }}
                   value={placeholderCount}
                   onChange={(e: any) => {
@@ -13117,27 +13201,6 @@ function DelistsAddedToRange(props: any) {
               //       ? storeCodeLength + parseInt(item.numberOfRangeStores)
               //       : item.numberOfRangeStores
               //     : null
-
-              // let newNumberOfRangeStores = null
-
-              // let storeCodeArray =
-              //   storeCodeLength &&
-              //   storeCodeLength.filter(
-              //     (item1: any) => item1.storeMin === item.min
-              //   )
-              // if (storeCodeArray.length > -1) {
-              //   newNumberOfRangeStores =
-              //     item.numberOfRangeStores !== 'NA'
-              //       ? item.actionType === productDistributionDecreaseMin
-              //         ? storeCodeArray[0].storeLength -
-              //           parseInt(item.numberOfRangeStores)
-              //         : item.actionType === productDistributionIncreaseMin
-              //         ? storeCodeArray[0].storeLength +
-              //           parseInt(item.numberOfRangeStores)
-              //         : item.numberOfRangeStores
-              //       : null
-              // }
-
               // console.log('new storecodes', newNumberOfRangeStores)
               return {
                 itemNumber: item.min !== 'NA' ? item.min : null,
@@ -13189,7 +13252,7 @@ function DelistsAddedToRange(props: any) {
                 existingSupplier: item.existingSupplier,
                 existingSupplierSite: item.existingSupplierSite,
                 rangedStoresCurrent: item.currentnoofrangedstores,
-                rangedStoresNew: item.numberOfRangeStores, //newNumberOfRangeStores,
+                rangedStoresNew: item.numberOfRangeStores,
                 currentVsNewStores: item.currentVersusNewStores,
                 rangedStoresPercent: item.storesRangedCurrentVsProposed,
                 shelfFillCurrent:
@@ -13845,161 +13908,167 @@ function DelistsAddedToRange(props: any) {
             })}
           </DataTable>
         </Grid>
-        <Grid
-          item
-          container
-          xl={12}
-          lg={12}
-          md={12}
-          sm={12}
-          xs={12}
-          spacing={2}
-          style={{
-            alignItems: 'center',
-          }}
-        >
+        {hideCT36() && (
           <Grid
             item
             container
-            md={6}
+            xl={12}
+            lg={12}
+            md={12}
             sm={12}
             xs={12}
             spacing={2}
-            style={{ textAlign: 'center' }}
+            style={{
+              alignItems: 'center',
+            }}
           >
-            <Grid item xs={10} sm={5} style={{ textAlign: 'left' }}>
-              <Typography color="primary">
-                <AutocompleteSelect
-                  // isMulti={true}
-                  value={actionType}
-                  options={actionTypeOptions} //multipesri
-                  onChange={handleActionType}
-                  placeholder="--- Action Type ---"
-                />
-                {/* {storeCodePopup()} */}
-                {/* {actionTypeSelectRender()} */}
-              </Typography>
-            </Grid>
-            <Grid item xs={2} sm={2}>
-              <Tooltip
-                title={
-                  actionType ? (
-                    ''
-                  ) : (
-                    <Typography variant="caption">
-                      {"Please select the 'Action Type'."}
-                    </Typography>
-                  )
-                }
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleActionTypeDialogOpen}
-                  disabled={
-                    actionType && actionType.value === 'Multiple Selection'
-                      ? true
-                      : false
+            <Grid
+              item
+              container
+              md={6}
+              sm={12}
+              xs={12}
+              spacing={2}
+              style={{ textAlign: 'center' }}
+            >
+              <Grid item xs={10} sm={5} style={{ textAlign: 'left' }}>
+                <Typography color="primary">
+                  <AutocompleteSelect
+                    // isMulti={true}
+                    value={actionType}
+                    options={actionTypeOptions} //multipesri
+                    onChange={handleActionType}
+                    placeholder="--- Action Type ---"
+                  />
+                  {/* {storeCodePopup()} */}
+                  {/* {actionTypeSelectRender()} */}
+                </Typography>
+              </Grid>
+              <Grid item xs={2} sm={2}>
+                <Tooltip
+                  title={
+                    actionType ? (
+                      ''
+                    ) : (
+                      <Typography variant="caption">
+                        {"Please select the 'Action Type'."}
+                      </Typography>
+                    )
                   }
                 >
-                  Add
-                </Button>
-              </Tooltip>
-            </Grid>
-            <Grid item xl={1} lg={1} md={1} sm={1} xs={12}>
-              OR
-            </Grid>
-            <Grid item sm={3} xs={12}>
-              <Tooltip
-                title={
-                  actionType ? (
-                    ''
-                  ) : (
-                    <Typography variant="caption">
-                      {"Please select the 'Action Type'."}
-                    </Typography>
-                  )
-                }
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleUploadDialogOpen('uploadFile')}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleActionTypeDialogOpen}
+                    disabled={
+                      actionType && actionType.value === 'Multiple Selection'
+                        ? true
+                        : false
+                    }
+                  >
+                    Add
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item xl={1} lg={1} md={1} sm={1} xs={12}>
+                OR
+              </Grid>
+              <Grid item sm={3} xs={12}>
+                <Tooltip
+                  title={
+                    actionType ? (
+                      ''
+                    ) : (
+                      <Typography variant="caption">
+                        {"Please select the 'Action Type'."}
+                      </Typography>
+                    )
+                  }
                 >
-                  Upload File
-                </Button>
-              </Tooltip>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleUploadDialogOpen('uploadFile')}
+                  >
+                    Upload File
+                  </Button>
+                </Tooltip>
+              </Grid>
             </Grid>
-          </Grid>
-          <Grid
-            item
-            container
-            md={6}
-            sm={12}
-            xs={12}
-            spacing={1}
-            style={{ textAlign: 'center' }}
-          >
-            <Grid item sm={3} xs={12}>
-              <Button
-                // className="backButton"
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={handlePlaceholderDialogOpen}
-              >
-                <Typography variant="body2">Add Placeholder MIN/PIN</Typography>
-              </Button>
-            </Grid>
-            <Grid item sm={3} xs={12}>
-              <Tooltip
-                title={
-                  <Typography variant="caption">
-                    {`Replacement is not applicable for`}
-                    <br />
-                    {`New Product (MIN) & New Product (MIN) Placeholder`}
-                  </Typography>
-                }
-              >
+            <Grid
+              item
+              container
+              md={6}
+              sm={12}
+              xs={12}
+              spacing={1}
+              style={{ textAlign: 'center' }}
+            >
+              <Grid item sm={3} xs={12}>
                 <Button
                   // className="backButton"
                   variant="contained"
                   color="primary"
                   size="small"
-                  onClick={handleReplacemantAssociationDialogOpen}
-                  disabled={
-                    // taskId === 'CT06'
-                    //   ? true
-                    //   :
-                    selectedProductListItems.length > 0
-                      ? replacementCheck
-                      : true
-                  }
+                  onClick={handlePlaceholderDialogOpen}
+                  disabled={showErrorbelowCT26()}
                 >
                   <Typography variant="body2">
-                    Replacement Association
+                    Add Placeholder MIN/PIN
                   </Typography>
                 </Button>
-              </Tooltip>
-            </Grid>
-            <Grid item sm={3} xs={12}>
-              <Button variant="contained" color="primary">
-                <Typography variant="body2">Issue Delist Letter</Typography>
-              </Button>
-            </Grid>
-            <Grid item sm={3} xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleUploadDialogOpen('finalRangeUploadFile')}
-              >
-                <Typography variant="body2">
-                  Upload Final Range Distribution
-                </Typography>
-              </Button>
+              </Grid>
+              <Grid item sm={3} xs={12}>
+                <Tooltip
+                  title={
+                    <Typography variant="caption">
+                      {`Replacement is not applicable for`}
+                      <br />
+                      {`New Product (MIN) & New Product (MIN) Placeholder`}
+                    </Typography>
+                  }
+                >
+                  <Button
+                    // className="backButton"
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={handleReplacemantAssociationDialogOpen}
+                    disabled={
+                      // taskId === 'CT06'
+                      //   ? true
+                      //   :
+                      selectedProductListItems.length > 0
+                        ? replacementCheck
+                        : true
+                    }
+                  >
+                    <Typography variant="body2">
+                      Replacement Association
+                    </Typography>
+                  </Button>
+                </Tooltip>
+              </Grid>
+              <Grid item sm={3} xs={12}>
+                <Button variant="contained" color="primary">
+                  <Typography variant="body2">Issue Delist Letter</Typography>
+                </Button>
+              </Grid>
+              <Grid item sm={3} xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleUploadDialogOpen('finalRangeUploadFile')}
+                  disabled={!showErrorAboveCT26()}
+                >
+                  <Typography variant="body2">
+                    Upload Final Range Distribution
+                  </Typography>
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
+        )}
 
         {/* <Grid item
                     xl={12}
@@ -14061,27 +14130,31 @@ function DelistsAddedToRange(props: any) {
               style={{ textAlign: 'center' }}
               spacing={2}
             >
-              <Grid item xl={2} lg={2} md={2} sm={6} xs={12}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleProductListEdit}
-                  disabled={editButtonSupply}
-                  // disabled={selectedProductListItems.length > 0 ? false : true}
-                >
-                  Edit
-                </Button>
-              </Grid>
-              <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setRejectConfirm(true)}
-                  disabled={rejectDisabled()}
-                >
-                  Reject
-                </Button>
-              </Grid>
+              {hideCT36() && (
+                <Grid item xl={2} lg={2} md={2} sm={6} xs={12}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleProductListEdit}
+                    disabled={editButtonSupply}
+                    // disabled={selectedProductListItems.length > 0 ? false : true}
+                  >
+                    Edit
+                  </Button>
+                </Grid>
+              )}
+              {hideCT36() && (
+                <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setRejectConfirm(true)}
+                    disabled={rejectDisabled()}
+                  >
+                    Reject
+                  </Button>
+                </Grid>
+              )}
               <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
                 <Button
                   variant="contained"

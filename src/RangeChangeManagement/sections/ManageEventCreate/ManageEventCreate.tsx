@@ -239,6 +239,7 @@ function ManageEventCreate(props: any) {
   // const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
   const [referenceDocData, setReferenceDocData] = React.useState<any>()
   const [wrongExtn, setWrongExtn] = React.useState(false)
+  const [wrongExtnError, setWrongExtnError] = React.useState('')
   const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
     []
   )
@@ -1172,8 +1173,28 @@ function ManageEventCreate(props: any) {
   const handleFileUpload = (event: any) => {
     console.log(event.target.files)
     // setWrongExtn(false)
-    setReferenceDocData(event.target.files[0])
-    setUploadedFile(event.target.files[0])
+    const checkextension = event.target.files[0]
+      ? new RegExp(
+          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+          'i'
+        ).test(event.target.files[0].name)
+      : false
+    const fileSize = event.target.files[0].size / 1024 / 1024
+    if (
+      (!checkextension || event.target.files[0].size === 0 || fileSize > 5) &&
+      event.target.files[0]
+    ) {
+      setUploadedFile(null)
+      setReferenceDocData(null)
+      setWrongExtn(true)
+      setWrongExtnError(allMessages.error.invalidExtension)
+    } else {
+      setReferenceDocData(event.target.files[0])
+      setUploadedFile(event.target.files[0])
+      setWrongExtn(false)
+      setWrongExtnError('')
+    }
+
     // for (let i = 0; i < event.target.files.length; i++) {
     //   const checkextension = event.target.files[i]
     //     ? new RegExp(
@@ -1276,6 +1297,11 @@ function ManageEventCreate(props: any) {
             >
               Browse...
             </button>
+            {wrongExtn && (
+              <span className={classes.errorMessageColor}>
+                {wrongExtnError}
+              </span>
+            )}
           </Box>
         </Box>
         <Box
