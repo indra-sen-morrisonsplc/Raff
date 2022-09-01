@@ -12935,7 +12935,7 @@ function DelistsAddedToRange(props: any) {
         formdata1.append('fileIn', completeTaskUploadedFile)
         // formdata1.append('fileIn', rf.data)
         postFileAttachmentRangeResetAPI &&
-          postFileAttachmentRangeResetAPI(formdata1, eventDetails[0].eventId)
+          postFileAttachmentRangeResetAPI(formdata1, eventDetails[0].id)
             .then((res: any) => {
               console.log('1')
               console.log('attachment', res.data.attachmentUrl)
@@ -12986,6 +12986,107 @@ function DelistsAddedToRange(props: any) {
         })
     }
   }
+
+  const completeTaskCT36Dialog = (
+    <Dialog
+      open={completeTaskDialogOpen}
+      onClose={handleCompleteTaskDialogClose}
+    >
+      <Box
+        sx={{
+          height: 450,
+          // width: 'auto',
+          p: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+        // className={classes.classDialog}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <DialogHeader
+            title="Confirm ‘Review Store Wastage’"
+            onClose={handleCompleteTaskDialogClose}
+          />
+          <Box
+            sx={{
+              alignItems: 'flex-start',
+              marginTop: '30px',
+            }}
+          >
+            <strong>Comments</strong> <br />
+            <InputTextarea
+              maxLength={500}
+              value={inputTextareaValue}
+              onChange={(e) => setInputTextareaValue(e.target.value)}
+              rows={3}
+              cols={43}
+              autoResize
+            />
+            <br />
+            <strong>Upload Reference Document</strong>
+            <input
+              type="text"
+              value={
+                completeTaskUploadedFile ? completeTaskUploadedFile.name : ''
+              }
+              onClick={() =>
+                document.getElementById('completeTaskFile')!.click()
+              }
+              className={classes.uploadTextfield}
+              placeholder="Upload relevant reference document"
+              readOnly
+            />
+            <Input
+              type="file"
+              id="completeTaskFile"
+              // accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              onChange={(e: any) =>
+                setCompleteTaskUploadedFile(e.target.files[0])
+              }
+              required
+            />
+            <button
+              type="button"
+              onClick={() =>
+                document.getElementById('completeTaskFile')!.click()
+              }
+              className={classes.uploadButton}
+            >
+              Browse...
+            </button>
+            {/* {wrongExtn && (
+              <span className={classes.errorMessageColor}>
+                {wrongExtnError}
+              </span>
+            )} */}
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'end',
+          }}
+        >
+          <Button
+            // type="submit"
+            variant="contained"
+            color="primary"
+            // className={classes.buttons}
+            // onClick={handleClassConfirm}
+            onClick={completeTaskWithRefDoc}
+          >
+            Confirm
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
+  )
 
   const completeTaskFormData = () => {
     const completePayload = {
@@ -14213,6 +14314,7 @@ function DelistsAddedToRange(props: any) {
       {confirmUpdateDialog}
       {planogramShowErrorsDialog}
       {errorPlanoDialog}
+      {completeTaskCT36Dialog}
     </>
   )
 }
