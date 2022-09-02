@@ -342,6 +342,7 @@ function DelistsAddedToRange(props: any) {
   const [storeCodeFetchError, setStoreCodeFetchError] = useState<any>(false)
   const [storeCodeLength, setStoreCodeLength] = useState<any>()
   const [newStoreViewData, setNewStoreViewData] = useState<any>()
+  const [stockCountRequestOpen, setStockCountRequestOpen] = useState<any>(false)
 
   let taskName = 'CT36'
 
@@ -4829,6 +4830,40 @@ function DelistsAddedToRange(props: any) {
     />
   )
 
+  const handleBulkStockCountRequest = () => {
+    let filtered = selectedProductListItems.filter(
+      (rowData: any) =>
+        rowData.actionType === delistProductMin ||
+        rowData.actionType === productDistributionDecreaseMin
+    )
+    filtered.map((rowData: any) => {
+      setImportedData((prevState: any) => {
+        return onChangeProductTableFields(
+          prevState,
+          'lineStatus',
+          rowData,
+          'Request For Stock Count'
+        )
+      })
+    })
+    setBulkActions(null)
+  }
+
+  const confirmBulkStockCountRequestDialog = (
+    <ConfirmBox
+      cancelOpen={stockCountRequestOpen}
+      handleCancel={() => {
+        setStockCountRequestOpen(false)
+        setBulkActions(null)
+      }}
+      handleProceed={handleBulkStockCountRequest}
+      label1="Confirm 'Stock Count Requested'"
+      label2={
+        "Are you sure you want to change status to 'Stock Count Requested'? Only 'Delist MIN' and 'Product Distribution Decrease' can be changed"
+      }
+    />
+  )
+
   useEffect(() => {
     if (
       selectedProductListItems &&
@@ -4868,17 +4903,18 @@ function DelistsAddedToRange(props: any) {
       } else if (
         bulkActions.value === bulkActionTypes.stockCountRequestAction
       ) {
-        selectedProductListItems.map((rowData: any) => {
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'lineStatus',
-              rowData,
-              'Request For Stock Count'
-            )
-          })
-        })
-        setBulkActions(null)
+        setStockCountRequestOpen(true)
+        // selectedProductListItems.map((rowData: any) => {
+        //   setImportedData((prevState: any) => {
+        //     return onChangeProductTableFields(
+        //       prevState,
+        //       'lineStatus',
+        //       rowData,
+        //       'Request For Stock Count'
+        //     )
+        //   })
+        // })
+        // setBulkActions(null)
       } else if (bulkActions.value === 'Cancelled') {
         setCancelBulkActionOpen(true)
       } else if (bulkActions.value === bulkActionTypes.deleteAction) {
@@ -7504,7 +7540,10 @@ function DelistsAddedToRange(props: any) {
   }
 
   const hideCT36 = () => {
-    if (rafpendingActionDetailsCT06.taskName === 'CT36') {
+    if (
+      rafpendingActionDetailsCT06 &&
+      rafpendingActionDetailsCT06.taskName === 'CT36'
+    ) {
       return false
     } else {
       return true
@@ -14315,6 +14354,7 @@ function DelistsAddedToRange(props: any) {
       {planogramShowErrorsDialog}
       {errorPlanoDialog}
       {completeTaskCT36Dialog}
+      {confirmBulkStockCountRequestDialog}
     </>
   )
 }
