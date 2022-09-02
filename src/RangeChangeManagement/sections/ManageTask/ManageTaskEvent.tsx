@@ -475,7 +475,21 @@ function ManageTaskEvent(props: any) {
         // }
       })
       .catch((err: any) => {
-        console.log(err)
+        console.log('err', err.response)
+        let errStatus = err.response && err.response.status
+        let errMsg =
+          err.response && err.response.data && err.response.data.errorMessage
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error!',
+          // detail: err.response.data.errorMessage,
+          detail:
+            errStatus && errMsg
+              ? `${errStatus}: ${errMsg}`
+              : 'Range Reset Service Error',
+          life: life,
+          className: 'login-toast',
+        })
         if (fileData.length > 0) {
           setFetchRangeResets(fileData)
           setConfirmtable(true)

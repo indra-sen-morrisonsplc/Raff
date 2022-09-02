@@ -1126,41 +1126,95 @@ function CreateEvent(props: any) {
   // }, [storeWasteProcess])
 
   useEffect(() => {
-    getResetTypes().then((res: any) => {
-      const options = res.data.map((item: any) => {
-        return {
-          value: item.configValue,
-          label: item.configValue,
-        }
+    getResetTypes()
+      .then((res: any) => {
+        const options = res.data.map((item: any) => {
+          return {
+            value: item.configValue,
+            label: item.configValue,
+          }
+        })
+        setResetOptions(options)
       })
-      setResetOptions(options)
-    })
+      .catch((err: any) => {
+        console.log(err.response)
+        let errStatus = err.response && err.response.status
+        let errMsg =
+          err.response && err.response.data && err.response.data.errorMessage
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error!',
+          // detail: err.response.data.errorMessage,
+          detail:
+            errStatus && errMsg
+              ? `${errStatus}: ${errMsg}`
+              : 'Event Reset Types',
+          life: life,
+          className: 'login-toast',
+        })
+      })
   }, [])
 
   useEffect(() => {
-    getPlanogramClasses().then((res: any) => {
-      const options = res.data.map((item: any) => {
-        return {
-          value: item.configValue,
-          label: item.configValue,
-        }
+    getPlanogramClasses()
+      .then((res: any) => {
+        const options = res.data.map((item: any) => {
+          return {
+            value: item.configValue,
+            label: item.configValue,
+          }
+        })
+        setClassOptions(options)
       })
-      setClassOptions(options)
-    })
+      .catch((err: any) => {
+        console.log(err.response)
+        let errStatus = err.response && err.response.status
+        let errMsg =
+          err.response && err.response.data && err.response.data.errorMessage
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error!',
+          // detail: err.response.data.errorMessage,
+          detail:
+            errStatus && errMsg
+              ? `${errStatus}: ${errMsg}`
+              : 'Planogram Classes',
+          life: life,
+          className: 'login-toast',
+        })
+      })
   }, [])
 
   useEffect(() => {
-    getWastageRanges().then((res: any) => {
-      const options = res.data.map((item: any) => {
-        return {
-          value: item.configValue,
-          label: item.configDescription,
-        }
-      })
+    getWastageRanges()
+      .then((res: any) => {
+        const options = res.data.map((item: any) => {
+          return {
+            value: item.configValue,
+            label: item.configDescription,
+          }
+        })
 
-      setWastageRanges(options)
-      // setStoreWasteProcess(options[0])
-    })
+        setWastageRanges(options)
+        // setStoreWasteProcess(options[0])
+      })
+      .catch((err: any) => {
+        console.log(err.response)
+        let errStatus = err.response && err.response.status
+        let errMsg =
+          err.response && err.response.data && err.response.data.errorMessage
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error!',
+          // detail: err.response.data.errorMessage,
+          detail:
+            errStatus && errMsg
+              ? `${errStatus}: ${errMsg}`
+              : 'Product Wastage Ranges',
+          life: life,
+          className: 'login-toast',
+        })
+      })
   }, [])
 
   useEffect(() => {
@@ -1181,7 +1235,24 @@ function CreateEvent(props: any) {
           setGroupOptions(list)
           // console.log(groupList)
         })
-        .catch((err: any) => setGroupOptions([]))
+        .catch((err: any) => {
+          setGroupOptions([])
+          console.log(err.response)
+          let errStatus = err.response && err.response.status
+          let errMsg =
+            err.response && err.response.data && err.response.data.errorMessage
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            // detail: err.response.data.errorMessage,
+            detail:
+              errStatus && errMsg
+                ? `${errStatus}: ${errMsg}`
+                : 'Product Hierarchy - Trading Group',
+            life: life,
+            className: 'login-toast',
+          })
+        })
   }, [])
 
   useEffect(() => {
@@ -1212,7 +1283,24 @@ function CreateEvent(props: any) {
           //     categoryList.filter((cat: any) => cat.groupId === group.id)
           //   )
         })
-        .catch((err: any) => setCategoryOptions([]))
+        .catch((err: any) => {
+          setCategoryOptions([])
+          console.log(err.response)
+          let errStatus = err.response && err.response.status
+          let errMsg =
+            err.response && err.response.data && err.response.data.errorMessage
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            // detail: err.response.data.errorMessage,
+            detail:
+              errStatus && errMsg
+                ? `${errStatus}: ${errMsg}`
+                : 'Product Hierarchy - Categories',
+            life: life,
+            className: 'login-toast',
+          })
+        })
   }, [group])
 
   useEffect(() => {
@@ -1254,6 +1342,23 @@ function CreateEvent(props: any) {
           .catch((err: any) => {
             setDepartmentOptions([])
             // setLoaded(true)
+            console.log(err.response)
+            let errStatus = err.response && err.response.status
+            let errMsg =
+              err.response &&
+              err.response.data &&
+              err.response.data.errorMessage
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              // detail: err.response.data.errorMessage,
+              detail:
+                errStatus && errMsg
+                  ? `${errStatus}: ${errMsg}`
+                  : 'Product Hierarchy - Departments',
+              life: life,
+              className: 'login-toast',
+            })
           })
     }
   }, [category])
