@@ -1753,6 +1753,17 @@ function DelistsAddedToRange(props: any) {
           <Select
             value={rowData && rowData.actionType}
             onChange={(e: any) => {
+              // console.log('place change', rowData.min, rowData.min.charAt(0))
+              // if (rowData.min.charAt(0) === '5' || rowData.min === '') {
+              //   toast.current.show({
+              //     severity: 'error',
+              //     summary: 'Error',
+              //     detail: 'Cannot change type of Item',
+              //     life: life,
+              //     className: 'login-toast',
+              //   })
+              //   return
+              // } else {
               setImportedData((prevState: any) => {
                 // return onChangeProductTableFields(
                 //   prevState,
@@ -1776,6 +1787,7 @@ function DelistsAddedToRange(props: any) {
                   )
                 }
               })
+              // }
             }}
             input={
               <OutlinedInput margin="dense" className={classes.muiSelect} />
@@ -1802,6 +1814,17 @@ function DelistsAddedToRange(props: any) {
           <Select
             value={rowData && rowData.actionType}
             onChange={(e: any) => {
+              // console.log('place change', rowData.min, rowData.min.charAt(0))
+              // if (rowData.min.charAt(0) === '5' || rowData.min === '') {
+              //   toast.current.show({
+              //     severity: 'error',
+              //     summary: 'Error',
+              //     detail: 'Cannot change type of Item',
+              //     life: life,
+              //     className: 'login-toast',
+              //   })
+              //   return
+              // } else {
               setImportedData((prevState: any) => {
                 // return onChangeProductTableFields(
                 //   prevState,
@@ -1825,6 +1848,7 @@ function DelistsAddedToRange(props: any) {
                   )
                 }
               })
+              // }
             }}
             input={
               <OutlinedInput margin="dense" className={classes.muiSelect} />
@@ -1929,11 +1953,49 @@ function DelistsAddedToRange(props: any) {
         input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
       >
         {lineStatusOptions.map((type) => {
-          return (
-            <MenuItem value={type.value} key={type.value}>
-              {type.label}
-            </MenuItem>
-          )
+          if (
+            rowData.actionType === delistProductMin ||
+            rowData.actionType === productDistributionDecreaseMin
+          ) {
+            if (
+              rowData.lineStatus === 'Request For Stock Count' ||
+              rowData.lineStatus === bulkActionTypes.confirmedAction
+            ) {
+              return (
+                <MenuItem value={type.value} key={type.value}>
+                  {type.label}
+                </MenuItem>
+              )
+            } else {
+              if (type.value === bulkActionTypes.cancelAction) {
+                return (
+                  <MenuItem value={type.value} key={type.value} disabled>
+                    {type.label}
+                  </MenuItem>
+                )
+              } else {
+                return (
+                  <MenuItem value={type.value} key={type.value}>
+                    {type.label}
+                  </MenuItem>
+                )
+              }
+            }
+          } else {
+            if (type.value === 'Request For Stock Count') {
+              return (
+                <MenuItem value={type.value} key={type.value} disabled>
+                  {type.label}
+                </MenuItem>
+              )
+            } else {
+              return (
+                <MenuItem value={type.value} key={type.value}>
+                  {type.label}
+                </MenuItem>
+              )
+            }
+          }
         })}
       </Select>
     )
@@ -10677,7 +10739,7 @@ function DelistsAddedToRange(props: any) {
                   )}
                   body={
                     col.field === 'includeInStoreWastage' &&
-                    includeInStoreWastageTemplate
+                    CT36IncludeInStoreWastageTemplate
                   }
                   sortable
                 />

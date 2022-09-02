@@ -276,7 +276,7 @@ export const productListCols = [
   {
     field: 'actionType',
     header: 'Action/ Type',
-    width: '100px',
+    width: '200px',
   },
   {
     field: 'lineStatus',
