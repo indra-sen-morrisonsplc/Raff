@@ -509,6 +509,88 @@ function DelistsAddedToRange(props: any) {
   // getRangeByIdAndMinNumber('3400', '@all')
   // getRangeByIdAndMinNumber('1304', '@all')
   // getRangeByIdAndMinNumber(rafpendingActionDetailsCT06.eventId, '@all')
+
+  const supplerNameBySupplierCode = (
+    suppliercode: any,
+    minNumber: any,
+    initalData: any
+  ) => {
+    const importData = initalData && [...initalData]
+    let index = importData.findIndex((data: any) => data.min === minNumber)
+    console.log('suppliercode', suppliercode)
+    if (suppliercode === null || suppliercode === undefined) {
+      return ''
+    }
+    let existingSupplier: any = ''
+    if (index !== -1) {
+      suppliercode &&
+        getSupplierServiceBySupplierId(suppliercode)
+          .then((res: any) => {
+            console.log('LoadSupplierSuccess', res)
+
+            setImportedData((prevState: any) => {
+              importData[index].existingSupplier = res.data.supplierName
+              importData[index].existingSupplierSite = suppliercode
+              return importData
+            })
+
+            // existingSupplier = res.data.supplierName
+            // return res.data.supplierName
+          })
+          .catch((err: any) => {
+            // existingSupplier = 'NoSupplierFound'
+
+            setImportedData((prevState: any) => {
+              importData[index].existingSupplier = ''
+              importData[index].existingSupplierSite = suppliercode
+              console.log('LoadSupplierError', err)
+              //   toast.current.show({
+              //   severity: 'error',
+              //   summary: 'Error',
+              //   detail: suppliercode + ' No Supplier Name Error',
+              //   life: life,
+              //   className: 'login-toast',
+              // })
+              return importData
+            })
+
+            // console.log('LoadSupplierError', err)
+            // toast.current.show({
+            //   severity: 'error',
+            //   summary: 'Error',
+            //   detail: suppliercode + ' No Supplier Name Error',
+            //   life: life,
+            //   className: 'login-toast',
+            // })
+            // return existingSupplier
+          })
+    }
+  }
+
+  const initalLoadSummaryGetSupplierNameByCode = (data: any) => {
+    console.log('SummaryData', data)
+    let supplierName: any = ''
+    let updateImportedData = data && [...data]
+    updateImportedData &&
+      updateImportedData.map((item: any) => {
+        if (item && item.primaryOrder && item.primaryOrder.supplierId) {
+          // summary
+          supplerNameBySupplierCode(
+            item.primaryOrder.supplierId,
+            item.min,
+            updateImportedData
+          )
+        } else {
+          // service
+          supplerNameBySupplierCode(
+            item.existingSupplierSite,
+            item.min,
+            updateImportedData
+          )
+        }
+      })
+  }
+
   const initialSummaryCall = () => {
     setDisplayManualErrors(false)
     setFinalRangeState(false)
@@ -776,29 +858,6 @@ function DelistsAddedToRange(props: any) {
           setImportedData(null)
           setIsProgressLoader(false)
         })
-  }
-  const initalLoadSummaryGetSupplierNameByCode = (data: any) => {
-    console.log('SummaryData', data)
-    let supplierName: any = ''
-    let updateImportedData = data && [...data]
-    updateImportedData &&
-      updateImportedData.map((item: any) => {
-        if (item.primaryOrder.supplierId) {
-          // summary
-          supplerNameBySupplierCode(
-            item.primaryOrder.supplierId,
-            item.min,
-            updateImportedData
-          )
-        } else {
-          // service
-          supplerNameBySupplierCode(
-            item.existingSupplierSite,
-            item.min,
-            updateImportedData
-          )
-        }
-      })
   }
 
   useEffect(() => {
@@ -6866,63 +6925,6 @@ function DelistsAddedToRange(props: any) {
     // setFinalRangeState(false)
   }
 
-  const supplerNameBySupplierCode = (
-    suppliercode: any,
-    minNumber: any,
-    initalData: any
-  ) => {
-    const importData = initalData && [...initalData]
-    let index = importData.findIndex((data: any) => data.min === minNumber)
-    console.log('suppliercode', suppliercode)
-    if (suppliercode === null || suppliercode === undefined) {
-      return ''
-    }
-    let existingSupplier: any = ''
-    if (index !== -1) {
-      suppliercode &&
-        getSupplierServiceBySupplierId(suppliercode)
-          .then((res: any) => {
-            console.log('LoadSupplierSuccess', res)
-
-            setImportedData((prevState: any) => {
-              importData[index].existingSupplier = res.data.supplierName
-              importData[index].existingSupplierSite = suppliercode
-              return importData
-            })
-
-            // existingSupplier = res.data.supplierName
-            // return res.data.supplierName
-          })
-          .catch((err: any) => {
-            // existingSupplier = 'NoSupplierFound'
-
-            setImportedData((prevState: any) => {
-              importData[index].existingSupplier = ''
-              importData[index].existingSupplierSite = suppliercode
-              console.log('LoadSupplierError', err)
-              //   toast.current.show({
-              //   severity: 'error',
-              //   summary: 'Error',
-              //   detail: suppliercode + ' No Supplier Name Error',
-              //   life: life,
-              //   className: 'login-toast',
-              // })
-              return importData
-            })
-
-            // console.log('LoadSupplierError', err)
-            // toast.current.show({
-            //   severity: 'error',
-            //   summary: 'Error',
-            //   detail: suppliercode + ' No Supplier Name Error',
-            //   life: life,
-            //   className: 'login-toast',
-            // })
-            // return existingSupplier
-          })
-    }
-  }
-
   useEffect(() => {
     console.log('importedData', newImportedData, updateImported)
     if (updateImported.length > 0 || newImportedData.length > 0) {
@@ -7012,54 +7014,54 @@ function DelistsAddedToRange(props: any) {
           return
         }
 
-        if (
-          eventDetails &&
-          eventDetails[0].tradeGroup !==
-            values[0].value.data.reportingHierarchy.groupName
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafTradingGroupError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
-        if (
-          eventDetails &&
-          eventDetails[0].categoryId &&
-          eventDetails[0].categoryId.toString() !==
-            values[0].value.data.reportingHierarchy.category
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafCategoryError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].tradeGroup !==
+        //     values[0].value.data.reportingHierarchy.groupName
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafTradingGroupError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].categoryId &&
+        //   eventDetails[0].categoryId.toString() !==
+        //     values[0].value.data.reportingHierarchy.category
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafCategoryError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
 
-        if (
-          eventDetails &&
-          eventDetails[0].departmentId &&
-          eventDetails[0].departmentId.toString() !==
-            values[0].value.data.reportingHierarchy.department
-        ) {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: allMessages.error.RafDepartmentError,
-            life: life,
-            className: 'login-toast',
-          })
-          return
-        }
+        // if (
+        //   eventDetails &&
+        //   eventDetails[0].departmentId &&
+        //   eventDetails[0].departmentId.toString() !==
+        //     values[0].value.data.reportingHierarchy.department
+        // ) {
+        //   setIsProgressLoader(false)
+        //   toast.current.show({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: allMessages.error.RafDepartmentError,
+        //     life: life,
+        //     className: 'login-toast',
+        //   })
+        //   return
+        // }
 
         if (
           (actionType.value === delistProductMin ||
